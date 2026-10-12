@@ -1,0 +1,109 @@
+version: "3.9"
+
+# =============================================================================
+# DIU CyberCon 2026 — Local Development Services
+# =============================================================================
+# Usage:
+#   Start:   docker compose up -d
+#   Stop:    docker compose down
+#   Reset:   docker compose down -v   (WARNING: destroys all data)
+#   Logs:    docker compose logs -f
+#   Shell:   docker compose exec postgres psql -U cybercon -d cybercon_2026
+# =============================================================================
+
+services:
+
+  # ─── PostgreSQL 16 ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: cybercon_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cybercon
+      POSTGRES_PASSWORD: cybercon_dev
+      POSTGRES_DB: cybercon_2026
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+      # Performance tuning for dev
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    ports:
+      # Host port 5433 — 5432 may already be taken by other local projects.
+      # Matches DATABASE_URL / DIRECT_DATABASE_URL in .env.local
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cybercon -d cybercon_2026"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - cybercon_network
+
+  # ─── Redis 7 (for rate limiting + session caching) ──────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: cybercon_redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass cybercon_redis_dev
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1
+      --loglevel warning
+    ports:
+      # Host port 6380 — 6379 may already be taken by other local projects.
+      # Matches REDIS_URL in .env.local
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "cybercon_redis_dev", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - cybercon_network
+
+  # ─── pgAdmin 4 (optional DB GUI) ─────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cybercon_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@cybercon.dev
+      PGADMIN_DEFAULT_PASSWORD: pgadmin_dev
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cybercon_network
+    profiles:
+      # Only start pgadmin when explicitly requested:
+      # docker compose --profile tools up -d
+      - tools
+
+# ─── Volumes ────────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# ─── Networks ───────────────────────────────────────────────────────────────────
+networks:
+  cybercon_network:
+    driver: bridge
+    name: cybercon_network

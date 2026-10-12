@@ -1,0 +1,69 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+
+# Environment files — NEVER commit secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Prisma generated
+prisma/generated/
+
+# Uploads (local dev only — use cloud storage in production)
+uploads/
+public/uploads/
+
+# Private storage — sensitive uploads (student IDs). NEVER commit.
+.private-storage/
+
+# E2E harness artifacts — session cookie jars, test docs, fixtures. NEVER commit.
+.e2e/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Testing
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Turbopack
+.turbo/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+ehthumbs.db
+Desktop.ini

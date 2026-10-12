@@ -1,0 +1,582 @@
+/* =============================================================================
+   DIU CyberCon 2026 — Global Styles
+   Design system CSS custom properties + base styles + utility classes
+   ============================================================================= */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   Single source of truth — mirrors tailwind.config.ts
+   ============================================================================= */
+
+:root {
+  /* ── Canvas & surfaces ───────────────────────────────────────────────── */
+  --bg-deep: #05070d;
+  --bg-surface: #0a0f18;
+  --bg-panel: #0f1622;
+  --bg-elevated: #141d2e;
+
+  /* ── Borders ─────────────────────────────────────────────────────────── */
+  --border: #1f2937;
+  --border-subtle: #131b27;
+  --border-bright: #2d3f55;
+
+  /* ── Accents ─────────────────────────────────────────────────────────── */
+  --cyan: #00e5ff;
+  --neon: #39ff14;
+  --violet: #7c3aed;
+  --pink: #ff2e88;
+  --amber: #ffb020;
+
+  /* ── Text ────────────────────────────────────────────────────────────── */
+  --text-primary: #e6edf3;
+  --text-muted: #8b949e;
+  --text-faint: #4d5966;
+
+  /* ── Typography ──────────────────────────────────────────────────────── */
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "Courier New", monospace;
+
+  /* ── Motion ──────────────────────────────────────────────────────────── */
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-expo-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Radii ───────────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Grid ────────────────────────────────────────────────────────────── */
+  --grid-size: 60px;
+  --grid-opacity: 0.045;
+
+  /* ── Navbar height ───────────────────────────────────────────────────── */
+  --navbar-height: 72px;
+  --announcement-height: 36px;
+}
+
+/* =============================================================================
+   BASE LAYER
+   ============================================================================= */
+
+@layer base {
+  /* ── Document defaults ───────────────────────────────────────────────── */
+  html {
+    font-family: var(--font-body);
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-padding-top: calc(
+      var(--navbar-height) + var(--announcement-height) + 16px
+    );
+  }
+
+  /* Respect reduced motion for scroll */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Preloader pre-hydration gate.
+     The root layout runs an inline script that adds `dc-preloaded` when the
+     boot sequence should be skipped (repeat visit in the session, or
+     prefers-reduced-motion). This rule keeps the SSR-rendered overlay from
+     ever painting in those cases — no flash before hydration. */
+  html.dc-preloaded #dc-preloader {
+    display: none !important;
+  }
+
+  body {
+    background-color: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* ── Typography defaults ─────────────────────────────────────────────── */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ── Focus ring — never remove, always replace ───────────────────────── */
+  :focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ── Links ───────────────────────────────────────────────────────────── */
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 250ms var(--ease-expo-out);
+  }
+
+  /* ── Images ──────────────────────────────────────────────────────────── */
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* ── Form elements ───────────────────────────────────────────────────── */
+  input,
+  textarea,
+  select {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-faint);
+  }
+
+  /* ── Scrollbar (Webkit) ──────────────────────────────────────────────── */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-bright);
+    border-radius: var(--radius-full);
+    transition: background 250ms;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 229, 255, 0.4);
+  }
+
+  /* ── Selection ───────────────────────────────────────────────────────── */
+  ::selection {
+    background-color: rgba(0, 229, 255, 0.2);
+    color: var(--cyan);
+  }
+
+  /* ── Code blocks ─────────────────────────────────────────────────────── */
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  /* ── Horizontal rule ─────────────────────────────────────────────────── */
+  hr {
+    border-color: var(--border);
+    border-top-width: 1px;
+  }
+
+  /* ── Table defaults ──────────────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+}
+
+/* =============================================================================
+   COMPONENT LAYER
+   ============================================================================= */
+
+@layer components {
+  /* ── Section wrapper ─────────────────────────────────────────────────── */
+  .section {
+    @apply relative py-16 md:py-24 lg:py-32;
+  }
+
+  .section-inner {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Section heading pattern ─────────────────────────────────────────── */
+  .section-label {
+    @apply font-mono text-micro uppercase tracking-widest text-cyan mb-4 flex items-center gap-2;
+  }
+
+  .section-label::before {
+    content: "";
+    @apply block w-8 h-px bg-cyan opacity-60;
+  }
+
+  /* ── Grid background overlay ─────────────────────────────────────────── */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(0, 229, 255, var(--grid-opacity)) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 229, 255, var(--grid-opacity)) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+  }
+
+  /* ── Noise overlay ────────────────────────────────────────────────────── */
+  .bg-noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    z-index: 1;
+  }
+
+  /* ── Gradient fade edges ─────────────────────────────────────────────── */
+  .fade-edge-bottom {
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  }
+
+  .fade-edge-top {
+    mask-image: linear-gradient(to top, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  }
+
+  /* ── Glowing divider line ─────────────────────────────────────────────── */
+  .divider-glow {
+    @apply h-px w-full;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 229, 255, 0.4) 30%,
+      rgba(0, 229, 255, 0.6) 50%,
+      rgba(0, 229, 255, 0.4) 70%,
+      transparent 100%
+    );
+  }
+
+  /* ── Terminal window frame ────────────────────────────────────────────── */
+  .terminal-window {
+    @apply bg-bg-panel rounded-md border border-border overflow-hidden;
+  }
+
+  .terminal-header {
+    @apply flex items-center gap-2 px-4 py-3 border-b border-border bg-bg-elevated;
+  }
+
+  .terminal-dot {
+    @apply w-3 h-3 rounded-full;
+  }
+
+  .terminal-title {
+    @apply font-mono text-xs text-text-muted ml-2;
+  }
+
+  .terminal-body {
+    @apply p-4 font-mono text-sm text-cyan leading-relaxed;
+  }
+
+  /* ── Badge variants ──────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-micro uppercase tracking-widest font-bold;
+  }
+
+  .badge-cyan {
+    @apply badge bg-cyan/10 text-cyan border border-cyan/20;
+  }
+
+  .badge-neon {
+    @apply badge bg-neon/10 text-neon border border-neon/20;
+  }
+
+  .badge-violet {
+    @apply badge bg-violet/10 text-violet border border-violet/20;
+  }
+
+  .badge-pink {
+    @apply badge bg-pink/10 text-pink border border-pink/20;
+  }
+
+  .badge-amber {
+    @apply badge bg-amber/10 text-amber border border-amber/20;
+  }
+
+  .badge-muted {
+    @apply badge bg-border/40 text-text-muted border border-border;
+  }
+
+  /* ── Verification status badges ──────────────────────────────────────── */
+  .status-pending { @apply badge-amber; }
+  .status-verified { @apply badge-neon; }
+  .status-rejected { @apply badge-pink; }
+  .status-revision { @apply badge-violet; }
+
+  /* ── Card base ───────────────────────────────────────────────────────── */
+  .card {
+    @apply relative bg-bg-panel border border-border rounded-lg overflow-hidden;
+    @apply transition-all duration-400;
+    transition-timing-function: var(--ease-expo-out);
+  }
+
+  .card-hover {
+    @apply card;
+    &:hover {
+      @apply border-cyan/30 shadow-card-hover;
+      transform: translateY(-4px);
+    }
+  }
+
+  /* ── Form input base ─────────────────────────────────────────────────── */
+  .input-base {
+    @apply w-full bg-bg-elevated border border-border rounded-md px-4 py-3;
+    @apply text-text-primary placeholder:text-text-faint;
+    @apply font-body text-sm;
+    @apply transition-all duration-250;
+    @apply focus:outline-none focus:border-cyan focus:shadow-glow-cyan-sm focus:ring-0;
+    transition-timing-function: var(--ease-expo-out);
+  }
+
+  .input-error {
+    @apply border-pink/60 focus:border-pink focus:shadow-glow-pink;
+  }
+
+  /* ── Stat counter ────────────────────────────────────────────────────── */
+  .stat-number {
+    @apply font-display font-extrabold text-text-primary;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Cyber button ────────────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply font-mono font-bold uppercase tracking-wider;
+    @apply rounded-md border transition-all duration-250 cursor-pointer;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-deep;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply select-none;
+    transition-timing-function: var(--ease-expo-out);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+  }
+
+  .btn-primary {
+    @apply btn bg-cyan text-bg-deep border-cyan;
+    @apply hover:shadow-glow-cyan hover:bg-cyan/90 focus-visible:ring-cyan;
+    @apply active:scale-[0.97];
+  }
+
+  .btn-secondary {
+    @apply btn bg-transparent text-cyan border-cyan/40;
+    @apply hover:border-cyan hover:shadow-glow-cyan-sm hover:bg-cyan/5;
+    @apply focus-visible:ring-cyan;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-text-muted border-transparent;
+    @apply hover:text-text-primary hover:bg-bg-elevated hover:border-border;
+    @apply focus-visible:ring-border;
+  }
+
+  .btn-danger {
+    @apply btn bg-transparent text-pink border-pink/40;
+    @apply hover:border-pink hover:shadow-glow-pink hover:bg-pink/5;
+    @apply focus-visible:ring-pink;
+  }
+
+  .btn-neon {
+    @apply btn bg-neon text-bg-deep border-neon;
+    @apply hover:shadow-glow-neon hover:bg-neon/90 focus-visible:ring-neon;
+    @apply active:scale-[0.97];
+  }
+
+  /* ── Loading spinner ─────────────────────────────────────────────────── */
+  .spinner {
+    @apply inline-block rounded-full border-2 border-border border-t-cyan animate-spin;
+  }
+
+  .spinner-sm { @apply spinner w-4 h-4; }
+  .spinner-md { @apply spinner w-6 h-6; }
+  .spinner-lg { @apply spinner w-8 h-8; }
+
+  /* ── Skeleton shimmer ────────────────────────────────────────────────── */
+  .skeleton {
+    @apply bg-bg-elevated rounded-md overflow-hidden relative;
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(0, 229, 255, 0.04) 50%,
+      transparent 100%
+    );
+    background-size: 200% auto;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* ── Live indicator ──────────────────────────────────────────────────── */
+  .live-dot {
+    @apply w-2 h-2 rounded-full bg-neon animate-live-pulse;
+  }
+
+  /* ── Typewriter cursor ────────────────────────────────────────────────── */
+  .cursor-blink::after {
+    content: "█";
+    @apply text-cyan animate-cursor-blink;
+    font-size: 0.9em;
+    margin-left: 2px;
+  }
+
+  /* ── Gradient text ───────────────────────────────────────────────────── */
+  .text-gradient-cyan {
+    background: linear-gradient(135deg, var(--cyan) 0%, rgba(0, 229, 255, 0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-violet {
+    background: linear-gradient(135deg, var(--violet) 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-neon {
+    background: linear-gradient(135deg, var(--neon) 0%, rgba(57, 255, 20, 0.6) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-hero {
+    background: linear-gradient(
+      135deg,
+      var(--text-primary) 0%,
+      var(--cyan) 40%,
+      var(--violet) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* =============================================================================
+   UTILITIES LAYER
+   ============================================================================= */
+
+@layer utilities {
+  /* ── Reduced motion overrides ────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    /* Kill all continuous animations */
+    .animate-blob-float,
+    .animate-blob-float-delayed,
+    .animate-blob-float-slow,
+    .animate-scan-line,
+    .animate-marquee,
+    .animate-marquee-fast,
+    .animate-radar-sweep,
+    .animate-shimmer,
+    .animate-glow-pulse {
+      animation: none !important;
+    }
+
+    /* Shorten reveal animations */
+    .animate-fade-up,
+    .animate-fade-in,
+    .animate-slide-in-left {
+      animation-duration: 0.01ms !important;
+    }
+
+    /* Keep cursor blink and live dot at reduced rate */
+    .animate-cursor-blink {
+      animation-duration: 2s !important;
+    }
+
+    .animate-live-pulse {
+      animation-duration: 4s !important;
+    }
+
+    /* Kill all transitions except focus/interaction feedback */
+    *:not(:focus-visible):not(:hover):not(:active) {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ── Perspective for 3D transforms ──────────────────────────────────── */
+  .perspective-1000 { perspective: 1000px; }
+  .perspective-500  { perspective: 500px; }
+
+  /* ── Text rendering ──────────────────────────────────────────────────── */
+  .text-render-speed { text-rendering: optimizeSpeed; }
+  .text-render-legibility { text-rendering: optimizeLegibility; }
+
+  /* ── Print ───────────────────────────────────────────────────────────── */
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; color: black; }
+  }
+}
+
+/* =============================================================================
+   THIRD-PARTY OVERRIDES
+   ============================================================================= */
+
+/* ── react-hot-toast container ───────────────────────────────────────────── */
+[data-sonner-toaster],
+.react-hot-toast {
+  font-family: var(--font-body) !important;
+}

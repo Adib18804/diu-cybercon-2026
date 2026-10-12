@@ -1,0 +1,25 @@
+# DIU CyberCon 2026 — robots.txt
+# https://www.diucybercon.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin and authenticated areas
+Disallow: /admin/
+Disallow: /admin
+Disallow: /dashboard/
+Disallow: /dashboard
+Disallow: /sponsor-portal/
+Disallow: /sponsor-portal
+Disallow: /api/
+Disallow: /api
+
+# Disallow auth flows (no SEO value)
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /verify-email/
+
+# Sitemap
+Sitemap: https://www.diucybercon.com/sitemap.xml

@@ -1,0 +1,815 @@
+// =============================================================================
+// DIU CyberCon 2026 — Prisma Schema
+// PostgreSQL + Prisma ORM
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum UserRole {
+  PARTICIPANT
+  ADMIN
+  STAFF
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  EVENT_ADMIN
+  REGISTRATION_ADMIN
+  CONTENT_ADMIN
+  SPONSORSHIP_ADMIN
+  VERIFICATION_ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  REVISION_REQUIRED
+}
+
+enum EventType {
+  CTF
+  TRACE_ROUTE
+  PROJECT_SHOWCASE
+  POSTER_PRESENTATION
+  PANEL_DISCUSSION
+  HANDS_ON
+}
+
+enum EventStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REVISION_REQUIRED
+  PUBLISHED
+}
+
+enum SponsorTier {
+  TITLE
+  PLATINUM
+  GOLD
+  CUSTOM
+  PARTNER
+  MEDIA_PARTNER
+  TECHNICAL_PARTNER
+  OTHER_PARTNER
+}
+
+enum SponsorApplicationStatus {
+  SUBMITTED
+  CONTACTED
+  NEGOTIATION
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum CheckInStatus {
+  NOT_ARRIVED
+  CHECKED_IN
+  CHECKED_OUT
+}
+
+enum TShirtSize {
+  M
+  L
+  XL
+  XXL
+  XXXL
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum InstitutionType {
+  UNIVERSITY
+  COLLEGE
+  SCHOOL
+  PROFESSIONAL
+  OTHER
+}
+
+// =============================================================================
+// AUTHENTICATION — NextAuth.js compatible tables
+// =============================================================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// =============================================================================
+// CORE USER
+// =============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String?
+  image         String?
+  role          UserRole  @default(PARTICIPANT)
+  adminRole     AdminRole?
+  isSuspended   Boolean   @default(false)
+  emailOptOut   Boolean   @default(false) // Unsubscribed from announcement broadcasts
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  // Auth relations
+  accounts Account[]
+  sessions Session[]
+
+  // App relations
+  profile               ParticipantProfile?
+  studentVerifications  StudentVerification[]
+  eventRegistrations    EventRegistration[]
+  workshopRegistrations WorkshopRegistration[]
+  passwordResets        PasswordReset[]
+  emailVerifications    EmailVerification[]
+  auditLogsAsActor      AuditLog[]             @relation("AuditActor")
+
+  @@index([email])
+  @@index([role])
+  @@index([adminRole])
+  @@index([deletedAt])
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model EmailVerification {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+// =============================================================================
+// PARTICIPANT PROFILE
+// =============================================================================
+
+model ParticipantProfile {
+  id           String     @id @default(cuid())
+  userId       String     @unique
+  fullName     String
+  studentId    String     @unique
+  department   String
+  universityId String
+  phone        String
+  tshirtSize   TShirtSize
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  university  University  @relation(fields: [universityId], references: [id])
+  teamMembers TeamMember[]
+
+  @@index([universityId])
+  @@index([studentId])
+}
+
+model University {
+  id        String          @id @default(cuid())
+  name      String          @unique
+  shortName String?
+  type      InstitutionType @default(UNIVERSITY)
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+
+  profiles ParticipantProfile[]
+
+  @@index([name])
+  @@index([type])
+}
+
+// =============================================================================
+// EVENTS (the six official modules)
+// =============================================================================
+
+model Event {
+  id                   String      @id @default(cuid())
+  type                 EventType   @unique
+  name                 String
+  slug                 String      @unique
+  shortDescription     String
+  fullDescription      String      @db.Text
+  status               EventStatus @default(DRAFT)
+  registrationOpen     Boolean     @default(false)
+  registrationDeadline DateTime?
+  participantLimit     Int?
+  isTeamEvent          Boolean
+  minTeamSize          Int?
+  maxTeamSize          Int?
+  eventDay             Int?
+  startDate            DateTime?
+  endDate              DateTime?
+  venue                String?
+  prizes               String?     @db.Text
+  rules                String?     @db.Text
+  eligibility          String?     @db.Text
+  displayOrder         Int         @default(0)
+  iconName             String?
+  accentColor          String?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  registrations EventRegistration[]
+  teams         Team[]
+  scheduleItems ScheduleItem[]
+
+  @@index([type])
+  @@index([status])
+  @@index([slug])
+  @@index([registrationOpen])
+}
+
+// =============================================================================
+// REGISTRATIONS
+// =============================================================================
+
+model EventRegistration {
+  id             String             @id @default(cuid())
+  registrationId String             @unique
+  userId         String
+  eventId        String
+  teamId         String?
+  status         RegistrationStatus @default(PENDING)
+  checkInStatus  CheckInStatus      @default(NOT_ARRIVED)
+  checkInTime    DateTime?
+  checkOutTime   DateTime?
+  checkInAdminId String?
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id])
+  event Event  @relation(fields: [eventId], references: [id])
+  team  Team?  @relation(fields: [teamId], references: [id])
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([registrationId])
+  @@index([status])
+  @@index([checkInStatus])
+}
+
+// =============================================================================
+// TEAMS
+// =============================================================================
+
+model Team {
+  id        String    @id @default(cuid())
+  name      String
+  eventId   String
+  leaderId  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  event         Event               @relation(fields: [eventId], references: [id])
+  members       TeamMember[]
+  registrations EventRegistration[]
+
+  @@unique([name, eventId])
+  @@index([eventId])
+  @@index([leaderId])
+  @@index([deletedAt])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  profileId String
+  isLeader  Boolean  @default(false)
+  joinedAt  DateTime @default(now())
+
+  team         Team               @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  profile      ParticipantProfile @relation(fields: [profileId], references: [id])
+  verification StudentVerification?
+
+  @@unique([teamId, profileId])
+  @@index([teamId])
+  @@index([profileId])
+}
+
+// =============================================================================
+// STUDENT VERIFICATION
+// =============================================================================
+
+model StudentVerification {
+  id            String             @id @default(cuid())
+  userId        String
+  teamMemberId  String?            @unique
+  fileKey       String
+  fileName      String
+  fileMimeType  String
+  fileSizeBytes Int
+  status        VerificationStatus @default(PENDING)
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  reviewNote    String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  user       User                    @relation(fields: [userId], references: [id])
+  teamMember TeamMember?             @relation(fields: [teamMemberId], references: [id])
+  accessLogs VerificationAccessLog[]
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@index([teamMemberId])
+}
+
+// Every time an admin views a student ID — logged immutably
+model VerificationAccessLog {
+  id             String   @id @default(cuid())
+  verificationId String
+  adminId        String
+  ipAddress      String
+  userAgent      String?
+  accessedAt     DateTime @default(now())
+
+  verification StudentVerification @relation(fields: [verificationId], references: [id])
+
+  @@index([verificationId])
+  @@index([adminId])
+  @@index([accessedAt])
+}
+
+// =============================================================================
+// PROJECT SUBMISSIONS
+// =============================================================================
+
+model Project {
+  id               String          @id @default(cuid())
+  userId           String
+  teamName         String
+  projectName      String
+  university       String
+  department       String
+  category         String
+  description      String          @db.Text
+  problemStatement String          @db.Text
+  proposedSolution String          @db.Text
+  technologies     String[]
+  githubUrl        String?
+  demoUrl          String?
+  imageKey         String?
+  presentationKey  String?
+  status           SubmissionStatus @default(SUBMITTED)
+  reviewNote       String?         @db.Text
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  isFeatured       Boolean         @default(false)
+  publishedAt      DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  deletedAt        DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([deletedAt])
+}
+
+// =============================================================================
+// POSTER SUBMISSIONS
+// =============================================================================
+
+model Poster {
+  id          String           @id @default(cuid())
+  userId      String
+  teamName    String
+  title       String
+  authors     String[]
+  university  String
+  department  String
+  abstract    String           @db.Text
+  keywords    String[]
+  category    String
+  fileKey     String
+  contactInfo String
+  status      SubmissionStatus @default(SUBMITTED)
+  reviewNote  String?          @db.Text
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  isFeatured  Boolean          @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt   DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([deletedAt])
+}
+
+// =============================================================================
+// WORKSHOPS (Hands-on Activities)
+// =============================================================================
+
+model Workshop {
+  id                   String      @id @default(cuid())
+  title                String
+  instructorName       String
+  instructorOrg        String
+  instructorBio        String?
+  description          String      @db.Text
+  skillLevel           SkillLevel
+  date                 DateTime
+  startTime            String
+  endTime              String
+  venue                String
+  totalSeats           Int
+  registeredCount      Int         @default(0)
+  registrationDeadline DateTime
+  requiredEquipment    String?     @db.Text
+  prerequisites        String?     @db.Text
+  status               EventStatus @default(DRAFT)
+  displayOrder         Int         @default(0)
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  registrations WorkshopRegistration[]
+
+  @@index([status])
+  @@index([date])
+  @@index([skillLevel])
+}
+
+model WorkshopRegistration {
+  id         String   @id @default(cuid())
+  userId     String
+  workshopId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id])
+  workshop Workshop @relation(fields: [workshopId], references: [id])
+
+  @@unique([workshopId, userId])
+  @@index([userId])
+  @@index([workshopId])
+}
+
+// =============================================================================
+// SPEAKERS & PANELS
+// =============================================================================
+
+model Speaker {
+  id           String    @id @default(cuid())
+  name         String
+  title        String
+  organization String
+  bio          String?   @db.Text
+  expertise    String[]
+  photoKey     String?
+  linkedinUrl  String?
+  twitterUrl   String?
+  websiteUrl   String?
+  isVisible    Boolean   @default(false)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  panelists Panelist[]
+
+  @@index([isVisible])
+}
+
+model Panel {
+  id          String      @id @default(cuid())
+  topic       String
+  description String?     @db.Text
+  moderatorId String?
+  sessionDate DateTime?
+  startTime   String?
+  endTime     String?
+  venue       String?
+  status      EventStatus @default(DRAFT)
+  displayOrder Int        @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  panelists Panelist[]
+
+  @@index([status])
+}
+
+model Panelist {
+  id        String  @id @default(cuid())
+  panelId   String
+  speakerId String
+  role      String? // e.g. "Moderator", "Panelist"
+
+  panel   Panel   @relation(fields: [panelId], references: [id], onDelete: Cascade)
+  speaker Speaker @relation(fields: [speakerId], references: [id])
+
+  @@unique([panelId, speakerId])
+  @@index([panelId])
+  @@index([speakerId])
+}
+
+// =============================================================================
+// SCHEDULE
+// =============================================================================
+
+model ScheduleItem {
+  id           String    @id @default(cuid())
+  day          Int       // 1, 2, 3
+  date         DateTime
+  startTime    String
+  endTime      String
+  title        String
+  description  String?   @db.Text
+  venue        String?
+  type         String    // e.g. "SESSION", "BREAK", "CEREMONY", "COMPETITION"
+  eventId      String?
+  speakerId    String?
+  isHighlight  Boolean   @default(false)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  event Event? @relation(fields: [eventId], references: [id])
+
+  @@index([day])
+  @@index([date])
+  @@index([eventId])
+}
+
+// =============================================================================
+// SPONSORS
+// =============================================================================
+
+model Sponsor {
+  id           String      @id @default(cuid())
+  name         String
+  tier         SponsorTier
+  logoKey      String
+  websiteUrl   String?
+  description  String?     @db.Text
+  year         Int         @default(2026)
+  isActive     Boolean     @default(true)
+  displayOrder Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([tier])
+  @@index([year, isActive])
+}
+
+model SponsorApplication {
+  id            String                   @id @default(cuid())
+  orgName       String
+  contactPerson String
+  email         String
+  phone         String
+  website       String?
+  tier          SponsorTier
+  logoKey       String?
+  message       String?                  @db.Text
+  status        SponsorApplicationStatus @default(SUBMITTED)
+  assignedTo    String?
+  internalNotes String?                  @db.Text
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+// =============================================================================
+// PARTNERS
+// =============================================================================
+
+model Partner {
+  id           String   @id @default(cuid())
+  name         String
+  category     String   // e.g. "Academic", "Technical", "Media", "Industry"
+  logoKey      String
+  websiteUrl   String?
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category, isActive])
+}
+
+// =============================================================================
+// CONTENT — Announcements, Gallery, FAQ, Contact
+// =============================================================================
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String    @db.Text
+  isPinned    Boolean   @default(false)
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  broadcastAt DateTime? // Last time this announcement was emailed to participants
+  authorId    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([isPublished, publishedAt])
+  @@index([isPinned])
+  @@index([deletedAt])
+}
+
+model GalleryImage {
+  id           String   @id @default(cuid())
+  title        String?
+  imageKey     String
+  publicUrl    String?
+  category     String   @default("general")
+  altText      String
+  year         Int      @default(2026)
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(false)
+  uploadedBy   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([year, isPublished])
+  @@index([category])
+}
+
+model FAQ {
+  id           String   @id @default(cuid())
+  question     String
+  answer       String   @db.Text
+  category     String   @default("general")
+  displayOrder Int      @default(0)
+  isPublished  Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category, isPublished])
+}
+
+model ContactMessage {
+  id        String    @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String    @db.Text
+  isRead    Boolean   @default(false)
+  repliedAt DateTime?
+  repliedBy String?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime  @default(now())
+
+  @@index([isRead, createdAt])
+}
+
+// =============================================================================
+// SITE SETTINGS (admin-editable, no code changes required)
+// =============================================================================
+
+model SiteSetting {
+  key         String   @id
+  value       String   @db.Text
+  type        String   @default("string") // string | number | boolean | json
+  description String?
+  group       String   @default("general")
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+
+  @@index([group])
+}
+
+// =============================================================================
+// AUDIT LOGS (immutable — never update, never soft-delete)
+// =============================================================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String   // e.g. "STUDENT_ID_VIEWED", "REGISTRATION_APPROVED"
+  targetType String   // e.g. "StudentVerification", "EventRegistration"
+  targetId   String?
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?    // Extra context (e.g. event name, team name)
+  createdAt  DateTime @default(now())
+
+  actor User @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  category  String   // email-verification | password-reset | registration | workshop-registration | verification-status | submission | sponsor | broadcast | transactional
+  status    String   // SENT | FAILED | THROTTLED
+  messageId String?
+  error     String?  @db.Text
+  attempts  Int      @default(1)
+  userId    String?
+  createdAt DateTime @default(now())
+
+  @@index([to, createdAt])
+  @@index([category, createdAt])
+  @@index([status, createdAt])
+  @@index([userId])
+}

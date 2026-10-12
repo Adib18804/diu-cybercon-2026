@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "CyberCon 2026 (Local)",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "cybercon_2026",
+      "Username": "cybercon",
+      "SSLMode": "prefer",
+      "PassFile": "/tmp/pgpassfile"
+    }
+  }
+}
