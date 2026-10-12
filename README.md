@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # DIU CyberCon 2026
 
 **LEARN · SECURE · DEFEND**
@@ -422,6 +422,3 @@ Private — Cyber Security Club, Department of CSE, Daffodil International Unive
 ---
 
 *Built with purpose. Every byte secured. Every student protected.*
-=======
-# Registration-Site
->>>>>>> 7f185b95a8ac2b9d3bc467c1a9e729dc45aab996
