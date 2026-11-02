@@ -70,7 +70,7 @@ const displayOrder = boundedInt(0, 9999, "Display order").default(0)
 
 /** DateTime from ISO string or Date, must parse. */
 const dateTime = z.coerce.date({
-  errorMap: () => ({ message: "Enter a valid date and time" }),
+  message: "Enter a valid date and time",
 })
 
 /** Time string "HH:MM" (24h) — stored as plain string in the schema. */

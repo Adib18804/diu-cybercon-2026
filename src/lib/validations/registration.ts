@@ -60,7 +60,7 @@ export const phoneSchema = z
   .transform((v) => v.replace(/\s|-/g, ""))
 
 export const tshirtSizeSchema = z.enum(["M", "L", "XL", "XXL", "XXXL"], {
-  errorMap: () => ({ message: "Select a t-shirt size" }),
+  message: "Select a t-shirt size",
 })
 
 export const teamNameSchema = z
@@ -134,7 +134,7 @@ export const INNOVATION_SYMPOSIUM_DOMAINS = [
 ] as const
 
 export const symposiumDomainSchema = z.enum(INNOVATION_SYMPOSIUM_DOMAINS, {
-  errorMap: () => ({ message: "Select a valid Innovation Symposium domain" }),
+  message: "Select a valid Innovation Symposium domain",
 })
 
 export const symposiumIdeaSummarySchema = z
@@ -156,7 +156,7 @@ export const submitRegistrationSchema = z.object({
   ),
   team: registrationTeamSchema.optional(),
   acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms to register" }),
+    message: "You must accept the terms to register",
   }),
 })
 
@@ -191,7 +191,7 @@ export const workshopRegistrationSchema = z.object({
     z.object({ verification: verificationUploadSchema }),
   ),
   acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms to register" }),
+    message: "You must accept the terms to register",
   }),
 })
 

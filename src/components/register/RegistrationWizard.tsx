@@ -124,6 +124,7 @@ function eventRegistrationRule(event: WizardEvent): string {
     case "CTF": return `CTF Final: ${fee} BDT per team (4 members). Venue: ${venue}. Preliminary is free.`
     case "INNOVATION_SYMPOSIUM": return `Innovation Symposium: ${fee} BDT per person (Max 3 members). Venue: ${venue}.`
     case "PANEL_DISCUSSION": return `Panel Discussion: Free entry. Venue: ${venue}.`
+    case "HANDS_ON": return `Workshop: ${fee} BDT per person. Venue: ${venue}.`
     default: return event.rules ?? "See event details for fees and venue."
   }
 }
@@ -131,6 +132,7 @@ function eventRegistrationRule(event: WizardEvent): string {
 function eventGiveaways(event: WizardEvent): string[] {
   if (event.type === "CTF") {return CTF_GIVEAWAYS}
   if (event.type === "INNOVATION_SYMPOSIUM") {return SYMPOSIUM_WORKSHOP_GIVEAWAYS}
+  if (event.type === "HANDS_ON") {return SYMPOSIUM_WORKSHOP_GIVEAWAYS}
   return event.prizes?.split(/\r?\n/).map((item) => item.trim()).filter(Boolean) ?? []
 }
 
@@ -243,8 +245,115 @@ function clearStepErrorKeys(
   return out
 }
 
+// ─── EventCard — module-level component (stable identity, no hydration mismatch) ──
+
+interface EventCardProps {
+  event: WizardEvent
+  isSelected: boolean
+  onSelect: (event: WizardEvent) => void
+}
+
+function EventCard({ event, isSelected, onSelect }: EventCardProps) {
+  const isFull =
+    event.participantLimit !== null && event.registeredCount >= event.participantLimit
+  const disabled = !event.isOpen || event.alreadyRegistered || isFull
+  const spotsLeft =
+    event.participantLimit !== null
+      ? Math.max(0, event.participantLimit - event.registeredCount)
+      : null
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (!disabled && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault()
+      onSelect(event)
+    }
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-pressed={isSelected}
+      aria-disabled={disabled}
+      onClick={disabled ? undefined : () => onSelect(event)}
+      onKeyDown={handleKeyDown}
+      className={[
+        "group relative rounded-lg border p-5 text-left transition-all duration-250",
+        "[transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan",
+        isSelected
+          ? "border-cyan bg-cyan/5 shadow-glow-cyan-sm"
+          : disabled
+            ? "cursor-not-allowed border-border bg-bg-panel opacity-60"
+            : "cursor-pointer border-border bg-bg-panel hover:-translate-y-0.5 hover:border-cyan/40 hover:shadow-glow-cyan-sm",
+      ].join(" ")}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-semibold text-text-primary">
+          {event.name}
+        </p>
+        <EventTypeBadge
+          type={eventBadgeType(event.type, event.isTeamEvent)}
+        />
+      </div>
+
+      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-text-muted">
+        {event.shortDescription}
+      </p>
+
+      <p className="mt-3 text-xs font-medium leading-relaxed text-text-primary">
+        {eventRegistrationRule(event)}
+      </p>
+      {eventGiveaways(event).length > 0 && (
+        <p className="mt-2 text-xs leading-relaxed text-text-muted">
+          Giveaways: {eventGiveaways(event).join(", ")}
+        </p>
+      )}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[0.625rem] uppercase tracking-wider">
+        {event.isTeamEvent && (
+          <span className="text-text-faint">
+            Team {event.minTeamSize}–{maxTeamSizeForEvent(event)}
+          </span>
+        )}
+        {spotsLeft !== null && (
+          <span className={spotsLeft <= 5 ? "text-amber" : "text-text-faint"}>
+            {spotsLeft} spots left
+          </span>
+        )}
+        {event.deadlineLabel && (
+          <span className="text-text-faint">
+            Deadline {event.deadlineLabel}
+          </span>
+        )}
+      </div>
+
+      {/* Status line */}
+      <div className="mt-3">
+        {event.alreadyRegistered ? (
+          <Badge variant="neon" size="sm">
+            Already Registered
+          </Badge>
+        ) : isFull ? (
+          <Badge variant="pink" size="sm">
+            Event Full
+          </Badge>
+        ) : event.isOpen ? (
+          <Badge variant="cyan" size="sm" dot>
+            Registration Open
+          </Badge>
+        ) : (
+          <Badge variant="muted" size="sm">
+            Registration Closed
+          </Badge>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // =============================================================================
-// Component
+// RegistrationWizard
 // =============================================================================
 
 export function RegistrationWizard({
@@ -496,7 +605,8 @@ export function RegistrationWizard({
       const parsed = participantProfileSchema.safeParse(profileCandidate(participant))
       if (!parsed.success) {
         for (const issue of parsed.error.issues) {
-          const key = `participant.${issue.path[0] ?? "form"}`
+          const pathKey = issue.path[0] !== undefined ? String(issue.path[0]) : "form";
+          const key = `participant.${pathKey}`;
           if (!(key in errors)) {
             errors[key] = issue.message
           }
@@ -551,7 +661,8 @@ export function RegistrationWizard({
         })
         if (!parsed.success) {
           for (const issue of parsed.error.issues) {
-            const key = `team.members.${index}.${issue.path[0] ?? "form"}`
+            const pathKey = issue.path[0] !== undefined ? String(issue.path[0]) : "form";
+            const key = `team.members.${index}.${pathKey}`;
             if (!(key in errors)) {
               errors[key] = issue.message
             }
@@ -1029,8 +1140,8 @@ export function RegistrationWizard({
         )
       }
 
-      const full = (event: WizardEvent): boolean =>
-        event.participantLimit !== null && event.registeredCount >= event.participantLimit
+      const competitionEvents = events.filter((e) => e.type !== "HANDS_ON")
+      const workshopEvents = events.filter((e) => e.type === "HANDS_ON")
 
       return (
         <div className="space-y-8">
@@ -1040,94 +1151,14 @@ export function RegistrationWizard({
                 Competition Modules
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
-                {events.map((event) => {
-                  const isSelected = mode === "event" && event.id === selectedEventId
-                  const isFull = full(event)
-                  const disabled = !event.isOpen || event.alreadyRegistered || isFull
-                  const spotsLeft =
-                    event.participantLimit !== null
-                      ? Math.max(0, event.participantLimit - event.registeredCount)
-                      : null
-
-                  return (
-                    <button
-                      key={event.id}
-                      type="button"
-                      onClick={() => handleSelectEvent(event)}
-                      disabled={disabled}
-                      aria-pressed={isSelected}
-                      className={[
-                        "group relative rounded-lg border p-5 text-left transition-all duration-250",
-                        "[transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan",
-                        isSelected
-                          ? "border-cyan bg-cyan/5 shadow-glow-cyan-sm"
-                          : disabled
-                            ? "cursor-not-allowed border-border bg-bg-panel opacity-60"
-                            : "border-border bg-bg-panel hover:-translate-y-0.5 hover:border-cyan/40 hover:shadow-glow-cyan-sm",
-                      ].join(" ")}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-semibold text-text-primary">
-                          {event.name}
-                        </p>
-                        <EventTypeBadge
-                          type={eventBadgeType(event.type, event.isTeamEvent)}
-                        />
-                      </div>
-
-                      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-text-muted">
-                        {event.shortDescription}
-                      </p>
-
-                      <p className="mt-3 text-xs font-medium leading-relaxed text-text-primary">{eventRegistrationRule(event)}</p>
-                      {eventGiveaways(event).length > 0 && (
-                        <p className="mt-2 text-xs leading-relaxed text-text-muted">
-                          Giveaways: {eventGiveaways(event).join(", ")}
-                        </p>
-                      )}
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[0.625rem] uppercase tracking-wider">
-                        {event.isTeamEvent && (
-                          <span className="text-text-faint">
-                            Team {event.minTeamSize}–{maxTeamSizeForEvent(event)}
-                          </span>
-                        )}
-                        {spotsLeft !== null && (
-                          <span className={spotsLeft <= 5 ? "text-amber" : "text-text-faint"}>
-                            {spotsLeft} spots left
-                          </span>
-                        )}
-                        {event.deadlineLabel && (
-                          <span className="text-text-faint">
-                            Deadline {event.deadlineLabel}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Status line */}
-                      <div className="mt-3">
-                        {event.alreadyRegistered ? (
-                          <Badge variant="neon" size="sm">
-                            Already Registered
-                          </Badge>
-                        ) : isFull ? (
-                          <Badge variant="pink" size="sm">
-                            Event Full
-                          </Badge>
-                        ) : event.isOpen ? (
-                          <Badge variant="cyan" size="sm" dot>
-                            Registration Open
-                          </Badge>
-                        ) : (
-                          <Badge variant="muted" size="sm">
-                            Registration Closed
-                          </Badge>
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
+                {[...competitionEvents, ...workshopEvents].map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    isSelected={mode === "event" && event.id === selectedEventId}
+                    onSelect={handleSelectEvent}
+                  />
+                ))}
               </div>
             </div>
           )}

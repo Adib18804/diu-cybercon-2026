@@ -7,11 +7,11 @@
 // =============================================================================
 
 import type { Metadata } from "next"
+import nextDynamic from "next/dynamic"
 
 import { PageHeader } from "@/components/layout"
 import {
   RegisterAuthGate,
-  RegistrationWizard,
   type UniversityOption,
   type Viewer,
   type WizardEvent,
@@ -21,6 +21,18 @@ import { prisma } from "@/lib/db"
 import { getSessionUser } from "@/lib/rbac"
 import { resolveTeamLimits } from "@/lib/registrations/service"
 import { formatDate, isDeadlinePassed } from "@/lib/utils"
+
+// Disable SSR for the wizard — it is fully dynamic (selected event, form
+// state, uploaded files) and has no meaningful server-rendered content.
+// Skipping SSR eliminates the hydration mismatch between the server snapshot
+// and the first client render.
+const RegistrationWizard = nextDynamic(
+  () =>
+    import("@/components/register/RegistrationWizard").then(
+      (mod) => ({ default: mod.RegistrationWizard }),
+    ),
+  { ssr: false },
+)
 
 export const dynamic = "force-dynamic"
 
@@ -115,7 +127,6 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
     safe(
       prisma.event.findMany({
         where: {
-          type: { not: "HANDS_ON" },
           status: { in: ["OPEN", "CLOSED", "COMPLETED"] },
         },
         orderBy: [{ displayOrder: "asc" }, { name: "asc" }],

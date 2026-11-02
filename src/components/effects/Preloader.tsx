@@ -35,7 +35,10 @@ const BOOT_END_MS =
 
 export function Preloader() {
   const prefersReduced = useReducedMotion()
-  const [visible, setVisible] = React.useState(true)
+  // Start hidden — server renders nothing, client opts in after mount.
+  // This prevents the server/client DOM mismatch that causes removeChild
+  // errors on repeat visits (when sessionStorage already has the skip key).
+  const [visible, setVisible] = React.useState(false)
   const [lineCount, setLineCount] = React.useState(0)
   const [progress, setProgress] = React.useState(0)
 
@@ -53,9 +56,12 @@ export function Preloader() {
       } catch {
         /* ignore */
       }
-      setVisible(false)
+      // visible stays false — nothing to show or remove
       return
     }
+
+    // First visit: show the preloader now that we're client-side
+    setVisible(true)
 
     const timers: Array<ReturnType<typeof setTimeout>> = []
 

@@ -126,7 +126,11 @@ function CountdownTimer({
   className,
 }: CountdownTimerProps) {
   const timerRef = React.useRef<HTMLDivElement>(null)
-  const [time, setTime] = React.useState(() => getTimeRemaining(target))
+  // Initialize to null — server renders nothing, client renders the same null
+  // on first paint. The useEffect tick() fires immediately after mount and
+  // populates both states, eliminating the server/client time-value mismatch
+  // that causes "Expected server HTML to contain a matching <span> in <div>".
+  const [time, setTime] = React.useState<ReturnType<typeof getTimeRemaining> | null>(null)
   const [units, setUnits] = React.useState<{
     days: TimeUnit
     hours: TimeUnit
@@ -166,6 +170,14 @@ function CountdownTimer({
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)
   }, [target, onExpire])
+
+  if (time === null) {
+    // Pre-mount: render an invisible placeholder with the same outer shape so
+    // the page layout doesn't shift when the timer appears after hydration.
+    return (
+      <div className={cn("flex items-center", className)} aria-hidden="true" />
+    )
+  }
 
   if (time.isPast) {
     return (

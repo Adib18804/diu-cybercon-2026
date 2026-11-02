@@ -1,13 +1,23 @@
 import type { Metadata, Viewport } from "next"
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google"
+import localFont from "next/font/local"
+import nextDynamic from "next/dynamic"
 import { headers } from "next/headers"
 import { Toaster } from "react-hot-toast"
 
-import { BackgroundEffects, Cursor, MatrixBg, Preloader, ScanLine, ScrollProgress } from "@/components/effects"
+import { BackgroundEffects, Cursor, MatrixBg, ScanLine, ScrollProgress } from "@/components/effects"
 import { AnnouncementBar, Footer, Navbar } from "@/components/layout"
 import { AppProviders } from "@/components/providers"
 
 import "@/app/globals.css"
+
+// Preloader is a purely client-side visual effect (reads sessionStorage,
+// runs animations). Skipping SSR means React never tries to reconcile a
+// server-rendered overlay against the client's initial state, permanently
+// eliminating the AnimatePresence / motion hydration mismatch.
+const Preloader = nextDynamic(
+  () => import("@/components/effects/Preloader").then((mod) => ({ default: mod.Preloader })),
+  { ssr: false },
+)
 
 // The middleware issues a fresh CSP nonce for every request and Next.js can
 // only stamp it onto dynamically rendered HTML — static/ISR output would
@@ -19,25 +29,38 @@ export const dynamic = "force-dynamic"
 // Font Definitions
 // =============================================================================
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: [
+    { path: "../../public/fonts/inter/inter-300.woff2", weight: "300", style: "normal" },
+    { path: "../../public/fonts/inter/inter-400.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/inter/inter-500.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/inter/inter-600.woff2", weight: "600", style: "normal" },
+    { path: "../../public/fonts/inter/inter-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-inter",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
 })
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
+const spaceGrotesk = localFont({
+  src: [
+    { path: "../../public/fonts/space-grotesk/space-grotesk-400.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/space-grotesk/space-grotesk-500.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/space-grotesk/space-grotesk-600.woff2", weight: "600", style: "normal" },
+    { path: "../../public/fonts/space-grotesk/space-grotesk-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-space-grotesk",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 })
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetbrainsMono = localFont({
+  src: [
+    { path: "../../public/fonts/jetbrains-mono/jetbrains-mono-400.woff2", weight: "400", style: "normal" },
+    { path: "../../public/fonts/jetbrains-mono/jetbrains-mono-500.woff2", weight: "500", style: "normal" },
+    { path: "../../public/fonts/jetbrains-mono/jetbrains-mono-600.woff2", weight: "600", style: "normal" },
+    { path: "../../public/fonts/jetbrains-mono/jetbrains-mono-700.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-jetbrains-mono",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 })
 
 // =============================================================================
