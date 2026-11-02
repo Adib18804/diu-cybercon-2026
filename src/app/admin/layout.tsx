@@ -14,7 +14,7 @@ import { getPermissionsForRole, getSessionUser, isAdminRole } from "@/lib/rbac"
 export const metadata: Metadata = {
   title: {
     default: "Admin Console",
-    template: "%s | Admin | DIU CyberCon 2026",
+    template: "%s | Admin | DIU_CYBERCON 2026",
   },
   robots: { index: false, follow: false },
 }

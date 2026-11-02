@@ -76,7 +76,7 @@ export function DashboardShell({
           <div className="flex items-center gap-2">
             <span className="live-dot" aria-hidden="true" />
             <span className="font-mono text-xs uppercase tracking-widest text-text-muted">
-              DIU CyberCon 2026
+              DIU_CYBERCON 2026
             </span>
           </div>
         </div>

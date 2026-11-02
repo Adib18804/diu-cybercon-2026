@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Ambient Background Effects
+// DIU_CYBERCON 2026 — Ambient Background Effects
 // Fixed, zero-interaction layer rendered once behind all content:
 //   · circuit grid (60px, cyan 4.5% opacity)
 //   · radial cyan glow (top center) + violet glow (bottom right)

@@ -35,11 +35,11 @@ export interface ButtonProps
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: [
-    "bg-cyan text-bg-deep border-cyan",
+    "bg-cyan text-white border-cyan",
     "hover:bg-cyan/90 hover:shadow-glow-cyan",
     "active:scale-[0.97]",
     "focus-visible:ring-cyan",
-    "disabled:bg-cyan/30 disabled:text-bg-deep/60 disabled:border-cyan/30",
+    "disabled:bg-cyan/30 disabled:text-white/60 disabled:border-cyan/30",
   ].join(" "),
 
   secondary: [
@@ -67,11 +67,11 @@ const variantClasses: Record<ButtonVariant, string> = {
   ].join(" "),
 
   neon: [
-    "bg-neon text-bg-deep border-neon",
+    "bg-neon text-white border-neon",
     "hover:bg-neon/90 hover:shadow-glow-neon",
     "active:scale-[0.97]",
     "focus-visible:ring-neon",
-    "disabled:bg-neon/30 disabled:text-bg-deep/60 disabled:border-neon/30",
+    "disabled:bg-neon/30 disabled:text-white/60 disabled:border-neon/30",
   ].join(" "),
 
   violet: [

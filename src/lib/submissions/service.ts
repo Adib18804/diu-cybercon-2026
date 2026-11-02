@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Submission Service
+// DIU_CYBERCON 2026 — Submission Service
 // All business rules for Project Showcasing + Poster Presentation submissions.
 // Routes stay thin: auth → validate → call service → respond.
 //

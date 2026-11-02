@@ -87,9 +87,4 @@ export interface HomeGalleryImage {
 export interface HomeStats {
   moduleCount: number
   dayCount: number
-  teams2025: number | null
-  universities2025: number | null
-  colleges2025: number | null
-  schools2025: number | null
-  professionals2025: number | null
 }

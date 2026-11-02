@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Next.js Middleware
+// DIU_CYBERCON 2026 — Next.js Middleware
 // Runs on the Edge Runtime before every matched request.
 //
 // Responsibilities (in order):

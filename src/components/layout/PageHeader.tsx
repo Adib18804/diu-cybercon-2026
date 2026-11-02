@@ -31,7 +31,7 @@ function PageHeader({
         className="pointer-events-none absolute -top-24 left-1/4 h-[320px] w-[640px] -translate-x-1/2 rounded-full opacity-20 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, rgba(0,229,255,0.35), rgba(124,58,237,0.15), transparent)",
+            "radial-gradient(closest-side, rgba(225, 29, 72,0.35), rgba(190, 18, 60,0.15), transparent)",
         }}
         aria-hidden="true"
       />

@@ -1,12 +1,10 @@
 // =============================================================================
-// DIU CyberCon 2026 — Utility Functions
+// DIU_CYBERCON 2026 — Utility Functions
 // Pure, side-effect-free helpers used across the application.
 // =============================================================================
 
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
-
-import { REGISTRATION } from "@/lib/constants"
 
 // ─── Tailwind class merging ───────────────────────────────────────────────────
 
@@ -16,22 +14,6 @@ import { REGISTRATION } from "@/lib/constants"
  */
 export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs))
-}
-
-// ─── Registration ID ─────────────────────────────────────────────────────────
-
-const REGISTRATION_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" // No I, O, 0, 1 (ambiguous)
-
-/**
- * Generate a unique registration ID.
- * Format: CYB26-XXXXXX (6 random uppercase alphanumeric chars)
- * Uniqueness is enforced at the DB level — this just generates a candidate.
- */
-export function generateRegistrationId(): string {
-  const chars = Array.from({ length: REGISTRATION.idLength }, () =>
-    REGISTRATION_CHARS[Math.floor(Math.random() * REGISTRATION_CHARS.length)],
-  ).join("")
-  return `${REGISTRATION.idPrefix}-${chars}`
 }
 
 // ─── String utilities ─────────────────────────────────────────────────────────

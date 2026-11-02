@@ -21,7 +21,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Get in touch with the DIU CyberCon 2026 organizing team — questions, registration help, partnership ideas, and media inquiries.",
+    "Get in touch with the DIU_CYBERCON 2026 organizing team — questions, registration help, partnership ideas, and media inquiries.",
 }
 
 interface ContactChannels {

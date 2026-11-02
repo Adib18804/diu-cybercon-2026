@@ -51,26 +51,26 @@ function renderPage({
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>${escapeHtml(title)} — DIU CyberCon 2026</title>
+<title>${escapeHtml(title)} — DIU_CYBERCON 2026</title>
 </head>
-<body style="margin:0;padding:0;background-color:#05070d;font-family:'Inter',Arial,sans-serif;">
+<body style="margin:0;padding:0;background-color:#0A0A0A;font-family:'Inter',Arial,sans-serif;">
 <div style="max-width:560px;margin:0 auto;padding:64px 24px;">
-  <div style="text-align:center;padding-bottom:28px;border-bottom:1px solid #1f2937;margin-bottom:32px;">
-    <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#00e5ff;letter-spacing:0.1em;">DIU CYBERCON 2026</div>
-    <div style="font-size:11px;color:#8b949e;letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;">LEARN · SECURE · DEFEND</div>
+  <div style="text-align:center;padding-bottom:28px;border-bottom:1px solid #262626;margin-bottom:32px;">
+    <div style="font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#E11D48;letter-spacing:0.1em;">DIU_CYBERCON 2026</div>
+    <div style="font-size:11px;color:#A3A3A3;letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;">LEARN · SECURE · DEFEND</div>
   </div>
-  <h1 style="font-size:22px;font-weight:700;color:#e6edf3;margin:0 0 12px;line-height:1.3;">${escapeHtml(title)}</h1>
-  <p style="font-size:15px;color:#8b949e;line-height:1.7;margin:0 0 24px;">${escapeHtml(message)}</p>
+  <h1 style="font-size:22px;font-weight:700;color:#FFFFFF;margin:0 0 12px;line-height:1.3;">${escapeHtml(title)}</h1>
+  <p style="font-size:15px;color:#A3A3A3;line-height:1.7;margin:0 0 24px;">${escapeHtml(message)}</p>
   ${
     formToken
       ? `<form method="POST" action="/api/email/unsubscribe" style="margin:28px 0 0;">
     <input type="hidden" name="token" value="${escapeHtml(formToken)}">
-    <button type="submit" style="display:inline-block;padding:14px 32px;background-color:#00e5ff;color:#05070d;font-size:13px;font-weight:700;border:none;border-radius:8px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Courier New',monospace;cursor:pointer;">Unsubscribe me</button>
+    <button type="submit" style="display:inline-block;padding:14px 32px;background-color:#E11D48;color:#0A0A0A;font-size:13px;font-weight:700;border:none;border-radius:8px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Courier New',monospace;cursor:pointer;">Unsubscribe me</button>
   </form>`
       : ""
   }
-  <div style="text-align:center;padding-top:32px;border-top:1px solid #1f2937;margin-top:40px;">
-    <p style="font-size:12px;color:#4d5966;line-height:1.6;margin:0;">
+  <div style="text-align:center;padding-top:32px;border-top:1px solid #262626;margin-top:40px;">
+    <p style="font-size:12px;color:#737373;line-height:1.6;margin:0;">
       Cyber Security Club, Department of CSE<br>
       Daffodil International University, Bangladesh
     </p>
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     renderPage({
       title: "Unsubscribe from announcement emails?",
       message:
-        "You will stop receiving broadcast announcements from DIU CyberCon 2026. Important transactional emails (registration, verification, submissions) are not affected.",
+        "You will stop receiving broadcast announcements from DIU_CYBERCON 2026. Important transactional emails (registration, verification, submissions) are not affected.",
       formToken: token,
     }),
     200,
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     renderPage({
       title: "You're unsubscribed",
       message:
-        "You will no longer receive announcement emails from DIU CyberCon 2026. If this was a mistake, contact us and we will add you back.",
+        "You will no longer receive announcement emails from DIU_CYBERCON 2026. If this was a mistake, contact us and we will add you back.",
     }),
     200,
   )

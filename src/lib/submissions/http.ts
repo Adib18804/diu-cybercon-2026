@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Submission route error mapping
+// DIU_CYBERCON 2026 — Submission route error mapping
 // One place to translate domain errors into safe JSON responses.
 // =============================================================================
 

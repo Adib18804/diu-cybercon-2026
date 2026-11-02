@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — File Storage
+// DIU_CYBERCON 2026 — File Storage
 // Two storage tiers with one shared token machinery:
 //
 // PRIVATE (student IDs, sensitive):

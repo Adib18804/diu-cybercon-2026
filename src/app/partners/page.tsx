@@ -18,7 +18,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "Partners",
   description:
-    "Partner organizations of DIU CyberCon 2026 — academic, technical, media and industry partners announced as agreements are confirmed.",
+    "Partner organizations of DIU_CYBERCON 2026 — academic, technical, media and industry partners announced as agreements are confirmed.",
 }
 
 // =============================================================================
@@ -108,7 +108,7 @@ export default async function PartnersPage() {
       <PageHeader
         label="// Partners"
         title="Our partners"
-        description="Institutions, platforms and media organizations partnering with DIU CyberCon 2026 — announced here as agreements are confirmed."
+        description="Institutions, platforms and media organizations partnering with DIU_CYBERCON 2026 — announced here as agreements are confirmed."
         crumbs={[{ label: "Home", href: "/" }, { label: "Partners" }]}
         actions={
           <>

@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = {
   title: "Register",
   description:
-    "Register for DIU CyberCon 2026 — CTF, Project Showcasing, Poster Presentation, Trace & Route, Panel Discussion, and Hands-on Activities.",
+    "Register for DIU_CYBERCON 2026 — CTF, Innovation Symposium, Panel Discussion, and Hands-on Activities.",
 }
 
 // ─── Data (defensive — a cold DB shows an empty state, never a crash) ────────
@@ -51,6 +51,7 @@ interface RegisterData {
   workshops: WizardWorkshop[]
   universities: UniversityOption[]
   viewer: Viewer | null
+  bkashNumber: string
 }
 
 async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
@@ -102,6 +103,8 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
 
   const [
     events,
+    bkashSetting,
+    handsOnSettings,
     activeCounts,
     myEventRegs,
     workshops,
@@ -122,10 +125,13 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
           name: true,
           slug: true,
           shortDescription: true,
+          venue: true,
+          prizes: true,
           isTeamEvent: true,
           minTeamSize: true,
           maxTeamSize: true,
           participantLimit: true,
+          registrationFee: true,
           registrationDeadline: true,
           status: true,
           registrationOpen: true,
@@ -135,9 +141,23 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
       [],
     ),
     safe(
+      prisma.siteSetting.findUnique({
+        where: { key: "payment.bkashNumber" },
+        select: { value: true },
+      }),
+      null,
+    ),
+    safe(
+      prisma.event.findUnique({
+        where: { type: "HANDS_ON" },
+        select: { registrationFee: true, venue: true },
+      }),
+      null,
+    ),
+    safe(
       prisma.eventRegistration.groupBy({
         by: ["eventId"],
-        where: { status: { in: ["PENDING", "CONFIRMED", "WAITLISTED"] } },
+        where: { status: { in: ["PENDING", "PRELIM_APPROVED", "PAYMENT_PENDING", "PENDING_PAYMENT", "CONFIRMED", "WAITLISTED"] } },
         _count: { _all: true },
       }),
       [],
@@ -191,10 +211,13 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
       name: event.name,
       slug: event.slug,
       shortDescription: event.shortDescription,
+      venue: event.venue,
+      prizes: event.prizes,
       isTeamEvent: event.isTeamEvent,
       minTeamSize: limits.min,
       maxTeamSize: limits.max,
       participantLimit: event.participantLimit,
+      registrationFee: event.registrationFee.toString(),
       registeredCount: countByEvent.get(event.id) ?? 0,
       registrationDeadline: deadline ? deadline.toISOString() : null,
       deadlineLabel: deadline ? formatDate(deadline) : null,
@@ -220,7 +243,8 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
       dateLabel: formatDate(workshop.date),
       startTime: workshop.startTime,
       endTime: workshop.endTime,
-      venue: workshop.venue,
+      venue: handsOnSettings?.venue ?? workshop.venue,
+      registrationFee: handsOnSettings?.registrationFee.toString() ?? "300",
       seatsLeft: Math.max(0, workshop.totalSeats - workshop.registeredCount),
       alreadyRegistered: myWorkshops.has(workshop.id),
     }))
@@ -247,6 +271,7 @@ async function getRegisterData(user: ViewerRow | null): Promise<RegisterData> {
     workshops: wizardWorkshops,
     universities,
     viewer,
+    bkashNumber: bkashSetting?.value.trim() ?? "",
   }
 }
 
@@ -260,8 +285,8 @@ export default async function RegisterPage() {
     <>
       <PageHeader
         label="Registration"
-        title="Register for DIU CyberCon 2026"
-        description="Pick your module, verify your student identity, and lock in your spot. CTF, Project Showcasing, Poster Presentation, Trace & Route, the Panel Discussion, and Hands-on Activities — all in one guided flow."
+        title="Register for DIU_CYBERCON 2026"
+        description="Pick your event, verify your student identity, and lock in your spot. Register for the CTF, submit an Innovation Symposium idea, or join the Panel Discussion and Hands-on Activities."
         crumbs={[{ label: "Home", href: "/" }, { label: "Register" }]}
       />
 
@@ -274,6 +299,7 @@ export default async function RegisterPage() {
                 workshops={data.workshops}
                 universities={data.universities}
                 viewer={data.viewer}
+                bkashNumber={data.bkashNumber}
               />
             ) : (
               <RegisterAuthGate />

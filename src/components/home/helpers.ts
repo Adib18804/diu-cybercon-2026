@@ -7,9 +7,7 @@ import type { CardAccent } from "@/components/ui"
 // Accent colour per event slug — matches EVENT_MODULES metadata in constants.ts
 const ACCENT_BY_SLUG: Record<string, CardAccent> = {
   ctf: "cyan",
-  "trace-route": "neon",
-  "project-showcase": "violet",
-  poster: "pink",
+  "innovation-symposium": "violet",
   panel: "amber",
   workshops: "violet",
 }

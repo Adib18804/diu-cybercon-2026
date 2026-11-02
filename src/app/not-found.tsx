@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 const QUICK_LINKS = [
   { href: "/events/ctf", label: "CTF" },
-  { href: "/events/trace-route", label: "Trace & Route" },
+  { href: "/events/innovation-symposium", label: "Innovation Symposium" },
   { href: "/events/workshops", label: "Workshops" },
   { href: "/schedule", label: "Schedule" },
   { href: "/sponsors", label: "Sponsors" },

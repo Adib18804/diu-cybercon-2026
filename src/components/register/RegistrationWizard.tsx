@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   Copy,
   LayoutDashboard,
+  Lightbulb,
   MapPin,
   Plus,
   ShieldCheck,
@@ -21,6 +22,7 @@ import * as React from "react"
 import toast from "react-hot-toast"
 
 import { ParticipantFields } from "./ParticipantFields"
+import { BkashPaymentForm } from "./BkashPaymentForm"
 import {
   emptyParticipantForm,
   UNIVERSITY_OTHER,
@@ -47,13 +49,18 @@ import {
   EventTypeBadge,
   Input,
   MiniStepBar,
+  Select,
   StepIndicator,
+  Textarea,
   type Step,
 } from "@/components/ui"
 import { FILE_UPLOAD } from "@/lib/constants"
 import { formatBytes, titleCase } from "@/lib/utils"
 import {
   participantProfileSchema,
+  INNOVATION_SYMPOSIUM_DOMAINS,
+  symposiumDomainSchema,
+  symposiumIdeaSummarySchema,
   teamMemberSchema,
   teamNameSchema,
 } from "@/lib/validations/registration"
@@ -75,14 +82,16 @@ export interface RegistrationWizardProps {
   workshops: WizardWorkshop[]
   universities: UniversityOption[]
   viewer: Viewer
+  bkashNumber: string
 }
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
-type StepId = "event" | "participant" | "upload" | "team" | "members" | "review" | "terms"
+type StepId = "event" | "symposium" | "participant" | "upload" | "team" | "members" | "review" | "terms"
 
 const STEP_META: Record<StepId, { label: string; description: string }> = {
   event:       { label: "Choose Event",  description: "Pick a module or hands-on activity" },
+  symposium:   { label: "Symposium Idea", description: "Choose a domain and summarize your idea" },
   participant: { label: "Your Details",  description: "Tell us who is registering" },
   upload:      { label: "ID Upload",     description: "Verify your student identity" },
   team:        { label: "Team Setup",    description: "Name your team" },
@@ -97,6 +106,32 @@ interface MemberDraft {
   key: string
   values: MemberFormValues
   upload: StagedUpload | null
+}
+
+function maxTeamSizeForEvent(event: WizardEvent): number {
+  if (event.type === "INNOVATION_SYMPOSIUM") {return 3}
+  if (event.type === "CTF") {return 4}
+  return event.maxTeamSize
+}
+
+const CTF_GIVEAWAYS = ["Tote bag", "ID card", "T-shirt", "stickers", "pen", "pad", "key ring", "lunch"]
+const SYMPOSIUM_WORKSHOP_GIVEAWAYS = ["T-shirt", "lunch", "Pad", "Pen", "ID"]
+
+function eventRegistrationRule(event: WizardEvent): string {
+  const venue = event.venue ?? "To be announced"
+  const fee = Number(event.registrationFee).toLocaleString("en-US")
+  switch (event.type) {
+    case "CTF": return `CTF Final: ${fee} BDT per team (4 members). Venue: ${venue}. Preliminary is free.`
+    case "INNOVATION_SYMPOSIUM": return `Innovation Symposium: ${fee} BDT per person (Max 3 members). Venue: ${venue}.`
+    case "PANEL_DISCUSSION": return `Panel Discussion: Free entry. Venue: ${venue}.`
+    default: return event.rules ?? "See event details for fees and venue."
+  }
+}
+
+function eventGiveaways(event: WizardEvent): string[] {
+  if (event.type === "CTF") {return CTF_GIVEAWAYS}
+  if (event.type === "INNOVATION_SYMPOSIUM") {return SYMPOSIUM_WORKSHOP_GIVEAWAYS}
+  return event.prizes?.split(/\r?\n/).map((item) => item.trim()).filter(Boolean) ?? []
 }
 
 function newMemberDraft(): MemberDraft {
@@ -191,6 +226,7 @@ function clearStepErrorKeys(
     upload: ["participant.verification"],
     team: ["team.name"],
     members: ["team.members."],
+    symposium: ["domain", "ideaSummary"],
     review: [],
     terms: [],
   }
@@ -216,6 +252,7 @@ export function RegistrationWizard({
   workshops,
   universities,
   viewer,
+  bkashNumber,
 }: RegistrationWizardProps) {
   const router = useRouter()
   const wizardRef = React.useRef<HTMLDivElement>(null)
@@ -244,6 +281,8 @@ export function RegistrationWizard({
   })
   const [participantUpload, setParticipantUpload] = React.useState<StagedUpload | null>(null)
   const [teamName, setTeamName] = React.useState("")
+  const [symposiumDomain, setSymposiumDomain] = React.useState("")
+  const [ideaSummary, setIdeaSummary] = React.useState("")
   const [members, setMembers] = React.useState<MemberDraft[]>([])
   const [acceptTerms, setAcceptTerms] = React.useState(false)
 
@@ -269,10 +308,26 @@ export function RegistrationWizard({
       return ["event", "participant", "upload", "review", "terms"]
     }
     if (mode === "event" && selectedEvent?.isTeamEvent) {
-      return ["event", "participant", "upload", "team", "members", "review", "terms"]
+      return [
+        "event",
+        ...(selectedEvent.type === "INNOVATION_SYMPOSIUM" ? ["symposium" as const] : []),
+        "participant",
+        "upload",
+        "team",
+        "members",
+        "review",
+        "terms",
+      ]
     }
     if (mode === "event") {
-      return ["event", "participant", "upload", "review", "terms"]
+      return [
+        "event",
+        ...(selectedEvent?.type === "INNOVATION_SYMPOSIUM" ? ["symposium" as const] : []),
+        "participant",
+        "upload",
+        "review",
+        "terms",
+      ]
     }
     return ["event"]
   }, [mode, selectedEvent])
@@ -384,7 +439,7 @@ export function RegistrationWizard({
     if (!selectedEvent) {
       return
     }
-    if (members.length >= selectedEvent.maxTeamSize - 1) {
+    if (members.length >= maxTeamSizeForEvent(selectedEvent) - 1) {
       return
     }
     setMembers((prev) => [...prev, newMemberDraft()])
@@ -451,6 +506,20 @@ export function RegistrationWizard({
       return OK
     }
 
+    if (stepId === "symposium") {
+      const domain = symposiumDomainSchema.safeParse(symposiumDomain)
+      if (!domain.success) {
+        errors.domain = domain.error.issues[0]?.message ?? "Choose a symposium domain."
+      }
+      const summary = symposiumIdeaSummarySchema.safeParse(ideaSummary)
+      if (!summary.success) {
+        errors.ideaSummary = summary.error.issues[0]?.message ?? "Enter an idea summary."
+      }
+      return Object.keys(errors).length > 0
+        ? { ok: false, errors, message: "Complete the Innovation Symposium details." }
+        : OK
+    }
+
     if (stepId === "upload") {
       if (!participantUpload) {
         return {
@@ -503,11 +572,11 @@ export function RegistrationWizard({
           message: `Teams need at least ${selectedEvent.minTeamSize} members including you.`,
         }
       }
-      if (total > selectedEvent.maxTeamSize) {
+      if (total > maxTeamSizeForEvent(selectedEvent)) {
         return {
           ok: false,
           errors,
-          message: `Teams can have at most ${selectedEvent.maxTeamSize} members including you.`,
+          message: `Teams can have at most ${maxTeamSizeForEvent(selectedEvent)} members including you.`,
         }
       }
       if (Object.keys(errors).length > 0) {
@@ -590,8 +659,13 @@ export function RegistrationWizard({
     }
     const payload: Record<string, unknown> = {
       eventId: selectedEvent.id,
+      registrationPhase: "PRELIMINARY",
       participant: { ...profileCandidate(participant), verification },
       acceptTerms: true,
+    }
+    if (selectedEvent.type === "INNOVATION_SYMPOSIUM") {
+      payload.domain = symposiumDomain
+      payload.ideaSummary = ideaSummary
     }
     if (selectedEvent.isTeamEvent) {
       payload.team = {
@@ -731,14 +805,17 @@ export function RegistrationWizard({
       } else {
         setOutcome({
           mode: "event",
+          eventType: json.data.eventType,
           title: json.data.eventName,
           teamName: json.data.teamName,
           emailSent: json.data.emailSent,
           registrations: json.data.registrations ?? [],
+          registrationFee: selectedEvent?.registrationFee ?? "0",
+          bkashNumber,
           seatsRemaining: null,
         })
       }
-      toast.success("Registration confirmed!")
+      toast.success(isWorkshop ? "Workshop registration confirmed!" : "Registration submitted for review.")
       router.refresh()
     } catch {
       setFormError("Something went wrong while submitting. Please try again.")
@@ -756,6 +833,8 @@ export function RegistrationWizard({
     setStepIndex(0)
     setParticipantUpload(null)
     setTeamName("")
+    setSymposiumDomain("")
+    setIdeaSummary("")
     setMembers([])
     setAcceptTerms(false)
     setFieldErrors({})
@@ -796,17 +875,23 @@ export function RegistrationWizard({
               </motion.span>
 
               <h2 className="mt-5 font-display text-2xl font-bold text-text-primary">
-                Registration Confirmed
+                {outcome.mode === "event" ? "Registration Submitted" : "Registration Confirmed"}
               </h2>
               <p className="mt-2 max-w-md text-sm leading-relaxed text-text-muted">
-                {`You are registered for ${outcome.title}.`}
+                {outcome.mode === "event"
+                  ? Number(outcome.registrationFee ?? 0) > 0
+                    ? `Your registration for ${outcome.title} is waiting for payment verification.`
+                    : `Your registration for ${outcome.title} is pending admin review.`
+                  : `You are registered for ${outcome.title}.`}
                 {outcome.teamName ? ` Team: ${outcome.teamName}.` : ""}
               </p>
               <p className="mt-3 flex items-center gap-2 text-xs text-text-faint">
                 <ShieldCheck size={14} className="text-neon" aria-hidden="true" />
-                {outcome.emailSent
-                  ? "A confirmation email is on its way to your inbox."
-                  : "Your confirmation email could not be sent right now — details are always available on your dashboard."}
+                {outcome.mode === "event"
+                  ? "We will email you when your registration is approved or rejected."
+                  : outcome.emailSent
+                    ? "A confirmation email is on its way to your inbox."
+                    : "Your confirmation email could not be sent right now — details are always available on your dashboard."}
               </p>
               {outcome.mode === "workshop" && outcome.seatsRemaining !== null && (
                 <p className="mt-2 font-mono text-xs uppercase tracking-wider text-cyan">
@@ -872,9 +957,27 @@ export function RegistrationWizard({
           </div>
         )}
 
+        {outcome.mode === "event" &&
+          outcome.eventType !== "CTF" &&
+          outcome.eventType !== "INNOVATION_SYMPOSIUM" &&
+          Number(outcome.registrationFee ?? 0) > 0 && (
+          <section className="mx-auto w-full max-w-2xl rounded-lg border border-border bg-bg-panel p-5">
+            <h3 className="font-display text-base font-semibold text-text-primary">Complete your bKash payment</h3>
+            <p className="mt-1 text-xs text-text-muted">Team participants submit payment separately from their own accounts.</p>
+            {outcome.registrations.filter((registration) => registration.isLeader).map((registration) => (
+              <BkashPaymentForm
+                key={registration.registrationId}
+                registrationId={registration.registrationId}
+                amount={outcome.registrationFee!}
+                bkashNumber={outcome.bkashNumber ?? ""}
+              />
+            ))}
+          </section>
+        )}
+
         <p className="text-center text-xs leading-relaxed text-text-faint">
-          Keep your QR pass ready at the venue entrance. Your student ID stays
-          private and is only reviewed by the verification team.
+          Approved registrations receive access to a QR pass. Your student ID
+          stays private and is only reviewed by the verification team.
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -977,10 +1080,17 @@ export function RegistrationWizard({
                         {event.shortDescription}
                       </p>
 
+                      <p className="mt-3 text-xs font-medium leading-relaxed text-text-primary">{eventRegistrationRule(event)}</p>
+                      {eventGiveaways(event).length > 0 && (
+                        <p className="mt-2 text-xs leading-relaxed text-text-muted">
+                          Giveaways: {eventGiveaways(event).join(", ")}
+                        </p>
+                      )}
+
                       <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[0.625rem] uppercase tracking-wider">
                         {event.isTeamEvent && (
                           <span className="text-text-faint">
-                            Team {event.minTeamSize}–{event.maxTeamSize}
+                            Team {event.minTeamSize}–{maxTeamSizeForEvent(event)}
                           </span>
                         )}
                         {spotsLeft !== null && (
@@ -1025,7 +1135,7 @@ export function RegistrationWizard({
           {workshops.length > 0 && (
             <div className="space-y-4">
               <h3 className="font-mono text-xs uppercase tracking-widest text-text-muted">
-                Hands-on Activities
+                Workshops
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 {workshops.map((workshop) => {
@@ -1069,6 +1179,9 @@ export function RegistrationWizard({
                         </p>
                       </div>
 
+                      <p className="mt-3 text-xs font-medium leading-relaxed text-text-primary">Workshop: {workshop.registrationFee} BDT per person. Venue: {workshop.venue === "International Conference Hall (ICH)" ? "ICH" : workshop.venue}.</p>
+                      <p className="mt-2 text-xs leading-relaxed text-text-muted">Giveaways: T-shirt, lunch, Pad, Pen, ID.</p>
+
                       <div className="mt-3">
                         {workshop.alreadyRegistered ? (
                           <Badge variant="neon" size="sm">
@@ -1095,6 +1208,51 @@ export function RegistrationWizard({
               </div>
             </div>
           )}
+        </div>
+      )
+    }
+
+    // ── INNOVATION SYMPOSIUM DETAILS ─────────────────────────────────────────
+    if (currentStepId === "symposium") {
+      return (
+        <div className="space-y-5 rounded-lg border border-border bg-bg-panel p-5">
+          <div className="flex items-start gap-3">
+            <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-cyan" aria-hidden="true" />
+            <div>
+              <h3 className="text-sm font-semibold text-text-primary">Innovation Symposium proposal</h3>
+              <p className="mt-1 text-xs leading-relaxed text-text-muted">
+                Choose the closest domain and describe your preliminary idea. You may register a team of up to three people.
+              </p>
+            </div>
+          </div>
+          <Select
+            label="Domain"
+            placeholder="Select a domain"
+            options={INNOVATION_SYMPOSIUM_DOMAINS.map((domain) => ({ value: domain, label: domain }))}
+            value={symposiumDomain}
+            onChange={(event) => {
+              setSymposiumDomain(event.target.value)
+              setFieldErrors((previous) => ({ ...previous, domain: "" }))
+            }}
+            error={fieldErrors.domain}
+            disabled={submitting}
+            required
+          />
+          <Textarea
+            label="Idea Summary"
+            placeholder="Describe the problem, your proposed approach, and its cybersecurity impact."
+            value={ideaSummary}
+            onChange={(event) => {
+              setIdeaSummary(event.target.value)
+              setFieldErrors((previous) => ({ ...previous, ideaSummary: "" }))
+            }}
+            error={fieldErrors.ideaSummary}
+            helper="20–3000 characters"
+            maxLength={3000}
+            rows={6}
+            disabled={submitting}
+            required
+          />
         </div>
       )
     }
@@ -1182,7 +1340,7 @@ export function RegistrationWizard({
             </p>
             <p className="mt-1.5 text-xs leading-relaxed text-text-muted">
               {selectedEvent.name} teams must have between{" "}
-              {selectedEvent.minTeamSize} and {selectedEvent.maxTeamSize} members
+              {selectedEvent.minTeamSize} and {maxTeamSizeForEvent(selectedEvent)} members
               including the team leader (you). You will add your teammates in the
               next step.
             </p>
@@ -1193,10 +1351,11 @@ export function RegistrationWizard({
 
     // ── TEAM MEMBERS ─────────────────────────────────────────────────────────
     if (currentStepId === "members" && selectedEvent) {
-      const canAddMore = members.length < selectedEvent.maxTeamSize - 1
+      const maxTeamSize = maxTeamSizeForEvent(selectedEvent)
+      const canAddMore = members.length < maxTeamSize - 1
       const total = 1 + members.length
       const sizeOk =
-        total >= selectedEvent.minTeamSize && total <= selectedEvent.maxTeamSize
+        total >= selectedEvent.minTeamSize && total <= maxTeamSize
 
       return (
         <div className="space-y-5">
@@ -1212,7 +1371,7 @@ export function RegistrationWizard({
               <span className={sizeOk ? "font-bold text-neon" : "font-bold text-amber"}>
                 {total}
               </span>{" "}
-              of {selectedEvent.minTeamSize}–{selectedEvent.maxTeamSize} required
+              of {selectedEvent.minTeamSize}–{maxTeamSize} required
               (including you)
             </p>
             {!sizeOk && (
@@ -1258,7 +1417,7 @@ export function RegistrationWizard({
                     value={member.values.email}
                     onChange={(e) => updateMember(index, { email: e.target.value })}
                     error={fieldErrors[`team.members.${index}.email`]}
-                    helper="Their confirmation email and QR pass go here"
+                    helper="Approval updates will be sent to this address"
                     disabled={submitting}
                     required
                   />
@@ -1285,7 +1444,7 @@ export function RegistrationWizard({
             fullWidth
           >
             {canAddMore
-              ? `Add Team Member (${members.length} of ${selectedEvent.maxTeamSize - 1} added)`
+              ? `Add Team Member (${members.length} of ${maxTeamSize - 1} added)`
               : "Maximum team size reached"}
           </Button>
 
@@ -1319,6 +1478,13 @@ export function RegistrationWizard({
                 : selectedEvent?.shortDescription}
             </p>
           </ReviewBlock>
+
+          {selectedEvent?.type === "INNOVATION_SYMPOSIUM" && (
+            <ReviewBlock title="Innovation Symposium proposal" onEdit={() => jumpTo("symposium")}>
+              <p className="text-sm font-medium text-text-primary">{symposiumDomain}</p>
+              <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-text-muted">{ideaSummary}</p>
+            </ReviewBlock>
+          )}
 
           {/* Participant summary */}
           <ReviewBlock title="Your Information" onEdit={() => jumpTo("participant")}>

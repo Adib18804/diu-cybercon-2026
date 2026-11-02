@@ -45,12 +45,11 @@ function terminalLines(organizerName: string): { cmd: string; out: React.ReactNo
           Preliminary Round
         </span>
         <span>
-          <span className="text-cyan">day-02</span> 14 Nov 2026 · on-site · Main
-          Event — 6 modules
+          <span className="text-cyan">on-site</span> 12 Dec 2026 · CTF Final
+          + Innovation Symposium
         </span>
         <span>
-          <span className="text-violet">day-03</span> 15 Nov 2026 · on-site · Finals
-          · Panel · Closing
+          <span className="text-violet">program</span> Panel · Workshops · Closing
         </span>
       </span>
     ),
@@ -59,7 +58,7 @@ function terminalLines(organizerName: string): { cmd: string; out: React.ReactNo
       cmd: "ls ./modules",
       out: (
         <span>
-          ctf/ trace-route/ project-showcase/ poster/ panel/ workshops/
+          ctf/ innovation-symposium/ panel/ workshops/
         </span>
       ),
     },
@@ -77,7 +76,7 @@ function Hero({
 }: HeroProps) {
   const prefersReducedMotion = useReducedMotion()
 
-  // Split "DIU CyberCon 2026" → ["DIU", "CyberCon", "2026"] so the year can
+  // Split "DIU_CYBERCON 2026" → ["DIU", "CyberCon", "2026"] so the year can
   // carry the gradient treatment.
   const titleParts = title.trim().split(/\s+/)
   const yearPart = titleParts.length > 1 ? titleParts[titleParts.length - 1] : null
@@ -99,7 +98,7 @@ function Hero({
         className="pointer-events-none absolute -top-32 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
         style={{
           background:
-            "radial-gradient(closest-side, rgba(0,229,255,0.35), rgba(124,58,237,0.18), transparent)",
+            "radial-gradient(closest-side, rgba(225, 29, 72,0.35), rgba(190, 18, 60,0.18), transparent)",
         }}
         aria-hidden="true"
       />
@@ -171,7 +170,7 @@ function Hero({
                   <dd className="font-mono text-sm text-text-primary">
                     24 Oct 2026 <span className="text-text-faint">· online CTF prelims</span>
                     <br />
-                    14–15 Nov 2026 <span className="text-text-faint">· on-site main event</span>
+                    12 Dec 2026 <span className="text-text-faint">· on-site at Library Zone, Student Lounge & ICH</span>
                   </dd>
                 </div>
               </div>
@@ -299,7 +298,7 @@ function Hero({
           className="flex flex-col items-center gap-4 border-t border-border/60 py-10"
         >
           <p className="section-label mb-0 justify-center">
-            Countdown to the main event · 14 Nov 2026 · 09:00 AM
+            Countdown to the main event · 12 Dec 2026 · 09:00 AM
           </p>
           <div className="flex w-full justify-center overflow-hidden">
             <CountdownTimer

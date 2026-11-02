@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Rate Limiting
+// DIU_CYBERCON 2026 — Rate Limiting
 // Uses rate-limiter-flexible with Redis (production) or in-memory (dev).
 // =============================================================================
 

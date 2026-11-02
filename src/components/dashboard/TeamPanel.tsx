@@ -176,7 +176,6 @@ export function TeamPanel({ team, universities }: TeamPanelProps) {
       const json = (await res.json().catch(() => null)) as ApiEnvelope<{
         participantName: string
         teamSize: number
-        emailSent: boolean
       }> | null
 
       if (!res.ok || !json?.success) {

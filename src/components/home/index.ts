@@ -14,9 +14,6 @@ export type { EventStatsProps } from "./EventStats"
 export { ModuleGrid } from "./ModuleGrid"
 export type { ModuleGridProps } from "./ModuleGrid"
 
-export { ModuleFeatures } from "./ModuleFeatures"
-export type { ModuleFeaturesProps } from "./ModuleFeatures"
-
 export { ModulePreviews } from "./ModulePreviews"
 export type { ModulePreviewsProps } from "./ModulePreviews"
 
@@ -31,9 +28,6 @@ export type { SponsorsSectionProps } from "./SponsorsSection"
 
 export { PartnersSection } from "./PartnersSection"
 export type { PartnersSectionProps } from "./PartnersSection"
-
-export { LegacySection } from "./LegacySection"
-export type { LegacySectionProps } from "./LegacySection"
 
 export { GalleryPreview } from "./GalleryPreview"
 export type { GalleryPreviewProps } from "./GalleryPreview"

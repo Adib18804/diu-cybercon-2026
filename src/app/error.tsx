@@ -35,7 +35,7 @@ export default function GlobalError({ error, reset }: ErrorProps) {
             className="absolute inset-0 opacity-30 pointer-events-none"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(0,229,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.045) 1px, transparent 1px)",
+                "linear-gradient(rgba(225, 29, 72,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(225, 29, 72,0.045) 1px, transparent 1px)",
               backgroundSize: "60px 60px",
             }}
           />

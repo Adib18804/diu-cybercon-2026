@@ -2,18 +2,16 @@
 // POST /api/teams/[id]/members — Add a member to an existing team.
 // Leader-only. The student ID upload token must have been staged by the
 // leader (same rule as the registration wizard). Creates the member's
-// registration (+QR) and sends their confirmation email.
+// registration; the new registration awaits admin approval.
 // =============================================================================
 
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
 import { auditLog, extractIpAddress, extractUserAgent } from "@/lib/audit"
-import { sendRegistrationConfirmationEmail } from "@/lib/email/resend"
 import { requireAuth } from "@/lib/rbac"
 import { registrationErrorResponse } from "@/lib/registrations/http"
 import { addTeamMember } from "@/lib/registrations/service"
-import { generateQrDataUrl, signQrToken } from "@/lib/security/qr"
 import {
   checkRateLimit,
   rateLimitExceededResponse,
@@ -75,17 +73,9 @@ export async function POST(
       input: parsed.data,
     })
 
-    // ── Post-transaction: QR, audit, email ────────────────────────────────────
+    // ── Post-transaction: audit ────────────────────────────────────────────────
     const ipAddress = extractIpAddress(request)
     const userAgent = extractUserAgent(request)
-
-    let qrDataUrl: string | null = null
-    try {
-      const token = await signQrToken(result.registrationId)
-      qrDataUrl = await generateQrDataUrl(token)
-    } catch (err) {
-      console.error("[POST /api/teams/[id]/members] QR generation failed:", err)
-    }
 
     await auditLog({
       actorId: session.user.id,
@@ -102,16 +92,6 @@ export async function POST(
       metadata: { teamSize: result.teamSize },
     })
 
-    const emailSent = (
-      await sendRegistrationConfirmationEmail({
-        to: result.email,
-        name: result.participantName,
-        registrationId: result.registrationId,
-        eventName: result.eventName,
-        teamName: result.teamName,
-      })
-    ).success
-
     // ── Response ──────────────────────────────────────────────────────────────
     return NextResponse.json(
       successResponse(
@@ -122,10 +102,8 @@ export async function POST(
           participantName: result.participantName,
           email: result.email,
           teamSize: result.teamSize,
-          emailSent,
-          qrDataUrl,
         },
-        "Team member added.",
+        "Team member added. Their registration is pending approval.",
       ),
       { status: 201 },
     )

@@ -15,11 +15,14 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react"
+import type { Route } from "next"
+import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
 import toast from "react-hot-toast"
 
 import {
   AdminApiError,
+  adminFetch,
   adminMutate,
   AdminFilterSelect,
   AdminSearchInput,
@@ -156,6 +159,8 @@ function buildPayload(form: SponsorFormState): Record<string, unknown> {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AdminSponsorsPage() {
+  const pathname = usePathname()
+  const router = useRouter()
   const list = useAdminList<SponsorRow>("/api/admin/sponsors", {
     initialFilters: { tier: "", isActive: "" },
   })
@@ -180,7 +185,8 @@ export default function AdminSponsorsPage() {
     setForm(EMPTY_FORM)
     setFieldErrors({})
     setFormOpen(true)
-  }, [])
+    if (pathname !== "/admin/sponsors/new") {router.push("/admin/sponsors/new")}
+  }, [pathname, router])
 
   const openEdit = React.useCallback((row: SponsorRow) => {
     setEditing(row)
@@ -196,14 +202,48 @@ export default function AdminSponsorsPage() {
     })
     setFieldErrors({})
     setFormOpen(true)
-  }, [])
+    if (pathname !== `/admin/sponsors/${row.id}`) {router.push(`/admin/sponsors/${row.id}`)}
+  }, [pathname, router])
 
   const closeForm = React.useCallback(() => {
     setFormOpen(false)
     setEditing(null)
     setForm(EMPTY_FORM)
     setFieldErrors({})
-  }, [])
+    if (pathname !== "/admin/sponsors") {router.replace("/admin/sponsors" as Route)}
+  }, [pathname, router])
+
+  React.useEffect(() => {
+    if (pathname === "/admin/sponsors") {
+      if (formOpen) {
+        setFormOpen(false)
+        setEditing(null)
+        setForm(EMPTY_FORM)
+        setFieldErrors({})
+      }
+      return
+    }
+    if (pathname === "/admin/sponsors/new") {
+      if (!formOpen || editing) {
+        setEditing(null)
+        setForm(EMPTY_FORM)
+        setFieldErrors({})
+        setFormOpen(true)
+      }
+      return
+    }
+    const sponsorId = pathname.match(/^\/admin\/sponsors\/([^/]+)$/)?.[1]
+    if (!sponsorId || editing?.id === sponsorId) {return}
+    let cancelled = false
+    adminFetch<SponsorRow>(`/api/admin/sponsors/${encodeURIComponent(sponsorId)}`)
+      .then((row) => {if (!cancelled) {openEdit(row)}})
+      .catch((err: unknown) => {
+        if (cancelled) {return}
+        toastApiError(err, "Could not load sponsor.")
+        router.replace("/admin/sponsors" as Route)
+      })
+    return () => {cancelled = true}
+  }, [pathname, formOpen, editing, openEdit, router])
 
   const handleSave = React.useCallback(async () => {
     const errors = validateForm(form)

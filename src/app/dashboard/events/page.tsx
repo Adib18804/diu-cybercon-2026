@@ -8,9 +8,12 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { EmptyState, StatusBadge } from "@/components/dashboard"
+import { BkashPaymentForm } from "@/components/register/BkashPaymentForm"
 import { Card, CardContent } from "@/components/ui"
 import { getMyRegistrations } from "@/lib/dashboard/queries"
+import { prisma } from "@/lib/db"
 import { getSessionUser } from "@/lib/rbac"
+import { verifyFinalRegistrationToken } from "@/lib/registrations/finalization"
 import { formatDate } from "@/lib/utils"
 
 export const metadata: Metadata = {
@@ -19,13 +22,28 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic"
 
-export default async function DashboardEventsPage() {
+export default async function DashboardEventsPage({
+  searchParams,
+}: {
+  searchParams?: { registration?: string; finalToken?: string }
+}) {
   const user = await getSessionUser()
   if (!user) {return null}
 
-  const registrations = await getMyRegistrations(user.id)
+  const [registrations, bkashSetting] = await Promise.all([
+    getMyRegistrations(user.id),
+    prisma.siteSetting.findUnique({ where: { key: "payment.bkashNumber" }, select: { value: true } }).catch(() => null),
+  ])
+  const bkashNumber = bkashSetting?.value.trim() ?? ""
   const active = registrations.filter((r) => r.status !== "CANCELLED")
   const cancelled = registrations.filter((r) => r.status === "CANCELLED")
+  const finalClaims = verifyFinalRegistrationToken(searchParams?.finalToken)
+  const linkedRegistrationId =
+    finalClaims?.userId === user.id &&
+    finalClaims.registrationId === searchParams?.registration &&
+    registrations.some((registration) => registration.registrationId === finalClaims.registrationId)
+      ? finalClaims.registrationId
+      : null
 
   return (
     <div className="space-y-6">
@@ -42,7 +60,7 @@ export default async function DashboardEventsPage() {
         <EmptyState
           icon={<Ticket className="h-6 w-6" />}
           title="No registrations yet"
-          description="Register for CTF, Project Showcase, Poster Presentation, Trace & Route, or Hands-on Activities to get your QR pass."
+          description="Register for CTF, Innovation Symposium, Panel Discussion, or Hands-on Activities to get your event pass."
           action={
             <Link href="/register" className="btn-primary">
               Register for an Event
@@ -52,7 +70,6 @@ export default async function DashboardEventsPage() {
       ) : (
         <div className="space-y-4">
           {[...active, ...cancelled].map((reg) => {
-            const isCancelled = reg.status === "CANCELLED"
             return (
               <Card key={reg.id} padding="none">
                 <CardContent className="p-0">
@@ -97,9 +114,31 @@ export default async function DashboardEventsPage() {
                           </div>
                         ) : null}
                       </dl>
+                      {reg.registrationPhase === "FINAL" && reg.domain ? (
+                        <div className="mt-3 rounded-md border border-border bg-bg-elevated/50 p-3">
+                          <p className="font-mono text-[0.625rem] uppercase tracking-wider text-text-faint">Innovation Symposium domain</p>
+                          <p className="mt-1 text-sm text-text-primary">{reg.domain}</p>
+                          {reg.ideaSummary ? <p className="mt-2 whitespace-pre-line text-xs leading-relaxed text-text-muted">{reg.ideaSummary}</p> : null}
+                        </div>
+                      ) : null}
+                      {(reg.status === "PRELIM_APPROVED" || reg.status === "PAYMENT_PENDING" || reg.status === "PENDING_PAYMENT") && Number(reg.registrationFee) > 0 && (reg.eventType !== "CTF" || reg.isLeader) && (
+                        <BkashPaymentForm
+                          registrationId={reg.registrationId}
+                          amount={reg.registrationFee}
+                          bkashNumber={bkashNumber}
+                          initialStatus={reg.latestPaymentStatus}
+                          finalizationToken={linkedRegistrationId === reg.registrationId ? searchParams?.finalToken : undefined}
+                        />
+                      )}
+                      {reg.eventType === "CTF" && reg.status === "PRELIM_APPROVED" && !reg.isLeader ? (
+                        <p className="mt-3 text-xs text-text-muted">Your team leader submits the single CTF final payment for the team.</p>
+                      ) : null}
+                      {reg.status === "PRELIM_APPROVED" && reg.registrationPhase === "FINAL" && linkedRegistrationId !== reg.registrationId ? (
+                        <p className="mt-3 text-xs text-text-muted">Use the secure final-registration link sent to your email to complete payment.</p>
+                      ) : null}
                     </div>
 
-                    {!isCancelled ? (
+                    {reg.status === "CONFIRMED" ? (
                       <div className="flex shrink-0 flex-wrap items-center gap-2">
                         <Link
                           href="/dashboard/qr"

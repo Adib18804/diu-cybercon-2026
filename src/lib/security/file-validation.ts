@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Server-side File Validation
+// DIU_CYBERCON 2026 — Server-side File Validation
 // Validates extension + MIME type + magic bytes + size.
 // NEVER trust client-supplied MIME types alone.
 // =============================================================================

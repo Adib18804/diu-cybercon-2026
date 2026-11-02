@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — QR Code Signing & Verification
+// DIU_CYBERCON 2026 — QR Code Signing & Verification
 // QR tokens contain ONLY a signed registrationId — never PII.
 // =============================================================================
 
@@ -76,10 +76,7 @@ export async function generateQrDataUrl(
     color:
       style === "print"
         ? { dark: "#000000", light: "#ffffff" }
-        : {
-            dark: "#00e5ff",  // Cyan dots
-            light: "#05070d", // Dark background
-          },
+        : { dark: "#000000", light: "#FFFFFF" },
     errorCorrectionLevel: "M",
   })
 }

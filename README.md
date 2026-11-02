@@ -1,424 +1,167 @@
-
-# DIU CyberCon 2026
+# DIU_CYBERCON 2026
 
 **LEARN · SECURE · DEFEND**
 
-Official platform for DIU CyberCon 2026 — Bangladesh's flagship national cybersecurity conference, competition, and talent platform. Hosted by the Cyber Security Club, Department of CSE, Daffodil International University.
+The official conference platform for DIU_CYBERCON 2026, hosted by the Cyber Security Club, Department of CSE, Daffodil International University. The application supports public conference information, participant accounts, event registration, team management, manual bKash payments, sponsor administration, and event operations.
 
-**Event Dates**
-- Day 01 · 24 October 2026 · Online — CTF Preliminary Round
-- Day 02 · 14 November 2026 · On-site — Project Showcase · Poster Presentation · Trace & Route · Workshops
-- Day 03 · 15 November 2026 · On-site — CTF Finals · Panel Discussion · Prize Giving · Closing Ceremony
+## Conference information
 
-**Venue:** Daffodil Smart City (DSC), Birulia, Savar, Dhaka-1216, Bangladesh
+- **Day 1 · 24 October 2026:** Online CTF preliminary round
+- **Day 2 · 14 November 2026:** Project Showcase, Poster Presentation, Trace & Route, and workshops
+- **Day 3 · 15 November 2026:** CTF finals, panel discussion, prize giving, and closing ceremony
+- **Venue:** Daffodil Smart City, Birulia, Savar, Dhaka-1216, Bangladesh
 
----
+## Features
 
-## Tech Stack
+- Public home, about, event, schedule, speaker, sponsor, FAQ, gallery, and venue pages.
+- Participant accounts, profile management, email verification, and role-based admin access.
+- Individual and team registrations with event-specific registration IDs such as `CYB26-C-101-A7F3K9`.
+- Signed QR passes containing a registration ID claim and standard token metadata, without participant PII.
+- Per-event registration dates, deadlines, fee, and open/closed toggle managed by authorized admins and recorded in the audit log.
+- Registration review queue with approve/reject actions, participant email notifications, and confirmation invoices.
+- Manual bKash payment submission and admin verification. Transaction IDs are validated and excluded from payment API responses.
+- Sponsor logo upload with server-side validation and Sharp image processing, plus tier-based sponsor grids.
+- Admin analytics for registrations, payment revenue, team sizes, and pending approvals.
+- QR check-in, registration and team management, student verification, submissions, workshops, announcements, and site settings.
+- Red, black, and white interface palette with responsive navigation and horizontally scrollable data tables.
 
-| Layer | Technology |
+## Technology
+
+| Area | Technology |
 |---|---|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS 3.4 + custom design tokens |
-| Animation | Framer Motion |
-| Database | PostgreSQL 16 + Prisma ORM |
-| Auth | NextAuth.js v5 (Auth.js) |
-| Validation | Zod (shared client + server) |
-| Forms | React Hook Form |
+| Framework | Next.js 14 App Router |
+| Language | TypeScript (strict mode) |
+| Styling | Tailwind CSS 3.4 and shared design tokens |
+| Database | PostgreSQL 16 and Prisma ORM |
+| Authentication | NextAuth.js / Auth.js (NextAuth 5 beta dependency in this repository) |
+| Validation | Zod |
 | Email | Resend |
-| Storage | Cloudinary |
-| Rate Limiting | rate-limiter-flexible + Redis |
-| Deployment | Vercel + Supabase/Neon |
+| Media storage | Cloudinary |
+| Image processing | Sharp |
+| Charts | Recharts |
+| QR | `qrcode` with signed JWT tokens |
+| PDF invoices | `pdf-lib` |
+| Rate limiting | `rate-limiter-flexible`, optional Redis |
 
----
+## Requirements
 
-## Prerequisites
+- Node.js 20 or later
+- npm 10 or later
+- Docker Compose for the local PostgreSQL and Redis services
+- Cloudinary credentials for upload workflows
+- A Resend API key and verified sender for actual email delivery
 
-- **Node.js** >= 20.0.0
-- **npm** >= 10.0.0
-- **Docker Desktop** (for local PostgreSQL + Redis)
-- Accounts: [Resend](https://resend.com), [Cloudinary](https://cloudinary.com)
+## Local setup
 
----
+1. Install dependencies and prepare environment configuration:
 
-## Quick Start
+   ```bash
+   npm install
+   cp .env.example .env.local
+   ```
 
-### 1. Clone and install
+   On Windows PowerShell, use `Copy-Item .env.example .env.local` instead of `cp`.
 
-```bash
-git clone https://github.com/your-org/diucybercon-2026.git
-cd diucybercon-2026
-npm install
-```
+2. Edit `.env.local`. Generate unique secrets for `AUTH_SECRET` and `QR_SIGNING_SECRET` (at least 32 characters); set `NEXT_PUBLIC_APP_URL` and `AUTH_URL` to `http://localhost:3000`. The example configuration uses PostgreSQL at port `5433` and Redis at port `6380`, matching `docker-compose.yml`.
 
-### 2. Configure environment
+   Configure valid Cloudinary credentials to test uploads. Configure `RESEND_API_KEY` and `EMAIL_FROM` to deliver email. Without a Resend API key, the email service logs the delivery failure and returns safely; it does not deliver messages.
 
-```bash
-cp .env.example .env.local
-```
+3. Start PostgreSQL and Redis:
 
-Open `.env.local` and fill in:
+   ```bash
+   docker compose up -d
+   docker compose ps
+   ```
 
-| Variable | Where to get it |
-|---|---|
-| `AUTH_SECRET` | Run: `openssl rand -base64 32` |
-| `QR_SIGNING_SECRET` | Run: `openssl rand -base64 32` |
-| `RESEND_API_KEY` | [resend.com](https://resend.com) → API Keys |
-| `CLOUDINARY_CLOUD_NAME` | [cloudinary.com](https://cloudinary.com) → Dashboard |
-| `CLOUDINARY_API_KEY` | Cloudinary → Settings → Access Keys |
-| `CLOUDINARY_API_SECRET` | Cloudinary → Settings → Access Keys |
+4. Generate the Prisma client, apply database migrations, and seed development data:
 
-All other values match the Docker Compose defaults and work out of the box.
+   ```bash
+   npm run prisma:generate
+   npm run prisma:migrate
+   npm run prisma:seed
+   ```
 
-### 3. Start local services
+   The seed script reads the initial Super Admin credentials from environment variables. Change the development seed password before using any shared or production environment. Seed the `payment.bkashNumber` site setting with the receiving number before testing paid registration.
 
-```bash
-docker compose up -d
-```
+5. Start the application:
 
-This starts:
-- **PostgreSQL 16** on `localhost:5432`
-- **Redis 7** on `localhost:6379`
+   ```bash
+   npm run dev
+   ```
 
-Verify services are healthy:
+   Open [http://localhost:3000](http://localhost:3000). The admin console is at `/admin` and requires an assigned admin role.
 
-```bash
-docker compose ps
-```
+To start the optional pgAdmin service, use `docker compose --profile tools up -d`; it is available at `http://localhost:5050`.
 
-To also start pgAdmin (DB GUI at `http://localhost:5050`):
+## Useful commands
 
 ```bash
-docker compose --profile tools up -d
-```
-
-pgAdmin login: `admin@cybercon.dev` / `pgadmin_dev`
-
-### 4. Run database migrations
-
-```bash
-npm run prisma:migrate
-```
-
-This creates all tables, indexes, and constraints from `prisma/schema.prisma`.
-
-### 5. Seed the database
-
-```bash
-npm run prisma:seed
-```
-
-This creates:
-- Super admin account (`admin@diucybercon.com` / `ChangeMe@2026!`)
-- 31 Bangladeshi universities
-- All 6 event modules
-- 30+ site settings
-- 12 FAQ items
-
-> **Important:** Change the admin password immediately after first login.
-
-### 6. Start the development server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
-Admin panel: [http://localhost:3000/admin](http://localhost:3000/admin)
-
----
-
-## Development Commands
-
-```bash
-# Development server
-npm run dev
-
-# Type checking (no emit)
-npm run type-check
-
-# Linting
-npm run lint
-npm run lint:fix
-
-# Formatting
-npm run format
-npm run format:check
-
-# Prisma
+npm run dev                 # Local development server
+npm run type-check          # TypeScript validation
+npm run lint                # ESLint
+npm run build               # Production build
+npm run start               # Serve a production build
 npm run prisma:generate     # Regenerate Prisma client
-npm run prisma:migrate      # Run migrations (dev)
-npm run prisma:migrate:prod # Deploy migrations (production)
-npm run prisma:studio       # Open Prisma Studio GUI
-npm run prisma:seed         # Seed the database
-npm run prisma:reset        # Reset DB and reseed (WARNING: destroys data)
+npm run prisma:migrate      # Create/apply development migrations
+npm run prisma:migrate:prod # Apply committed migrations
+npm run prisma:seed         # Populate development data
+npm run prisma:studio       # Open Prisma Studio
+```
 
-# Build
+There is no test or E2E script in the current `package.json`; use the manual checklist in [`test.md`](./test.md) for local verification.
+
+## Payment and registration lifecycle
+
+- Free event registrations start as `PENDING` and are reviewed by an admin.
+- For a paid event, the participant submits a bKash transaction ID. The registration becomes `PENDING_PAYMENT` while the payment is reviewed.
+- A verified payment confirms the registration and sends a confirmation email with a paid invoice. A rejected payment sends the participant a reason and permits another transaction submission.
+- A payment amount is derived from the event fee on the server. Admins must compare the transaction against the bKash merchant portal before verification.
+- Registration IDs are allocated using a per-event database counter. The QR value is a signed token that contains the registration ID claim; it does not contain participant details.
+
+The bKash receiving number is stored in the `payment.bkashNumber` `SiteSetting`. Set it through the authorized site settings interface before accepting paid registrations.
+
+## Admin sections
+
+Admin routes are protected by server-side permissions. Available sections depend on the signed-in admin's role.
+
+| Route | Purpose |
+|---|---|
+| `/admin` and `/admin/analytics` | Conference operations overview and analytics |
+| `/admin/events` | Event list, dates, registration state, and fees |
+| `/admin/registrations` | Registration review and status management |
+| `/admin/payments` | bKash transaction verification queue |
+| `/admin/sponsors` | Sponsor records and logo management |
+| `/admin/check-in` | QR lookup and check-in actions |
+| `/admin/teams` and `/admin/participants` | Participant and team management |
+| `/admin/settings` | Site settings, including the bKash receiving number |
+| `/admin/audit-logs` | Recorded administrative and security events |
+
+## Database additions
+
+The schema includes event registration fees, `Payment` records, per-event registration counters, and the `PENDING_PAYMENT` registration state. Payment statuses are `PENDING`, `VERIFIED`, and `REJECTED`; the supported payment method is `BKASH`. Apply schema changes through Prisma migrations rather than editing a deployed database manually.
+
+## Security notes
+
+- API handlers enforce authentication or role permissions server-side and validate request data with Zod.
+- Payment amounts are taken from the database; users cannot set their own payable amount.
+- Payment transaction IDs are not returned in payment API responses. They are visible only to authorized admins in the verification interface.
+- Uploaded images are validated and re-encoded with Sharp. Student identity documents use private storage and signed access URLs.
+- QR tokens are HMAC/JWT signed. The QR payload contains a registration ID claim and standard token metadata, not PII.
+- Administrative event and payment changes are audit-logged.
+- Keep `.env.local` and production secrets out of version control. Do not use development seed credentials outside a private local environment.
+
+## Deployment
+
+Before deployment, configure production environment variables, provision PostgreSQL and storage, set a production bKash number and verified email sender, and restrict allowed origins. Apply committed migrations with:
+
+```bash
+npm run prisma:migrate:prod
 npm run build
 npm run start
-
-# Bundle analysis
-npm run analyze
 ```
 
----
-
-## Project Structure
-
-```
-diucybercon-2026/
-├── prisma/
-│   ├── schema.prisma          # Full DB schema
-│   └── seed.ts                # Seed script
-│
-├── docker/
-│   ├── postgres/init.sql      # DB extensions + read-only user
-│   ├── pgadmin/servers.json   # pgAdmin auto-connect
-│   └── redis/redis.conf       # Redis config
-│
-├── public/
-│   ├── robots.txt
-│   ├── site.webmanifest
-│   └── icons/                 # Favicon + app icons (add manually)
-│
-└── src/
-    ├── app/                   # Next.js App Router
-    │   ├── layout.tsx         # Root layout (fonts, metadata, Toaster)
-    │   ├── globals.css        # Design system CSS + Tailwind directives
-    │   ├── page.tsx           # Homepage (placeholder — Phase 11)
-    │   ├── error.tsx          # Global error boundary (500)
-    │   ├── not-found.tsx      # 404 page
-    │   └── sitemap.ts         # Auto-generated sitemap
-    │
-    ├── lib/
-    │   ├── db.ts              # Prisma client singleton
-    │   ├── constants.ts       # All app constants
-    │   ├── utils.ts           # Pure utility functions
-    │   ├── audit.ts           # Audit log helper
-    │   └── security/
-    │       ├── rate-limit.ts  # Redis/memory rate limiter
-    │       ├── file-validation.ts  # MIME + magic byte validation
-    │       └── qr.ts          # QR token sign/verify
-    │
-    ├── types/
-    │   ├── index.ts           # Shared TypeScript types
-    │   ├── api.ts             # API request/response shapes
-    │   └── next-auth.d.ts     # Session type augmentation
-    │
-    └── middleware.ts          # Auth guard + CORS + security headers
-```
-
----
-
-## Environment Variables Reference
-
-See `.env.example` for the full annotated list. Key variables:
-
-```bash
-# App
-NEXT_PUBLIC_APP_URL          # Your domain (http://localhost:3000 in dev)
-
-# Database
-DATABASE_URL                 # PostgreSQL connection string
-DIRECT_DATABASE_URL          # Direct connection (bypasses pooler)
-
-# Auth
-AUTH_SECRET                  # Min 32 chars — generate with openssl rand -base64 32
-
-# Email
-RESEND_API_KEY               # From resend.com
-EMAIL_FROM                   # Sender address (must be verified in Resend)
-
-# Cloudinary
-CLOUDINARY_CLOUD_NAME
-CLOUDINARY_API_KEY
-CLOUDINARY_API_SECRET
-
-# Security
-QR_SIGNING_SECRET            # Min 32 chars — generate with openssl rand -base64 32
-REDIS_URL                    # Optional — uses in-memory if empty
-
-# CORS
-ALLOWED_ORIGINS              # Comma-separated, e.g. https://diucybercon.com
-```
-
----
-
-## Database
-
-### Schema overview
-
-The schema covers 25+ entities including:
-
-- `User` + `Account` + `Session` (NextAuth-compatible)
-- `ParticipantProfile` + `University`
-- `Event` (6 modules) + `EventRegistration` + `Team` + `TeamMember`
-- `StudentVerification` + `VerificationAccessLog`
-- `Project` + `Poster` (submission + review workflow)
-- `Workshop` + `WorkshopRegistration`
-- `Speaker` + `Panel` + `Panelist`
-- `ScheduleItem`
-- `Sponsor` + `SponsorApplication` + `Partner`
-- `Announcement` + `GalleryImage` + `FAQ` + `ContactMessage`
-- `SiteSetting` (admin-editable, no code changes required)
-- `AuditLog` (immutable, append-only)
-
-### Key constraints enforced at DB level
-
-```sql
-UNIQUE: User.email
-UNIQUE: ParticipantProfile.studentId
-UNIQUE: EventRegistration.registrationId
-UNIQUE: (EventRegistration.eventId, EventRegistration.userId)
-UNIQUE: (Team.name, Team.eventId)
-UNIQUE: (TeamMember.teamId, TeamMember.profileId)
-UNIQUE: (WorkshopRegistration.workshopId, WorkshopRegistration.userId)
-```
-
-### Useful Prisma Studio
-
-```bash
-npm run prisma:studio
-# Opens at http://localhost:5555
-```
-
----
-
-## Security
-
-This platform is built for a **cybersecurity** event — security is first-class.
-
-| Layer | Implementation |
-|---|---|
-| Passwords | argon2id (cost 12+) |
-| Sessions | httpOnly + Secure + SameSite=Strict cookies |
-| Auth | Email verification required |
-| RBAC | Server-side on every route + handler |
-| Input | Zod schemas, server validates independently |
-| Files | Extension + MIME + magic byte + size + Sharp re-encode |
-| Student IDs | Private storage, signed URLs (TTL ≤ 5 min), access logged |
-| Rate Limiting | Global + per-route (Redis or in-memory) |
-| CORS | Explicit allowlist — never wildcard |
-| Headers | CSP · HSTS · X-Frame-Options · X-Content-Type-Options |
-| Audit | Every sensitive action → AuditLog (immutable) |
-| QR Codes | Signed JWT containing only registrationId |
-
-**Student ID files are stored in a private Cloudinary folder and served only via signed URLs with a 5-minute TTL. Every view is logged.**
-
----
-
-## Admin Access
-
-| URL | Description |
-|---|---|
-| `/admin` | Dashboard + stats |
-| `/admin/verifications` | Student ID queue |
-| `/admin/participants` | All participants |
-| `/admin/teams` | Team management |
-| `/admin/check-in` | QR scanner + check-in |
-| `/admin/settings` | Site-wide settings |
-| `/admin/audit-logs` | Audit trail |
-
-### Admin roles
-
-| Role | Access |
-|---|---|
-| `SUPER_ADMIN` | Everything |
-| `EVENT_ADMIN` | Events, schedule, speakers, panels, workshops |
-| `REGISTRATION_ADMIN` | Participants, teams, registrations, check-in |
-| `CONTENT_ADMIN` | Announcements, gallery, FAQ |
-| `SPONSORSHIP_ADMIN` | Sponsors, applications, partners |
-| `VERIFICATION_ADMIN` | Student ID verification queue only |
-
-Roles are assigned by `SUPER_ADMIN` only via `/admin/roles`.
-
----
-
-## Build Phases
-
-This project is delivered in 20 phases. Current status:
-
-| Phase | Name | Status |
-|---|---|---|
-| **01** | Project Scaffolding | ✅ Complete |
-| 02 | Design System | Pending |
-| 03 | Database Schema | ✅ Complete (in Phase 01) |
-| 04 | Backend — Auth | Pending |
-| 05 | Backend — Public APIs | Pending |
-| 06 | Backend — Registration | Pending |
-| 07 | Backend — Submissions | Pending |
-| 08 | Backend — Admin APIs | Pending |
-| 09 | Backend — Check-in | Pending |
-| 10 | Frontend — App Shell | Pending |
-| 11 | Frontend — Homepage | Pending |
-| 12 | Frontend — Event Pages | Pending |
-| 13 | Frontend — Registration Wizard | Pending |
-| 14 | Frontend — Participant Dashboard | Pending |
-| 15 | Frontend — Admin Dashboard | Pending |
-| 16 | Email System | Pending |
-| 17 | Security Hardening | Pending |
-| 18 | Accessibility + SEO | Pending |
-| 19 | Performance | Pending |
-| 20 | Deployment | Pending |
-
----
-
-## Deployment (Production)
-
-### Vercel
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel --prod
-```
-
-Set all environment variables from `.env.example` in Vercel dashboard under **Settings → Environment Variables**.
-
-### Database (Supabase / Neon)
-
-1. Create a PostgreSQL database
-2. Copy the connection strings to `DATABASE_URL` and `DIRECT_DATABASE_URL`
-3. Run migrations: `npm run prisma:migrate:prod`
-4. Run seed: `npm run prisma:seed`
-
-### Cloudinary setup
-
-1. Create a Cloudinary account
-2. Create two folders:
-   - `cybercon2026/private/student-ids` — set access to **private**
-   - `cybercon2026/public` — set access to **public**
-3. Copy cloud name, API key, and secret to environment variables
-
-### Domain + SSL
-
-Point `diucybercon.com` to Vercel. SSL is handled automatically.
-Update `NEXT_PUBLIC_APP_URL` and `ALLOWED_ORIGINS` to the production domain.
-
----
-
-## Performance Targets
-
-| Metric | Target |
-|---|---|
-| Lighthouse Performance | ≥ 90 |
-| Lighthouse Accessibility | ≥ 95 |
-| Lighthouse SEO | ≥ 95 |
-| LCP | < 2.5s |
-| INP | < 200ms |
-| CLS | < 0.1 |
-| Bundle (gzipped) | < 500KB |
-
----
+The project can be deployed to a Next.js-compatible host such as Vercel. Configure all required environment variables in the hosting provider; never rely on local development defaults in production.
 
 ## License
 
 Private — Cyber Security Club, Department of CSE, Daffodil International University. All rights reserved.
-
----
-
-*Built with purpose. Every byte secured. Every student protected.*

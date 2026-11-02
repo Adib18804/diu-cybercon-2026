@@ -28,7 +28,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "Events",
   description:
-    "Explore the six flagship event modules of DIU CyberCon 2026 — CTF, Project Showcasing, Poster Presentation, Trace & Route, Panel Discussion, and Hands-on Activities.",
+    "Explore CTF, Innovation Symposium, Panel Discussion, and workshops at DIU_CYBERCON 2026 on 12 December.",
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -36,6 +36,10 @@ export const metadata: Metadata = {
 async function getEvents() {
   try {
     return await prisma.event.findMany({
+      where: {
+        type: { in: ["CTF", "INNOVATION_SYMPOSIUM", "PANEL_DISCUSSION", "HANDS_ON"] },
+        status: { not: "DRAFT" },
+      },
       orderBy: { displayOrder: "asc" },
       select: {
         id: true,
@@ -48,6 +52,8 @@ async function getEvents() {
         minTeamSize: true,
         maxTeamSize: true,
         registrationDeadline: true,
+        registrationFee: true,
+        venue: true,
         eventDay: true,
         status: true,
         registrationOpen: true,
@@ -96,9 +102,9 @@ export default async function EventsPage() {
   return (
     <>
       <PageHeader
-        label="// Event Modules"
-        title="Six modules. One national stage."
-        description="Every module is registered separately — compete in the CTF, present your research, prove your networking skills, or attend the program. Pick one or stack several across the three days."
+        label="// 2026 Events"
+        title="Four events. One national stage."
+        description="Compete in the CTF, present at the Innovation Symposium, join the Panel Discussion, or attend a hands-on workshop on 12 December 2026."
         crumbs={[{ label: "Home", href: "/" }, { label: "Events" }]}
         actions={
           <>
@@ -156,7 +162,7 @@ export default async function EventsPage() {
           <Reveal>
             <SectionHeading
               label="// Choose your track"
-              title="Every module, registered separately"
+              title="Choose your event"
               description="Registration status, formats, and deadlines below are pulled live from the official event register — never placeholders."
             />
           </Reveal>
@@ -229,6 +235,22 @@ export default async function EventsPage() {
                               event.minTeamSize,
                               event.maxTeamSize,
                             )}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="font-mono text-[0.625rem] uppercase tracking-wider text-text-faint">
+                            Fee
+                          </dt>
+                          <dd className="mt-0.5 text-xs font-semibold text-text-primary">
+                            {event.type === "CTF" ? `Preliminary free · Final ৳${event.registrationFee.toString()}/team` : Number(event.registrationFee) === 0 ? "Free entry" : `৳${event.registrationFee.toString()} per person`}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="font-mono text-[0.625rem] uppercase tracking-wider text-text-faint">
+                            Venue
+                          </dt>
+                          <dd className="mt-0.5 text-xs font-semibold text-text-primary">
+                            {event.venue ?? "To be announced"}
                           </dd>
                         </div>
                         <div>

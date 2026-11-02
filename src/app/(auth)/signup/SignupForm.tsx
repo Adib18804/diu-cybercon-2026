@@ -166,7 +166,7 @@ export function SignupForm() {
   return (
     <AuthCard
       title="Create Account"
-      subtitle="Join DIU CyberCon 2026 — register for events and track your participation."
+      subtitle="Join DIU_CYBERCON 2026 — register for events and track your participation."
       footer={
         <>
           Already have an account?{" "}

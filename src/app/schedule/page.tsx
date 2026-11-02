@@ -20,7 +20,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "Schedule",
   description:
-    "Full event schedule for DIU CyberCon 2026 — online prelims and onsite finals.",
+    "Full event schedule for DIU_CYBERCON 2026 — online prelims and onsite finals.",
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ export default async function SchedulePage() {
       <PageHeader
         label="// Program"
         title="Three days, one timeline"
-        description="The online preliminary round opens the season on 24 October, followed by two full on-site days at Daffodil Smart City on 14–15 November. Every confirmed session appears here as it is published."
+        description="The online CTF preliminary round is on 24 October, followed by the on-site event at Daffodil Smart City on 12 December. Confirmed sessions appear here as they are published."
         crumbs={[{ label: "Home", href: "/" }, { label: "Schedule" }]}
         actions={
           <>
@@ -217,8 +217,8 @@ export default async function SchedulePage() {
                   Secure your seat before the program fills up
                 </h2>
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  Registration is open for the CTF, Trace &amp; Route, Project
-                  Showcasing, and Poster Presentation modules.
+                  Registration covers the CTF, Innovation Symposium, Panel Discussion,
+                  and hands-on workshops on 12 December.
                 </p>
                 <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
                   <Link href="/register" className="btn-primary gap-2">

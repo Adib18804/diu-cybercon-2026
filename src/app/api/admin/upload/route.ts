@@ -45,7 +45,7 @@ const SCOPE_MAP = {
     validator: "sponsorLogo" as const,
     folder: "sponsors",
     permission: "sponsors:edit",
-    maxDimension: 1200,
+    maxDimension: 800,
     label: "Sponsor logo",
   },
   speakerPhoto: {
@@ -150,7 +150,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       .resize({
         width: config.maxDimension,
         height: config.maxDimension,
-        fit: "inside",
+        fit: categoryEntry === "sponsorLogo" ? "contain" : "inside",
+        background: { r: 255, g: 255, b: 255, alpha: 0 },
         withoutEnlargement: true,
       })
       .webp({ quality: 88 })

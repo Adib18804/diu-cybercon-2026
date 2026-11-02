@@ -172,7 +172,7 @@ function Tabs({
                       isActive
                         ? variant === "pill"
                           ? "bg-bg-deep/20 text-bg-deep"
-                          : "bg-cyan text-bg-deep"
+                          : "bg-cyan text-white"
                         : "bg-border text-text-muted",
                     )}
                   >

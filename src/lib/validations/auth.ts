@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Auth Validation Schemas (Zod)
+// DIU_CYBERCON 2026 — Auth Validation Schemas (Zod)
 // Shared between client (form validation) and server (API validation).
 // Server ALWAYS validates independently of the client.
 // =============================================================================

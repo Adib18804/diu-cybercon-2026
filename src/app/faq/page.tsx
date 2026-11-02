@@ -17,7 +17,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "FAQ",
   description:
-    "Frequently asked questions about DIU CyberCon 2026 registration, events, and participation.",
+    "Frequently asked questions about DIU_CYBERCON 2026 registration, events, and participation.",
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -44,7 +44,7 @@ export default async function FaqPage() {
       <PageHeader
         label="Support"
         title="Frequently Asked Questions"
-        description="Quick answers about registration, event formats, eligibility, venue, and submissions at DIU CyberCon 2026."
+        description="Quick answers about registration, event formats, eligibility, venue, and submissions at DIU_CYBERCON 2026."
         crumbs={[{ label: "Home", href: "/" }, { label: "FAQ" }]}
         actions={
           <>

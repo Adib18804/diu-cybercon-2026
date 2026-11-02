@@ -47,7 +47,12 @@ export interface MyRegistration {
   eventSlug: string
   eventType: string
   isTeamEvent: boolean
+  registrationFee: string
+  latestPaymentStatus: string | null
   status: string
+  registrationPhase: string
+  domain: string | null
+  ideaSummary: string | null
   checkInStatus: string
   createdAt: string
   teamId: string | null
@@ -234,6 +239,9 @@ export async function getMyRegistrations(
           registrationId: true,
           eventId: true,
           status: true,
+            registrationPhase: true,
+            domain: true,
+            ideaSummary: true,
           checkInStatus: true,
           createdAt: true,
           teamId: true,
@@ -245,7 +253,13 @@ export async function getMyRegistrations(
               isTeamEvent: true,
               minTeamSize: true,
               maxTeamSize: true,
+              registrationFee: true,
             },
+          },
+          payments: {
+            orderBy: { createdAt: "desc" },
+            take: 1,
+            select: { status: true },
           },
           team: { select: { id: true, name: true, leaderId: true } },
         },
@@ -259,7 +273,12 @@ export async function getMyRegistrations(
         eventSlug: row.event.slug,
         eventType: row.event.type,
         isTeamEvent: row.event.isTeamEvent,
+        registrationFee: row.event.registrationFee.toString(),
+        latestPaymentStatus: row.payments[0]?.status ?? null,
         status: row.status,
+          registrationPhase: row.registrationPhase,
+          domain: row.domain,
+          ideaSummary: row.ideaSummary,
         checkInStatus: row.checkInStatus,
         createdAt: row.createdAt.toISOString(),
         teamId: row.teamId,

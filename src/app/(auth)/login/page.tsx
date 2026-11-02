@@ -8,7 +8,7 @@ import { LoginForm } from "./LoginForm"
 
 export const metadata: Metadata = {
   title: "Sign In",
-  description: "Sign in to your DIU CyberCon 2026 account.",
+  description: "Sign in to your DIU_CYBERCON 2026 account.",
   robots: { index: false, follow: false },
 }
 

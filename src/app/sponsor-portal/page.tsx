@@ -17,7 +17,7 @@ import { formatDate } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Sponsor Portal",
-  description: "DIU CyberCon 2026 sponsor portal.",
+  description: "DIU_CYBERCON 2026 sponsor portal.",
   robots: { index: false, follow: false },
 }
 

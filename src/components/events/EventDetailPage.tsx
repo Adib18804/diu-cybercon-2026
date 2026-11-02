@@ -52,7 +52,11 @@ async function getEventDetail(slug: string) {
         orderBy: [{ day: "asc" }, { startTime: "asc" }],
       }),
       prisma.event.findMany({
-        where: { id: { not: event.id } },
+        where: {
+          id: { not: event.id },
+          status: { not: EventStatus.DRAFT },
+          type: { in: ["CTF", "INNOVATION_SYMPOSIUM", "PANEL_DISCUSSION", "HANDS_ON"] },
+        },
         orderBy: { displayOrder: "asc" },
         select: {
           id: true,
@@ -216,6 +220,11 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
     event.isTeamEvent && event.minTeamSize && event.maxTeamSize
       ? `Teams of ${event.minTeamSize}–${event.maxTeamSize}`
       : undefined
+  const feeLabel = event.type === "CTF"
+    ? `Preliminary free · Final ${event.registrationFee.toString()} BDT per team`
+    : Number(event.registrationFee) === 0
+      ? "Free entry"
+      : `${event.registrationFee.toString()} BDT per person`
 
   return (
     <>
@@ -340,7 +349,7 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
                       {event.name}
                     </p>
                     <p className="font-mono text-[0.6875rem] uppercase tracking-widest text-text-faint">
-                      {dayLabel(event.eventDay)} · DIU CyberCon 2026
+                      {dayLabel(event.eventDay)} · DIU_CYBERCON 2026
                     </p>
                   </div>
                 </div>
@@ -383,7 +392,7 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
 
           {/* Fact tiles */}
           <Reveal delay={0.05}>
-            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
               <MetaTile
                 icon={<Users className="h-3.5 w-3.5" aria-hidden="true" />}
                 label="Participation"
@@ -414,6 +423,11 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
                 icon={<MapPin className="h-3.5 w-3.5" aria-hidden="true" />}
                 label="Venue"
                 value={event.venue ?? "To be announced"}
+              />
+              <MetaTile
+                icon={<Info className="h-3.5 w-3.5" aria-hidden="true" />}
+                label="Fee"
+                value={feeLabel}
               />
             </div>
           </Reveal>
@@ -450,7 +464,7 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
             <Reveal delay={0.15}>
               <DetailPanel
                 icon={<Trophy className="h-4 w-4 text-amber" aria-hidden="true" />}
-                title="Prizes & recognition"
+                title={event.prizes ? "Participant giveaways" : "Recognition"}
                 body={event.prizes}
               />
             </Reveal>
@@ -802,7 +816,7 @@ async function EventDetailPage({ slug }: EventDetailPageProps) {
                 <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
                   {canRegister
                     ? "Registration takes a few minutes — create your account, complete your profile, and confirm your module."
-                    : "Six modules across three days. See what is open for registration right now."}
+                    : "Explore CyberCon events across three days and see what is open for registration right now."}
                 </p>
                 <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                   {canRegister && (

@@ -19,19 +19,19 @@ import {
 import type { Metadata } from "next"
 import Link from "next/link"
 
-import { SponsorApplicationForm } from "./SponsorApplicationForm"
-
 import { EmptyState, PageHeader } from "@/components/layout"
 import { Reveal, SectionHeading } from "@/components/ui"
 import { LEGACY_2025, SPONSOR_BENEFITS, SPONSOR_TIERS } from "@/lib/constants"
 import { prisma } from "@/lib/db"
+
+import { SponsorApplicationForm } from "./SponsorApplicationForm"
 
 export const revalidate = 300
 
 export const metadata: Metadata = {
   title: "Sponsors & Partnership",
   description:
-    "Sponsorship packages for DIU CyberCon 2026 — Title, Platinum, Gold and custom partnerships. Reach hundreds of teams, universities and industry leaders.",
+    "Sponsorship packages for DIU_CYBERCON 2026 — Title, Platinum, Gold and custom partnerships. Reach hundreds of teams, universities and industry leaders.",
 }
 
 // =============================================================================
@@ -61,7 +61,39 @@ async function getSponsors(): Promise<ConfirmedSponsor[]> {
 // Static configuration
 // =============================================================================
 
-const TIER_ORDER = ["TITLE", "PLATINUM", "GOLD", "CUSTOM"] as const
+const SPONSOR_TIER_ORDER = [
+  "TITLE",
+  "PLATINUM",
+  "GOLD",
+  "CUSTOM",
+  "PARTNER",
+  "MEDIA_PARTNER",
+  "TECHNICAL_PARTNER",
+  "OTHER_PARTNER",
+] as const
+const PACKAGE_TIER_ORDER = ["TITLE", "PLATINUM", "GOLD", "CUSTOM"] as const
+
+const SPONSOR_TIER_GRID: Record<string, string> = {
+  TITLE: "mx-auto grid max-w-4xl grid-cols-1 gap-5 sm:grid-cols-2",
+  PLATINUM: "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4",
+  GOLD: "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5",
+  CUSTOM: "grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6",
+  PARTNER: "grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6",
+  MEDIA_PARTNER: "grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6",
+  TECHNICAL_PARTNER: "grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6",
+  OTHER_PARTNER: "grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6",
+}
+
+const SPONSOR_LOGO_ASPECT: Record<string, string> = {
+  TITLE: "aspect-[3/2]",
+  PLATINUM: "aspect-[4/3]",
+  GOLD: "aspect-square",
+  CUSTOM: "aspect-square",
+  PARTNER: "aspect-square",
+  MEDIA_PARTNER: "aspect-square",
+  TECHNICAL_PARTNER: "aspect-square",
+  OTHER_PARTNER: "aspect-square",
+}
 
 const TIER_ACCENT = {
   TITLE: { text: "text-amber", border: "border-amber/30 hover:border-amber/60", badge: "badge-amber" },
@@ -120,7 +152,7 @@ export default async function SponsorsPage() {
       <PageHeader
         label="// Sponsorship"
         title="Partner with Bangladesh's cyber talent pipeline"
-        description="Reach hundreds of teams, universities and industry leaders at DIU CyberCon 2026. Three partnership tiers plus flexible custom packages — tailored with the organizing team."
+        description="Reach hundreds of teams, universities and industry leaders at DIU_CYBERCON 2026. Three partnership tiers plus flexible custom packages — tailored with the organizing team."
         crumbs={[{ label: "Home", href: "/" }, { label: "Sponsors" }]}
         actions={
           <>
@@ -146,31 +178,46 @@ export default async function SponsorsPage() {
                   description="Organizations backing CyberCon 2026 — published as agreements are finalized."
                 />
               </Reveal>
-              <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                {sponsors.map((sponsor) => (
-                  <div
-                    key={sponsor.id}
-                    className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border bg-bg-panel p-5 text-center transition-colors duration-250 hover:border-cyan/30"
-                  >
-                    {sponsor.logoKey.startsWith("http") ? (
-                      // Admin-uploaded absolute URL — plain img is intentional
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={sponsor.logoKey}
-                        alt={sponsor.name}
-                        className="h-10 w-auto object-contain"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="font-display text-sm font-bold text-text-primary">
-                        {sponsor.name}
-                      </span>
-                    )}
-                    <span className="font-mono text-[0.6rem] uppercase tracking-wider text-text-faint">
-                      {tierLabel(sponsor.tier)}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-10 space-y-12">
+                {SPONSOR_TIER_ORDER.map((tier) => {
+                  const tierSponsors = sponsors.filter((sponsor) => sponsor.tier === tier)
+                  if (tierSponsors.length === 0) {return null}
+                  return (
+                    <div key={tier}>
+                      <h3 className="mb-4 text-center font-mono text-xs uppercase tracking-[0.18em] text-text-muted">
+                        {tierLabel(tier)}
+                      </h3>
+                      <div className={SPONSOR_TIER_GRID[tier]}>
+                        {tierSponsors.map((sponsor) => (
+                          <div
+                            key={sponsor.id}
+                            className="flex flex-col items-center justify-center gap-3 rounded-lg border border-border bg-bg-panel p-4 text-center transition-colors duration-250 hover:border-cyan/30 sm:p-5"
+                          >
+                            <div className={`flex w-full items-center justify-center ${SPONSOR_LOGO_ASPECT[tier]}`}>
+                              {sponsor.logoKey.startsWith("http") ? (
+                                // Admin-uploaded absolute URL — plain img is intentional
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={sponsor.logoKey}
+                                  alt={sponsor.name}
+                                  className="h-full w-full object-contain"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <span className="font-display text-sm font-bold text-text-primary">
+                                  {sponsor.name}
+                                </span>
+                              )}
+                            </div>
+                            <span className="font-mono text-[0.6rem] uppercase tracking-wider text-text-faint">
+                              {sponsor.name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </>
           ) : (
@@ -280,7 +327,7 @@ export default async function SponsorsPage() {
           </Reveal>
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {TIER_ORDER.map((key, index) => {
+            {PACKAGE_TIER_ORDER.map((key, index) => {
               const tier = SPONSOR_TIERS[key]
               const accent = TIER_ACCENT[key]
               return (

@@ -8,7 +8,7 @@ import { VerifyEmailClient } from "./VerifyEmailClient"
 
 export const metadata: Metadata = {
   title: "Verify Email",
-  description: "Verify your email address to activate your DIU CyberCon 2026 account.",
+  description: "Verify your email address to activate your DIU_CYBERCON 2026 account.",
   robots: { index: false, follow: false },
 }
 

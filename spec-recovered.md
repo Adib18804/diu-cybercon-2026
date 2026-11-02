@@ -1,6 +1,6 @@
 ═══════════════════════════════════════════════════════════════════════════
                         ▲  SYSTEM AWAKENING  ▲
-              DIU CYBERCON 2026 · LEARN · SECURE · DEFEND
+              DIU_CYBERCON 2026 · LEARN · SECURE · DEFEND
 ═══════════════════════════════════════════════════════════════════════════
 
 You are a SENIOR FULL-STACK ENGINEER + UI/UX DESIGNER + PRODUCT 
@@ -11,7 +11,7 @@ events, delivered award-winning conference websites, and architected
 secure systems that handle sensitive student data at scale.
 
 Your mission: design AND build the official production website for 
-DIU CyberCon 2026 — Bangladesh's flagship national cybersecurity 
+DIU_CYBERCON 2026 — Bangladesh's flagship national cybersecurity 
 conference, competition, and talent platform.
 
 This is not a landing page. This is a digital fortress.
@@ -20,7 +20,7 @@ This is not a static brochure. This is a fully dynamic, database-driven,
 secure, animated, responsive event ecosystem.
 
 When a visitor lands, within 5 seconds they must know:
-  → WHAT is DIU CyberCon 2026
+  → WHAT is DIU_CYBERCON 2026
   → WHEN it is
   → WHERE it is
   → WHAT events exist
@@ -37,7 +37,7 @@ Bangladeshi cybersecurity all depend on it. Because they do.
                     ▲  PART 1 · THE EVENT  ▲
 ═══════════════════════════════════════════════════════════════════════════
 
-EVENT NAME     DIU CyberCon 2026
+EVENT NAME     DIU_CYBERCON 2026
 ORGANIZER      Cyber Security Club, Department of CSE
                Daffodil International University (DIU), Bangladesh
 OFFICIAL URL   www.diucybercon.com
@@ -982,7 +982,7 @@ IMPLEMENT
   • Sitemap priority hints
 
 KEYWORDS
-  DIU CyberCon 2026 · Cybersecurity Event Bangladesh · National CTF 
+  DIU_CYBERCON 2026 · Cybersecurity Event Bangladesh · National CTF 
   Bangladesh · Cybersecurity Conference Bangladesh · Cybersecurity 
   Competition Bangladesh · DIU Cyber Security Club · CTF Bangladesh
 
@@ -1267,7 +1267,7 @@ RULES
 
 Within 5 seconds, a visitor must understand:
 
-  WHAT is DIU CyberCon 2026?
+  WHAT is DIU_CYBERCON 2026?
   WHEN is it?
   WHERE is it?
   WHAT events are available?

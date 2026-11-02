@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Admin route helpers
+// DIU_CYBERCON 2026 — Admin route helpers
 // One place for admin route error mapping + shared domain errors.
 // =============================================================================
 

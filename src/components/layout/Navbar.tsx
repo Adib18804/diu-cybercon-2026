@@ -15,8 +15,6 @@ import type { Session } from "next-auth"
 import { signOut, useSession } from "next-auth/react"
 import * as React from "react"
 
-import { accentDotClass } from "./accent-classes"
-
 import { Drawer } from "@/components/ui"
 import {
   APP_NAME,
@@ -25,6 +23,8 @@ import {
   NAV_LINKS,
 } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+
+import { accentDotClass } from "./accent-classes"
 
 
 // =============================================================================
@@ -414,7 +414,7 @@ export function Navbar() {
           <BrandLogo />
 
           {/* Desktop navigation */}
-          <div className="hidden items-center gap-0.5 lg:flex">
+          <div className="hidden items-center gap-0.5 xl:flex">
             <EventsDropdown />
             {desktopLinks.map((link) => {
               const active = isActivePath(pathname, link.href)
@@ -438,7 +438,7 @@ export function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            <div className="hidden items-center gap-2 lg:flex">
+            <div className="hidden items-center gap-2 xl:flex">
               {status === "loading" ? (
                 <div
                   className="h-9 w-24 animate-pulse rounded-md bg-bg-elevated"
@@ -464,7 +464,7 @@ export function Navbar() {
               onClick={() => setMobileOpen(true)}
               aria-label="Open navigation menu"
               aria-expanded={mobileOpen}
-              className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted transition-colors duration-150 hover:bg-bg-elevated/60 hover:text-text-primary lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-md text-text-muted transition-colors duration-150 hover:bg-bg-elevated/60 hover:text-text-primary xl:hidden"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </button>

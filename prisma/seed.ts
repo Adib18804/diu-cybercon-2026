@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Database Seed Script
+// DIU_CYBERCON 2026 — Database Seed Script
 // Run: npm run prisma:seed
 // =============================================================================
 
@@ -115,84 +115,48 @@ async function seedEvents() {
       shortDescription:
         "Test your hacking skills across 8 domains — Web, Crypto, Forensics, Reverse Engineering, Pwn, OSINT, Network, and Misc.",
       fullDescription:
-        "DIU CyberCon CTF is a team-based Capture The Flag competition designed for university and college students passionate about cybersecurity. Compete in online preliminary rounds before qualifying for the on-site finals. Solve challenges across Web Security & Exploitation, Cryptography, Digital Forensics, Reverse Engineering, Binary Exploitation/Pwn, OSINT, Network Security, and Miscellaneous domains.\n\nThe online preliminary round determines which teams advance to the on-site final round at Daffodil Smart City.",
+        "DIU_CYBERCON CTF is a team-based Capture The Flag competition. The online preliminary round is free; qualifying teams compete in the on-site final on 12 December 2026. The final registration fee is 1200 BDT per team of up to four members.",
       status: EventStatus.OPEN,
       registrationOpen: true,
-      registrationDeadline: new Date("2026-10-20T23:59:59Z"),
+      registrationDeadline: new Date("2026-12-10T23:59:59Z"),
       isTeamEvent: true,
       minTeamSize: 2,
-      maxTeamSize: 5,
-      eventDay: 1,
-      startDate: new Date("2026-10-24T00:00:00Z"),
-      endDate: new Date("2026-11-15T23:59:59Z"),
-      venue: "Online (Prelim) → Daffodil Smart City (Finals)",
+      maxTeamSize: 4,
+      eventDay: 3,
+      startDate: new Date("2026-12-12T09:00:00+06:00"),
+      endDate: new Date("2026-12-12T18:00:00+06:00"),
+      registrationFee: 1200,
+      venue: "Library Zone",
+      prizes: "Tote bag\nID card\nT-shirt\nstickers\npen\npad\nkey ring\nlunch",
+      rules: "CTF Preliminary: Free. CTF Final: 1200 BDT per team (4 members). Venue: Library Zone. Maximum team size is 4 members.",
       displayOrder: 1,
       iconName: "terminal",
-      accentColor: "#00e5ff",
+      accentColor: "#E11D48",
     },
     {
-      type: EventType.TRACE_ROUTE,
-      name: "Trace & Route",
-      slug: "trace-route",
+      type: EventType.INNOVATION_SYMPOSIUM,
+      name: "Innovation Symposium",
+      slug: "innovation-symposium",
       shortDescription:
-        "A solo networking contest covering routing, packet tracing, and network security in a professional environment.",
+        "Present a cybersecurity project or research idea to industry professionals and academic judges.",
       fullDescription:
-        "Trace & Route is a solo networking competition that challenges participants on their knowledge of network routing, packet analysis, network troubleshooting, and network security. Participants work through scenarios involving real network topologies, trace packets, configure routing protocols, and identify network vulnerabilities.\n\nThis is a professional-grade competition — not a gaming experience. Participants are expected to demonstrate practical, real-world networking skills.",
+        "The Innovation Symposium brings together cybersecurity projects and research presentations in one event. Teams of up to three participants submit an idea summary and select a symposium domain for review. Registration is 300 BDT per person.",
       status: EventStatus.OPEN,
       registrationOpen: true,
       registrationDeadline: new Date("2026-11-10T23:59:59Z"),
-      isTeamEvent: false,
+      isTeamEvent: true,
+      minTeamSize: 1,
+      maxTeamSize: 3,
       eventDay: 2,
-      startDate: new Date("2026-11-14T09:00:00Z"),
-      endDate: new Date("2026-11-14T17:00:00Z"),
-      venue: "Daffodil Smart City, Birulia, Savar",
+      startDate: new Date("2026-12-12T09:00:00+06:00"),
+      endDate: new Date("2026-12-12T17:00:00+06:00"),
+      registrationFee: 300,
+      venue: "Student Lounge",
+      prizes: "T-shirt\nlunch\nPad\nPen\nID",
+      rules: "Innovation Symposium: 300 BDT per person (Max 3 members). Venue: Student Lounge.",
       displayOrder: 2,
-      iconName: "network",
-      accentColor: "#39ff14",
-    },
-    {
-      type: EventType.PROJECT_SHOWCASE,
-      name: "Project Showcasing",
-      slug: "project-showcase",
-      shortDescription:
-        "Present your cybersecurity project to industry experts and academic judges. Top projects are published in the public showcase.",
-      fullDescription:
-        "The Project Showcasing event provides students and researchers an opportunity to present cybersecurity-focused projects to a panel of industry professionals and academic judges. Teams submit their projects for review — approved submissions are published in the public DIU CyberCon Project Showcase.\n\nSubmission workflow: Submit → Under Review → Approved / Rejected / Revision Required → Published.",
-      status: EventStatus.OPEN,
-      registrationOpen: true,
-      registrationDeadline: new Date("2026-11-10T23:59:59Z"),
-      isTeamEvent: true,
-      minTeamSize: 1,
-      maxTeamSize: 5,
-      eventDay: 2,
-      startDate: new Date("2026-11-14T09:00:00Z"),
-      endDate: new Date("2026-11-14T17:00:00Z"),
-      venue: "Daffodil Smart City, Birulia, Savar",
-      displayOrder: 3,
-      iconName: "folder-open",
-      accentColor: "#7c3aed",
-    },
-    {
-      type: EventType.POSTER_PRESENTATION,
-      name: "Poster Presentation",
-      slug: "poster",
-      shortDescription:
-        "Present your cybersecurity research through a poster. Approved posters are displayed and published publicly.",
-      fullDescription:
-        "The Poster Presentation event showcases cybersecurity research through academic-style poster presentations. Teams design and submit a research poster covering their topic, methodology, findings, and conclusions. Approved posters are displayed at the event venue and published in the online gallery.\n\nSubmission workflow: Submit → Under Review → Approved / Rejected / Revision Required → Published.",
-      status: EventStatus.OPEN,
-      registrationOpen: true,
-      registrationDeadline: new Date("2026-11-10T23:59:59Z"),
-      isTeamEvent: true,
-      minTeamSize: 1,
-      maxTeamSize: 4,
-      eventDay: 2,
-      startDate: new Date("2026-11-14T09:00:00Z"),
-      endDate: new Date("2026-11-14T17:00:00Z"),
-      venue: "Daffodil Smart City, Birulia, Savar",
-      displayOrder: 4,
-      iconName: "image",
-      accentColor: "#ff2e88",
+      iconName: "lightbulb",
+      accentColor: "#BE123C",
     },
     {
       type: EventType.PANEL_DISCUSSION,
@@ -201,36 +165,41 @@ async function seedEvents() {
       shortDescription:
         "An expert panel discussion on cutting-edge cybersecurity topics. Open for attendance registration.",
       fullDescription:
-        "The Panel Discussion brings together cybersecurity experts, industry leaders, and academic researchers to discuss critical topics shaping the future of digital security in Bangladesh and beyond. Topics, moderator, and panelists will be announced as confirmations are received.\n\nOpen for attendance — register to reserve your seat.",
-      status: EventStatus.DRAFT,
-      registrationOpen: false,
+        "The Panel Discussion brings together cybersecurity experts, industry leaders, and academic researchers. Entry is free; registration is required to reserve a seat.",
+      status: EventStatus.OPEN,
+      registrationOpen: true,
+      registrationFee: 0,
       isTeamEvent: false,
       eventDay: 3,
-      startDate: new Date("2026-11-15T10:00:00Z"),
-      endDate: new Date("2026-11-15T12:00:00Z"),
-      venue: "Daffodil Smart City, Birulia, Savar",
-      displayOrder: 5,
+      startDate: new Date("2026-12-12T10:00:00+06:00"),
+      endDate: new Date("2026-12-12T12:00:00+06:00"),
+      venue: "Shadinota Shommelon Kendro",
+      rules: "Panel Discussion: Free entry. Venue: Shadinota Shommelon Kendro.",
+      displayOrder: 3,
       iconName: "users",
-      accentColor: "#ffb020",
+      accentColor: "#9F1239",
     },
     {
       type: EventType.HANDS_ON,
-      name: "Hands-on Activities",
+      name: "Workshops",
       slug: "workshops",
       shortDescription:
-        "Practical cybersecurity workshops led by industry professionals. Limited seats per activity — register early.",
+        "Practical cybersecurity workshops led by industry professionals. Each workshop costs 300 BDT per person and has limited seats.",
       fullDescription:
-        "The Hands-on Activities program offers focused, practical workshops led by experienced cybersecurity professionals. Each activity covers a specific skill or tool and is designed for different experience levels — from beginner to advanced.\n\nSeats are strictly limited. Each activity has its own registration deadline and capacity. Activities will be announced and opened for registration as confirmations are received.",
-      status: EventStatus.DRAFT,
-      registrationOpen: false,
+        "Join focused, practical cybersecurity workshops led by experienced professionals. Each workshop costs 300 BDT per person and has limited seats.",
+      status: EventStatus.OPEN,
+      registrationOpen: true,
+      registrationFee: 300,
       isTeamEvent: false,
       eventDay: 2,
-      startDate: new Date("2026-11-14T09:00:00Z"),
-      endDate: new Date("2026-11-14T17:00:00Z"),
-      venue: "Daffodil Smart City, Birulia, Savar",
-      displayOrder: 6,
+      startDate: new Date("2026-12-12T09:00:00+06:00"),
+      endDate: new Date("2026-12-12T17:00:00+06:00"),
+      venue: "International Conference Hall (ICH)",
+      rules: "Workshop: 300 BDT per person. Venue: ICH.",
+      prizes: "T-shirt\nlunch\nPad\nPen\nID",
+      displayOrder: 4,
       iconName: "wrench",
-      accentColor: "#7c3aed",
+      accentColor: "#881337",
     },
   ]
 
@@ -247,21 +216,60 @@ async function seedEvents() {
     }
   }
 
-  console.log(`  ↳ Events: ${created} created, ${updated} updated`)
+  await prisma.workshop.updateMany({
+    data: {
+      date: new Date("2026-12-12T09:00:00+06:00"),
+      registrationDeadline: new Date("2026-12-11T23:59:59+06:00"),
+      venue: "International Conference Hall (ICH)",
+    },
+  })
+
+  // Remove the retired Trace & Route listing when there are no historical
+  // registrations. Keep it hidden if registrations reference it, preserving
+  // participant, team, check-in, and audit history.
+  const retiredTrace = await prisma.event.findUnique({
+    where: { type: EventType.TRACE_ROUTE },
+    select: { id: true, _count: { select: { registrations: true, teams: true } } },
+  })
+  let traceRemoved = 0
+  if (retiredTrace && retiredTrace._count.registrations === 0 && retiredTrace._count.teams === 0) {
+    await prisma.event.delete({ where: { id: retiredTrace.id } })
+    traceRemoved = 1
+  } else if (retiredTrace) {
+    await prisma.event.update({
+      where: { id: retiredTrace.id },
+      data: { status: EventStatus.DRAFT, registrationOpen: false },
+    })
+  }
+  const retired = await prisma.event.updateMany({
+    where: {
+      type: {
+        in: [
+          EventType.PROJECT_SHOWCASE,
+          EventType.POSTER_PRESENTATION,
+        ],
+      },
+    },
+    data: { status: EventStatus.DRAFT, registrationOpen: false },
+  })
+
+  console.log(
+    `  ↳ Events: ${created} created, ${updated} updated, ${traceRemoved} Trace & Route events removed, ${retired.count} other legacy events archived`,
+  )
 }
 
 async function seedSiteSettings() {
   const settings = [
     // Hero
-    { key: "hero.title", value: "DIU CyberCon 2026", type: "string", description: "Hero section main title", group: "hero" },
+    { key: "hero.title", value: "DIU_CYBERCON 2026", type: "string", description: "Hero section main title", group: "hero" },
     { key: "hero.tagline", value: "LEARN · SECURE · DEFEND", type: "string", description: "Hero tagline", group: "hero" },
-    { key: "hero.description", value: "Bangladesh's flagship national cybersecurity conference, competition, and talent platform. Hosted by the Cyber Security Club, Department of CSE, Daffodil International University.", type: "string", description: "Hero description text", group: "hero" },
+    { key: "hero.description", value: "Join the CTF, present at the Innovation Symposium, or take part in a hands-on workshop on 12 December 2026 at Daffodil International University.", type: "string", description: "Hero description text", group: "hero" },
 
     // Event dates
     { key: "event.day1.date", value: "2026-10-24", type: "string", description: "Day 1 date (online CTF prelim)", group: "dates" },
-    { key: "event.day2.date", value: "2026-11-14", type: "string", description: "Day 2 date (on-site)", group: "dates" },
-    { key: "event.day3.date", value: "2026-11-15", type: "string", description: "Day 3 date (on-site finals)", group: "dates" },
-    { key: "event.countdown.target", value: "2026-11-14T09:00:00+06:00", type: "string", description: "Countdown timer target datetime (ISO 8601)", group: "dates" },
+    { key: "event.day2.date", value: "2026-12-12", type: "string", description: "On-site event date", group: "dates" },
+    { key: "event.day3.date", value: "2026-12-12", type: "string", description: "On-site event date", group: "dates" },
+    { key: "event.countdown.target", value: "2026-12-12T09:00:00+06:00", type: "string", description: "Countdown timer target datetime (ISO 8601)", group: "dates" },
 
     // Venue
     { key: "venue.name", value: "Daffodil Smart City (DSC)", type: "string", description: "Venue name", group: "venue" },
@@ -278,9 +286,8 @@ async function seedSiteSettings() {
 
     // Registration
     { key: "registration.open", value: "true", type: "boolean", description: "Global registration toggle", group: "registration" },
-    { key: "registration.ctf.maxTeamSize", value: "5", type: "number", description: "CTF maximum team size (hard cap)", group: "registration" },
-    { key: "registration.project.maxTeamSize", value: "5", type: "number", description: "Project Showcase maximum team size", group: "registration" },
-    { key: "registration.poster.maxTeamSize", value: "4", type: "number", description: "Poster Presentation maximum team size", group: "registration" },
+    { key: "registration.ctf.maxTeamSize", value: "4", type: "number", description: "CTF maximum team size (hard cap)", group: "registration" },
+    { key: "registration.symposium.maxTeamSize", value: "3", type: "number", description: "Innovation Symposium maximum team size", group: "registration" },
 
     // Contact
     { key: "contact.email", value: "info@diucybercon.com", type: "string", description: "Main contact email", group: "contact" },
@@ -296,14 +303,23 @@ async function seedSiteSettings() {
     { key: "organizer.website", value: "https://diu.edu.bd", type: "string", description: "Organizer website", group: "organizer" },
 
     // SEO
-    { key: "seo.title", value: "DIU CyberCon 2026 — Bangladesh's National Cybersecurity Conference", type: "string", description: "Default SEO title", group: "seo" },
-    { key: "seo.description", value: "DIU CyberCon 2026 is Bangladesh's flagship national cybersecurity conference, competition, and talent platform. Join for CTF, Trace & Route, Project Showcase, Poster Presentation, Hands-on Activities, and Panel Discussion.", type: "string", description: "Default SEO meta description", group: "seo" },
+    { key: "seo.title", value: "DIU_CYBERCON 2026 — Bangladesh's National Cybersecurity Conference", type: "string", description: "Default SEO title", group: "seo" },
+    { key: "seo.description", value: "DIU_CYBERCON 2026 features CTF, Innovation Symposium, workshops, and Panel Discussion on 12 December 2026.", type: "string", description: "Default SEO meta description", group: "seo" },
 
     // Maintenance
+    { key: "payment.bkashNumber", value: "", type: "string", description: "Official bKash merchant/payment number shown to participants", group: "payments" },
     { key: "site.maintenanceMode", value: "false", type: "boolean", description: "Enable maintenance mode", group: "system" },
-    { key: "site.announcementBarText", value: "Registration is now open for DIU CyberCon 2026! Join us on 24 Oct (Online) and 14–15 Nov (On-site) at Daffodil Smart City.", type: "string", description: "Announcement bar scrolling text", group: "system" },
+    { key: "site.announcementBarText", value: "Registration is now open for DIU_CYBERCON 2026! CTF preliminaries: 24 October. On-site program: 12 December at Daffodil Smart City.", type: "string", description: "Announcement bar scrolling text", group: "system" },
     { key: "site.announcementBarVisible", value: "true", type: "boolean", description: "Show announcement bar", group: "system" },
   ]
+
+  await prisma.siteSetting.deleteMany({
+    where: {
+      key: {
+        in: ["registration.project.maxTeamSize", "registration.poster.maxTeamSize"],
+      },
+    },
+  })
 
   let upserted = 0
   for (const setting of settings) {
@@ -321,40 +337,34 @@ async function seedSiteSettings() {
 async function seedFAQ() {
   const faqs = [
     {
-      question: "Who can participate in DIU CyberCon 2026?",
-      answer: "DIU CyberCon 2026 is open to university students, college students, cybersecurity enthusiasts, ethical hackers, security researchers, and industry professionals from across Bangladesh. Each event module may have specific eligibility requirements.",
+      question: "Who can participate in DIU_CYBERCON 2026?",
+      answer: "DIU_CYBERCON 2026 is open to university and college students, cybersecurity enthusiasts, ethical hackers, security researchers, and industry professionals from across Bangladesh.",
       category: "general",
       displayOrder: 1,
     },
     {
       question: "Is participation free?",
-      answer: "Registration and participation details will be announced. Please check the official website and our social media channels for the latest updates on fees and registration.",
+      answer: "The CTF preliminary round and Panel Discussion are free. CTF finals cost 1200 BDT per team; Innovation Symposium and workshops cost 300 BDT per person.",
       category: "general",
       displayOrder: 2,
     },
     {
       question: "How many members can a CTF team have?",
-      answer: "CTF teams must have a minimum of 2 members and a maximum of 5 members. One member must register as the Team Leader. All team members must complete individual registration including student ID verification.",
+      answer: "CTF teams can have up to 4 members. The online preliminary round is free; the final costs 1200 BDT per team.",
       category: "ctf",
       displayOrder: 3,
     },
     {
       question: "Can I participate in multiple events?",
-      answer: "Yes, you can register for multiple event modules — for example, you can participate in CTF and also register for a Hands-on Activity workshop. Each event requires a separate registration.",
+      answer: "Yes, you can register for multiple events. Each event requires a separate registration.",
       category: "general",
       displayOrder: 4,
     },
     {
       question: "What is the CTF format?",
-      answer: "The CTF has two rounds: an online preliminary round on 24 October 2026, and an on-site final round on 15 November 2026 at Daffodil Smart City. Teams that qualify in the preliminary round advance to the finals. The actual CTF challenges are hosted on an external platform.",
+      answer: "The CTF has a free online preliminary round and an on-site final on 12 December 2026 at the Library Zone. The final costs 1200 BDT per team of up to four members.",
       category: "ctf",
       displayOrder: 5,
-    },
-    {
-      question: "Is Trace & Route a solo or team event?",
-      answer: "Trace & Route is a SOLO event. Each participant registers individually. This is a professional networking contest — not a team competition.",
-      category: "trace-route",
-      displayOrder: 6,
     },
     {
       question: "What documents do I need to register?",
@@ -364,7 +374,7 @@ async function seedFAQ() {
     },
     {
       question: "Where is the venue?",
-      answer: "The on-site events (Day 2 and Day 3) will be held at Daffodil Smart City (DSC), Birulia, Savar, Dhaka-1216, Bangladesh. The Day 1 CTF preliminary round is online.",
+      answer: "On 12 December 2026, the CTF is at the Library Zone, the Innovation Symposium is in the Student Lounge, Panel Discussion is at Shadinota Shommelon Kendro, and workshops are in the International Conference Hall (ICH). The CTF preliminary round is online.",
       category: "venue",
       displayOrder: 8,
     },
@@ -375,22 +385,16 @@ async function seedFAQ() {
       displayOrder: 9,
     },
     {
-      question: "Can I submit both a Project and a Poster?",
-      answer: "Yes, if you are part of different teams for each submission, you may participate in both Project Showcasing and Poster Presentation. Each submission requires a separate team registration.",
-      category: "submissions",
-      displayOrder: 10,
-    },
-    {
-      question: "How are project and poster submissions reviewed?",
-      answer: "Submissions go through an admin review pipeline: Submitted → Under Review → Approved / Rejected / Revision Required. If approved, they are Published and visible in the public showcase. You will receive email notifications at each status change.",
-      category: "submissions",
-      displayOrder: 11,
+      question: "What is the Innovation Symposium?",
+      answer: "The Innovation Symposium costs 300 BDT per person. Teams of up to three submit an idea summary and select a symposium domain during registration. It is held in the Student Lounge on 12 December 2026.",
+      category: "symposium",
+      displayOrder: 6,
     },
     {
       question: "How do I become a sponsor?",
       answer: "Visit the Sponsors page and click 'Become a Sponsor'. Fill out the application form with your organization details and preferred sponsorship tier. Our team will contact you to discuss the arrangement. All sponsorships are subject to organizer approval.",
       category: "sponsorship",
-      displayOrder: 12,
+      displayOrder: 7,
     },
   ]
 
@@ -404,7 +408,7 @@ async function seedFAQ() {
 
 async function main() {
   console.log("\n╔══════════════════════════════════════════════════╗")
-  console.log("║     DIU CyberCon 2026 — Database Seed           ║")
+  console.log("║     DIU_CYBERCON 2026 — Database Seed           ║")
   console.log("╚══════════════════════════════════════════════════╝\n")
 
   console.log("▶ Seeding admin user...")

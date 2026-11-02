@@ -10,6 +10,9 @@ import { Badge, type BadgeVariant } from "@/components/ui/Badge"
 const STATUS_MAP: Record<string, { variant: BadgeVariant; label: string }> = {
   // Registration
   PENDING: { variant: "amber", label: "Pending review" },
+  PRELIM_APPROVED: { variant: "neon", label: "Preliminary approved" },
+  PAYMENT_PENDING: { variant: "amber", label: "Payment pending" },
+  PENDING_PAYMENT: { variant: "amber", label: "Payment pending" },
   CONFIRMED: { variant: "neon", label: "Confirmed" },
   CANCELLED: { variant: "muted", label: "Cancelled" },
   WAITLISTED: { variant: "cyan", label: "Waitlisted" },

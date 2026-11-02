@@ -17,8 +17,8 @@ export interface FinalCtaProps {
 
 function FinalCta({ countdownTarget, registrationOpen }: FinalCtaProps) {
   const facts = [
-    { icon: Terminal, text: "6 modules · 3 days" },
-    { icon: Users, text: "CTF teams of 2–5" },
+    { icon: Terminal, text: "2 flagship events · 3 days" },
+    { icon: Users, text: "CTF teams of up to 4" },
     { icon: ShieldCheck, text: "Open to students nationwide" },
   ]
 
@@ -95,7 +95,7 @@ function FinalCta({ countdownTarget, registrationOpen }: FinalCtaProps) {
               </div>
 
               <p className="mt-6 font-mono text-[0.65rem] uppercase tracking-widest text-text-faint">
-                Main event · 14–15 November 2026 · Daffodil Smart City, Savar
+                Main event · 12 December 2026 · Daffodil Smart City, Savar
               </p>
             </div>
           </div>

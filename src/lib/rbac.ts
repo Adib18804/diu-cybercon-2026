@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — RBAC (Role-Based Access Control)
+// DIU_CYBERCON 2026 — RBAC (Role-Based Access Control)
 // Server-side permission guards for API routes and Server Components.
 // NEVER rely on frontend-only authorization.
 // Every permission is checked server-side. Deny by default.
@@ -27,6 +27,8 @@ export type Permission =
   | "registrations:view"
   | "registrations:edit"
   | "registrations:checkin"
+  | "payments:view"
+  | "payments:verify"
   // ── Teams ─────────────────────────────────────────────────────────────────
   | "teams:view"
   | "teams:edit"
@@ -84,6 +86,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
     "verification:view", "verification:decide",
     "participants:view", "participants:edit", "participants:delete",
     "registrations:view", "registrations:edit", "registrations:checkin",
+    "payments:view", "payments:verify",
     "teams:view", "teams:edit",
     "events:view", "events:edit", "events:publish",
     "workshops:view", "workshops:edit",
@@ -119,6 +122,7 @@ const ROLE_PERMISSIONS: Record<AdminRole, Permission[]> = {
   REGISTRATION_ADMIN: [
     "participants:view", "participants:edit",
     "registrations:view", "registrations:edit", "registrations:checkin",
+    "payments:view", "payments:verify",
     "teams:view", "teams:edit",
     "analytics:view",
   ],

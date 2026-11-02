@@ -1,11 +1,11 @@
 {
-  "name": "DIU CyberCon 2026",
+  "name": "DIU_CYBERCON 2026",
   "short_name": "CyberCon",
   "description": "Bangladesh's flagship national cybersecurity conference, competition, and talent platform.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#05070d",
-  "theme_color": "#00e5ff",
+  "background_color": "#0A0A0A",
+  "theme_color": "#E11D48",
   "orientation": "portrait-primary",
   "icons": [
     {

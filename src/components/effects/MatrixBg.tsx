@@ -48,10 +48,10 @@ export function MatrixBg() {
 
     const draw = () => {
       // Fade previous frame to leave rain trails.
-      context.fillStyle = `rgba(5, 7, 13, ${TRAIL_ALPHA})`
+      context.fillStyle = `rgba(10, 10, 10, ${TRAIL_ALPHA})`
       context.fillRect(0, 0, canvas.width, canvas.height)
 
-      context.fillStyle = "#00e5ff"
+      context.fillStyle = "#E11D48"
       for (let i = 0; i < columns; i += 1) {
         const char = GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length))
         const x = i * FONT_SIZE

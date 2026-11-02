@@ -1,12 +1,12 @@
-# DIU CyberCon 2026 — Website Summary
+# DIU_CYBERCON 2026 — Website Summary
 
-> Complete technical summary of the official DIU CyberCon 2026 website — Bangladesh's flagship national cybersecurity conference platform, built for Daffodil International University Cyber Security Club (Department of CSE).
+> Complete technical summary of the official DIU_CYBERCON 2026 website — Bangladesh's flagship national cybersecurity conference platform, built for Daffodil International University Cyber Security Club (Department of CSE).
 
 ---
 
 ## 1. What This Is
 
-The official production website for **DIU CyberCon 2026** — a fully dynamic, database-driven, secure event platform covering the entire conference lifecycle: public marketing site, participant registration with document verification, team management, submission workflows, and a full role-based admin console.
+The official production website for **DIU_CYBERCON 2026** — a fully dynamic, database-driven, secure event platform covering the entire conference lifecycle: public marketing site, participant registration with document verification, team management, submission workflows, and a full role-based admin console.
 
 **Event facts:**
 

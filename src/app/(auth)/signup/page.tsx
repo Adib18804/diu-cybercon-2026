@@ -9,7 +9,7 @@ import { SignupForm } from "./SignupForm"
 export const metadata: Metadata = {
   title: "Create Account",
   description:
-    "Create your DIU CyberCon 2026 account to register for events and manage your participation.",
+    "Create your DIU_CYBERCON 2026 account to register for events and manage your participation.",
   robots: { index: false, follow: false },
 }
 

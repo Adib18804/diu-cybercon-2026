@@ -1,11 +1,13 @@
+import type { Route } from "next"
+
 // =============================================================================
-// DIU CyberCon 2026 — Application Constants
+// DIU_CYBERCON 2026 — Application Constants
 // Never hardcode these elsewhere — always import from here.
 // =============================================================================
 
 // ─── App Identity ─────────────────────────────────────────────────────────────
 
-export const APP_NAME = "DIU CyberCon 2026" as const
+export const APP_NAME = "DIU_CYBERCON 2026" as const
 export const APP_TAGLINE = "LEARN · SECURE · DEFEND" as const
 export const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL ?? "https://www.diucybercon.com"
@@ -28,17 +30,16 @@ export const EVENT_DATES = {
     description: "CTF Preliminary Round",
   },
   day2: {
-    date: "2026-11-14",
-    label: "Day 02 · On-site",
-    description: "Project Showcasing · Poster Presentation · Trace & Route · Hands-on Activities",
+    date: "2026-12-12",
+    label: "On-site · 12 Dec",
+    description: "CTF Final · Innovation Symposium · Panel · Workshops",
   },
   day3: {
-    date: "2026-11-15",
-    label: "Day 03 · On-site",
-    description: "CTF Final Round · Panel Discussion · Prize Giving · Closing Ceremony",
+    date: "2026-12-12",
+    label: "On-site · 12 Dec",
+    description: "Awards and closing ceremony",
   },
-  // Countdown target: Day 2 opening — main event
-  countdownTarget: "2026-11-14T09:00:00+06:00",
+  countdownTarget: "2026-12-12T09:00:00+06:00",
 } as const
 
 // ─── Venue ────────────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ export const REGISTRATION = {
   // Default team size limits (overridable from admin settings)
   defaults: {
     ctfMinTeamSize: 2,
-    ctfMaxTeamSize: 5, // Hard cap — never exceed this
+    ctfMaxTeamSize: 4, // Hard cap — never exceed this
     projectMinTeamSize: 1,
     projectMaxTeamSize: 5,
     posterMinTeamSize: 1,
@@ -225,51 +226,29 @@ export const EVENT_MODULES = {
     name: "Capture The Flag",
     shortName: "CTF",
     icon: "terminal",
-    accentColor: "#00e5ff",
+    accentColor: "#E11D48",
     isTeam: true,
     isSolo: false,
-    day: 1,
+    day: 3,
     href: "/events/ctf",
   },
-  TRACE_ROUTE: {
-    slug: "trace-route",
-    name: "Trace & Route",
-    shortName: "T&R",
-    icon: "network",
-    accentColor: "#39ff14",
-    isTeam: false,
-    isSolo: true,
-    day: 2,
-    href: "/events/trace-route",
-  },
-  PROJECT_SHOWCASE: {
-    slug: "project-showcase",
-    name: "Project Showcasing",
-    shortName: "Project",
-    icon: "folder-open",
-    accentColor: "#7c3aed",
+  INNOVATION_SYMPOSIUM: {
+    slug: "innovation-symposium",
+    name: "Innovation Symposium",
+    shortName: "Symposium",
+    icon: "lightbulb",
+    accentColor: "#BE123C",
     isTeam: true,
     isSolo: false,
-    day: 2,
-    href: "/events/project-showcase",
-  },
-  POSTER_PRESENTATION: {
-    slug: "poster",
-    name: "Poster Presentation",
-    shortName: "Poster",
-    icon: "image",
-    accentColor: "#ff2e88",
-    isTeam: true,
-    isSolo: false,
-    day: 2,
-    href: "/events/poster",
+    day: 3,
+    href: "/events/innovation-symposium",
   },
   PANEL_DISCUSSION: {
     slug: "panel",
     name: "Panel Discussion",
     shortName: "Panel",
     icon: "users",
-    accentColor: "#ffb020",
+    accentColor: "#9F1239",
     isTeam: false,
     isSolo: false,
     isAttendance: true,
@@ -281,11 +260,11 @@ export const EVENT_MODULES = {
     name: "Hands-on Activities",
     shortName: "Workshops",
     icon: "wrench",
-    accentColor: "#7c3aed",
+    accentColor: "#881337",
     isTeam: false,
     isSolo: false,
     isIndividual: true,
-    day: 2,
+    day: 3,
     href: "/events/workshops",
   },
 } as const
@@ -311,28 +290,28 @@ export const SPONSOR_TIERS = {
     priceBDT: 1000000,
     priceDisplay: "BDT 10,00,000",
     tagline: "Presented by",
-    accentColor: "#ffb020",
+    accentColor: "#F43F5E",
   },
   PLATINUM: {
     label: "Platinum Sponsor",
     priceBDT: 700000,
     priceDisplay: "BDT 7,00,000",
     tagline: "Powered by",
-    accentColor: "#8b949e",
+    accentColor: "#A3A3A3",
   },
   GOLD: {
     label: "Gold Sponsor",
     priceBDT: 500000,
     priceDisplay: "BDT 5,00,000",
     tagline: "Associate with",
-    accentColor: "#ffb020",
+    accentColor: "#F43F5E",
   },
   CUSTOM: {
     label: "Custom Sponsorship",
     priceBDT: null,
     priceDisplay: "Flexible",
     tagline: "Partner",
-    accentColor: "#00e5ff",
+    accentColor: "#E11D48",
   },
 } as const
 
@@ -393,12 +372,10 @@ export const NAV_LINKS = [
 ] as const
 
 export const NAV_EVENT_LINKS = [
-  { label: "Capture The Flag", href: "/events/ctf", accent: "#00e5ff" },
-  { label: "Trace & Route", href: "/events/trace-route", accent: "#39ff14" },
-  { label: "Project Showcase", href: "/events/project-showcase", accent: "#7c3aed" },
-  { label: "Poster Presentation", href: "/events/poster", accent: "#ff2e88" },
-  { label: "Panel Discussion", href: "/events/panel", accent: "#ffb020" },
-  { label: "Hands-on Activities", href: "/events/workshops", accent: "#7c3aed" },
+  { label: "Capture The Flag", href: "/events/ctf" as Route, accent: "#E11D48" },
+  { label: "Innovation Symposium", href: "/events/innovation-symposium" as Route, accent: "#BE123C" },
+  { label: "Panel Discussion", href: "/events/panel" as Route, accent: "#9F1239" },
+  { label: "Workshops", href: "/events/workshops" as Route, accent: "#881337" },
 ] as const
 
 // ─── Admin ────────────────────────────────────────────────────────────────────

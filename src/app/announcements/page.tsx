@@ -19,7 +19,7 @@ export const revalidate = 60
 
 export const metadata: Metadata = {
   title: "Announcements",
-  description: "Official announcements and updates for DIU CyberCon 2026.",
+  description: "Official announcements and updates for DIU_CYBERCON 2026.",
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -53,7 +53,7 @@ export default async function AnnouncementsPage() {
       <PageHeader
         label="// Latest Updates"
         title="Official announcements"
-        description="Organizer-published updates about registration, the schedule, the venue, and everything in between — straight from the DIU CyberCon team."
+        description="Organizer-published updates about registration, the schedule, the venue, and everything in between — straight from the DIU_CYBERCON team."
         crumbs={[{ label: "Home", href: "/" }, { label: "Announcements" }]}
       />
 

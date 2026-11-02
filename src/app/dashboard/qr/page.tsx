@@ -28,7 +28,7 @@ export default async function DashboardQrPage() {
     getDashboardProfile(user.id),
   ])
 
-  const active = registrations.filter((r) => r.status !== "CANCELLED")
+  const active = registrations.filter((r) => r.status === "CONFIRMED")
   const participantName =
     profile?.fullName ?? user.name?.trim() ?? user.email.split("@")[0] ?? "Participant"
 

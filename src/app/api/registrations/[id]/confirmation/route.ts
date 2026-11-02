@@ -1,7 +1,7 @@
 // =============================================================================
 // GET /api/registrations/[id]/confirmation
 // Download the registration confirmation pass as a PDF.
-// [id] = human-readable registration ID (e.g. CYB26-ABC123).
+// [id] = human-readable registration ID (e.g. CYB26-C-101-A7F3K9).
 //
 // Access: the registration owner, or an admin with registrations:view.
 // The embedded QR contains ONLY the signed registration ID — no PII.
@@ -24,8 +24,8 @@ export const dynamic = "force-dynamic"
 
 type RouteParams = { params: Promise<{ id: string }> }
 
-/** Registration IDs are generated as CYB26-XXXXXX — keep lookups tight. */
-const REGISTRATION_ID_PATTERN = /^[A-Za-z0-9]{2,12}-[A-Za-z0-9]{4,12}$/
+/** Keep confirmation pass lookups limited to the generated event-coded format. */
+const REGISTRATION_ID_PATTERN = /^CYB26-(?:C|TR|P|PJ|PN|W)-\d{3,}-[A-HJ-NP-Z2-9]{6}$/i
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
@@ -83,11 +83,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    if (registration.status === "CANCELLED") {
+    if (registration.status !== "CONFIRMED") {
       return NextResponse.json(
         errorResponse(
-          "This registration was cancelled — a confirmation pass is not available.",
-          "REGISTRATION_CANCELLED",
+          "A confirmation pass is available after the registration is approved.",
+          "REGISTRATION_NOT_CONFIRMED",
         ),
         { status: 409 },
       )

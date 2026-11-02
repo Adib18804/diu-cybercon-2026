@@ -1,6 +1,6 @@
 // =============================================================================
 // Venue — /venue
-// Everything about the on-site home of DIU CyberCon 2026: Daffodil Smart City
+// Everything about the on-site home of DIU_CYBERCON 2026: Daffodil Smart City
 // (DSC), Birulia, Savar. Static facts only — no embedded third-party frames.
 // =============================================================================
 
@@ -25,7 +25,7 @@ import { EVENT_DATES, VENUE } from "@/lib/constants"
 export const metadata: Metadata = {
   title: "Venue",
   description:
-    "Daffodil Smart City (DSC), Birulia, Savar, Dhaka-1216 — the home of DIU CyberCon 2026.",
+    "Daffodil Smart City (DSC), Birulia, Savar, Dhaka-1216 — the home of DIU_CYBERCON 2026.",
 }
 
 // ─── Static content ───────────────────────────────────────────────────────────

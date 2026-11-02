@@ -47,6 +47,24 @@ export interface AdminStatsPayload {
   registrationsByDay: ChartPoint[]
   /** Top 10 universities by participant count. */
   universityDistribution: ChartPoint[]
+  /** Authority-only aggregates; omitted for all non-Super Admin roles. */
+  superAdminAnalytics?: SuperAdminAnalytics
+}
+
+export interface SuperAdminAnalytics {
+  registrationsByEvent: ChartPoint[]
+  verifiedRevenue: string
+  pendingRevenue: string
+  totalTeams: number
+  totalMembers: number
+  teamSizeBreakdown: ChartPoint[]
+  pendingRegistrationCount: number
+  pendingPaymentCount: number
+  pendingRegistrations: Array<{
+    registrationId: string
+    eventName: string
+    createdAt: string
+  }>
 }
 
 // ─── Aggregation ──────────────────────────────────────────────────────────────
@@ -54,6 +72,86 @@ export interface AdminStatsPayload {
 const DAYS_OF_HISTORY = 30
 const TOP_UNIVERSITIES = 10
 const RECENT_ACTIVITY_LIMIT = 12
+
+async function getSuperAdminAnalytics(): Promise<SuperAdminAnalytics> {
+  const [events, registrationGroups, paymentGroups, teams, pendingRegistrations] =
+    await Promise.all([
+      prisma.event.findMany({
+        orderBy: { displayOrder: "asc" },
+        select: { id: true, name: true },
+      }),
+      prisma.eventRegistration.groupBy({
+        by: ["eventId"],
+        where: { status: { not: "CANCELLED" } },
+        _count: { _all: true },
+      }),
+      prisma.payment.groupBy({
+        by: ["status"],
+        where: { method: "BKASH", status: { in: ["PENDING", "VERIFIED"] } },
+        _sum: { amount: true },
+        _count: { _all: true },
+      }),
+      prisma.team.findMany({
+        where: { deletedAt: null },
+        select: { _count: { select: { members: true } } },
+      }),
+      prisma.eventRegistration.findMany({
+        where: { status: "PENDING" },
+        orderBy: { createdAt: "asc" },
+        take: 8,
+        select: {
+          registrationId: true,
+          createdAt: true,
+          event: { select: { name: true } },
+        },
+      }),
+    ])
+
+  const registrationsById = new Map(
+    registrationGroups.map((group) => [group.eventId, group._count._all]),
+  )
+  const revenueByStatus = new Map(
+    paymentGroups.map((group) => [group.status, group._sum.amount?.toString() ?? "0"]),
+  )
+  const paymentCountByStatus = new Map(
+    paymentGroups.map((group) => [group.status, group._count._all]),
+  )
+  const sizeBuckets = new Map<string, number>([
+    ["1 member", 0],
+    ["2 members", 0],
+    ["3 members", 0],
+    ["4 members", 0],
+    ["5+ members", 0],
+  ])
+  let totalMembers = 0
+  for (const team of teams) {
+    const size = team._count.members
+    totalMembers += size
+    if (size > 0) {
+      const label = size >= 5 ? "5+ members" : `${size} ${size === 1 ? "member" : "members"}`
+      sizeBuckets.set(label, (sizeBuckets.get(label) ?? 0) + 1)
+    }
+  }
+
+  return {
+    registrationsByEvent: events.map((event) => ({
+      label: event.name,
+      value: registrationsById.get(event.id) ?? 0,
+    })),
+    verifiedRevenue: revenueByStatus.get("VERIFIED") ?? "0",
+    pendingRevenue: revenueByStatus.get("PENDING") ?? "0",
+    totalTeams: teams.length,
+    totalMembers,
+    teamSizeBreakdown: Array.from(sizeBuckets, ([label, value]) => ({ label, value })),
+    pendingRegistrationCount: await prisma.eventRegistration.count({ where: { status: "PENDING" } }),
+    pendingPaymentCount: paymentCountByStatus.get("PENDING") ?? 0,
+    pendingRegistrations: pendingRegistrations.map((registration) => ({
+      registrationId: registration.registrationId,
+      eventName: registration.event.name,
+      createdAt: registration.createdAt.toISOString(),
+    })),
+  }
+}
 
 function toDayKey(date: Date): string {
   return date.toISOString().slice(0, 10)
@@ -252,11 +350,15 @@ export async function getAdminDashboardStats(
     }))
   }
 
+  const superAdminAnalytics =
+    adminRole === "SUPER_ADMIN" ? await getSuperAdminAnalytics() : undefined
+
   return {
     generatedAt: now.toISOString(),
     cards,
     recentActivity,
     registrationsByDay,
     universityDistribution,
+    ...(superAdminAnalytics ? { superAdminAnalytics } : {}),
   }
 }

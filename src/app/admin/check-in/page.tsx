@@ -76,7 +76,7 @@ declare global {
   }
 }
 
-const REGISTRATION_ID_PATTERN = /^CYB26-[A-Z0-9]{4,10}$/
+const REGISTRATION_ID_PATTERN = /^CYB26-(?:C|TR|P|PJ|PN|W)-\d{3,}-[A-HJ-NP-Z2-9]{6}$/
 
 function nextAction(status: CheckInStatus): "CHECK_IN" | "CHECK_OUT" {
   return status === "CHECKED_IN" ? "CHECK_OUT" : "CHECK_IN"
@@ -239,7 +239,7 @@ export default function AdminCheckInPage() {
     event.preventDefault()
     const id = manualId.trim().toUpperCase()
     if (!REGISTRATION_ID_PATTERN.test(id)) {
-      toast.error("Registration IDs look like CYB26-XXXXXX.")
+      toast.error("Enter a valid event registration ID.")
       return
     }
     void runLookup({ registrationId: id })
@@ -388,7 +388,7 @@ export default function AdminCheckInPage() {
                   type="text"
                   value={manualId}
                   onChange={(e) => setManualId(e.target.value.toUpperCase())}
-                  placeholder="CYB26-XXXXXX"
+                  placeholder="CYB26-C-101-A7F3K9"
                   aria-label="Registration ID"
                   autoComplete="off"
                   autoCapitalize="characters"

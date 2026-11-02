@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Admin list-query parsing
+// DIU_CYBERCON 2026 — Admin list-query parsing
 // Standard page/pageSize/q parsing for every admin list endpoint so all
 // admin tables paginate + search identically.
 // =============================================================================

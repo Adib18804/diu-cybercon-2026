@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Admin Validation Schemas (Zod)
+// DIU_CYBERCON 2026 — Admin Validation Schemas (Zod)
 // Every admin API route validates its payload with these schemas server-side.
 // The client may pre-validate for UX, but the server ALWAYS re-validates —
 // never trust the client.
@@ -92,7 +92,11 @@ const skillLevelEnum = z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"])
 const eventStatusEnum = z.enum(["DRAFT", "OPEN", "CLOSED", "COMPLETED"])
 const registrationStatusEnum = z.enum([
   "PENDING",
+  "PRELIM_APPROVED",
+  "PAYMENT_PENDING",
+  "PENDING_PAYMENT",
   "CONFIRMED",
+  "REJECTED",
   "CANCELLED",
   "WAITLISTED",
 ])
@@ -150,6 +154,32 @@ export const participantUpdateSchema = z.object({
 })
 export type ParticipantUpdateInput = z.infer<typeof participantUpdateSchema>
 
+// =============================================================================
+// Event registration settings
+// =============================================================================
+
+const nullableDateTime = z.preprocess(
+  (value) => (value === null ? null : value),
+  z.union([dateTime, z.null()]),
+)
+
+export const eventSettingsUpdateSchema = z
+  .object({
+    startDate: nullableDateTime.optional(),
+    endDate: nullableDateTime.optional(),
+    registrationDeadline: nullableDateTime.optional(),
+    registrationFee: z.coerce.number().finite().min(0).max(99999999.99)
+      .refine((value) => Math.round(value * 100) === value * 100, "Use at most two decimal places")
+      .optional(),
+    venue: z.string().trim().min(2).max(180).optional(),
+    registrationOpen: z.boolean().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "Provide at least one event setting to update",
+  })
+
+export type EventSettingsUpdateInput = z.infer<typeof eventSettingsUpdateSchema>
+
 export const userSuspendSchema = z.object({
   suspend: z.boolean(),
   reason: z
@@ -196,9 +226,15 @@ export type TeamUpdateInput = z.infer<typeof teamUpdateSchema>
 // Registrations
 // =============================================================================
 
-export const registrationStatusUpdateSchema = z.object({
-  status: registrationStatusEnum,
-})
+export const registrationStatusUpdateSchema = z
+  .object({
+    status: registrationStatusEnum,
+    reason: z.string().trim().min(5, "Provide a rejection reason").max(500).optional(),
+  })
+  .refine((data) => data.status !== "REJECTED" || Boolean(data.reason), {
+    message: "A reason is required when rejecting a registration.",
+    path: ["reason"],
+  })
 export type RegistrationStatusUpdateInput = z.infer<
   typeof registrationStatusUpdateSchema
 >
@@ -211,11 +247,11 @@ export const checkInLookupSchema = z
   .object({
     /** Signed QR token payload (from the participant's QR code). */
     token: z.string().trim().min(10).max(500).optional(),
-    /** Manual fallback — CYB26-XXXXXX registration ID. */
+    /** Manual fallback — event-coded registration ID. */
     registrationId: z
       .string()
       .trim()
-      .regex(/^CYB26-[A-Z0-9]{4,10}$/, "Enter a valid registration ID (CYB26-XXXXXX)")
+      .regex(/^CYB26-(?:C|TR|P|PJ|PN|W)-\d{3,}-[A-HJ-NP-Z2-9]{6}$/, "Enter a valid registration ID")
       .optional(),
   })
   .refine((data) => !!data.token || !!data.registrationId, {
@@ -229,8 +265,8 @@ export const checkInActionSchema = z.object({
     .string()
     .trim()
     .regex(
-      /^CYB26-[A-Z0-9]{4,10}$/,
-      "Enter a valid registration ID (CYB26-XXXXXX)",
+      /^CYB26-(?:C|TR|P|PJ|PN|W)-\d{3,}-[A-HJ-NP-Z2-9]{6}$/,
+      "Enter a valid registration ID",
     ),
   action: z.enum(["CHECK_IN", "CHECK_OUT"]),
 })

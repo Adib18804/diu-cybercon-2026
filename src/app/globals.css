@@ -1,5 +1,5 @@
 /* =============================================================================
-   DIU CyberCon 2026 — Global Styles
+   DIU_CYBERCON 2026 — Global Styles
    Design system CSS custom properties + base styles + utility classes
    ============================================================================= */
 
@@ -14,27 +14,27 @@
 
 :root {
   /* ── Canvas & surfaces ───────────────────────────────────────────────── */
-  --bg-deep: #05070d;
-  --bg-surface: #0a0f18;
-  --bg-panel: #0f1622;
-  --bg-elevated: #141d2e;
+  --bg-deep: #0a0a0a;
+  --bg-surface: #0d0d0d;
+  --bg-panel: #121212;
+  --bg-elevated: #1a1a1a;
 
   /* ── Borders ─────────────────────────────────────────────────────────── */
-  --border: #1f2937;
-  --border-subtle: #131b27;
-  --border-bright: #2d3f55;
+  --border: #262626;
+  --border-subtle: #1a1a1a;
+  --border-bright: #404040;
 
   /* ── Accents ─────────────────────────────────────────────────────────── */
-  --cyan: #00e5ff;
-  --neon: #39ff14;
-  --violet: #7c3aed;
-  --pink: #ff2e88;
-  --amber: #ffb020;
+  --cyan: #e11d48;
+  --neon: #be123c;
+  --violet: #be123c;
+  --pink: #e11d48;
+  --amber: #f43f5e;
 
   /* ── Text ────────────────────────────────────────────────────────────── */
-  --text-primary: #e6edf3;
-  --text-muted: #8b949e;
-  --text-faint: #4d5966;
+  --text-primary: #ffffff;
+  --text-muted: #d1d5db;
+  --text-faint: #a1a1aa;
 
   /* ── Typography ──────────────────────────────────────────────────────── */
   --font-display: var(--font-space-grotesk), system-ui, sans-serif;
@@ -174,12 +174,12 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 229, 255, 0.4);
+    background: rgba(225, 29, 72, 0.4);
   }
 
   /* ── Selection ───────────────────────────────────────────────────────── */
   ::selection {
-    background-color: rgba(0, 229, 255, 0.2);
+    background-color: rgba(225, 29, 72, 0.2);
     color: var(--cyan);
   }
 
@@ -258,8 +258,8 @@
   /* ── Grid background overlay ─────────────────────────────────────────── */
   .bg-grid {
     background-image:
-      linear-gradient(rgba(0, 229, 255, var(--grid-opacity)) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 229, 255, var(--grid-opacity)) 1px, transparent 1px);
+      linear-gradient(rgba(225, 29, 72, var(--grid-opacity)) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(225, 29, 72, var(--grid-opacity)) 1px, transparent 1px);
     background-size: var(--grid-size) var(--grid-size);
   }
 
@@ -293,9 +293,9 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(0, 229, 255, 0.4) 30%,
-      rgba(0, 229, 255, 0.6) 50%,
-      rgba(0, 229, 255, 0.4) 70%,
+      rgba(225, 29, 72, 0.4) 30%,
+      rgba(225, 29, 72, 0.6) 50%,
+      rgba(225, 29, 72, 0.4) 70%,
       transparent 100%
     );
   }
@@ -409,7 +409,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-cyan text-bg-deep border-cyan;
+    @apply btn bg-cyan text-white border-cyan;
     @apply hover:shadow-glow-cyan hover:bg-cyan/90 focus-visible:ring-cyan;
     @apply active:scale-[0.97];
   }
@@ -433,7 +433,7 @@
   }
 
   .btn-neon {
-    @apply btn bg-neon text-bg-deep border-neon;
+    @apply btn bg-neon text-white border-neon;
     @apply hover:shadow-glow-neon hover:bg-neon/90 focus-visible:ring-neon;
     @apply active:scale-[0.97];
   }
@@ -459,7 +459,7 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgba(0, 229, 255, 0.04) 50%,
+      rgba(225, 29, 72, 0.04) 50%,
       transparent 100%
     );
     background-size: 200% auto;
@@ -481,21 +481,21 @@
 
   /* ── Gradient text ───────────────────────────────────────────────────── */
   .text-gradient-cyan {
-    background: linear-gradient(135deg, var(--cyan) 0%, rgba(0, 229, 255, 0.6) 100%);
+    background: linear-gradient(135deg, var(--cyan) 0%, rgba(225, 29, 72, 0.6) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-violet {
-    background: linear-gradient(135deg, var(--violet) 0%, #a78bfa 100%);
+    background: linear-gradient(135deg, var(--violet) 0%, #FDA4AF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-neon {
-    background: linear-gradient(135deg, var(--neon) 0%, rgba(57, 255, 20, 0.6) 100%);
+    background: linear-gradient(135deg, var(--neon) 0%, rgba(251, 113, 133, 0.6) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

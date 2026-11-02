@@ -1,7 +1,7 @@
 version: "3.9"
 
 # =============================================================================
-# DIU CyberCon 2026 — Local Development Services
+# DIU_CYBERCON 2026 — Local Development Services
 # =============================================================================
 # Usage:
 #   Start:   docker compose up -d

@@ -12,7 +12,7 @@ import { EVENT_DATES, ORGANIZER, VENUE } from "@/lib/constants"
 
 // =============================================================================
 // EventIntro — Section 04
-// What DIU CyberCon 2026 is, who runs it, and the three-day shape.
+// What DIU_CYBERCON 2026 is, who runs it, and the three-day shape.
 // =============================================================================
 
 export interface EventIntroProps {
@@ -30,7 +30,7 @@ const PILLARS = [
   {
     icon: Flag,
     title: "Compete",
-    text: "Six national events — from CTF to project showcases with published results.",
+    text: "Compete in the CTF, present a cybersecurity project or research idea, or join a workshop on 12 December 2026.",
     accent: "text-neon",
   },
   {
@@ -61,7 +61,7 @@ function EventIntro({ description, organizerName }: EventIntroProps) {
             />
 
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-text-muted">
-              Organised by the {ORGANIZER.name}, DIU CyberCon connects
+              Organised by the {ORGANIZER.name}, DIU_CYBERCON connects
               university, college and school teams, professionals, and industry
               leaders across three days of competition, learning and
               collaboration — starting with online CTF preliminaries and
@@ -100,11 +100,11 @@ function EventIntro({ description, organizerName }: EventIntroProps) {
                 </p>
                 <dl className="flex flex-col gap-2 pl-4">
                   {[
-                    ["event", "DIU CyberCon 2026"],
+                    ["event", "DIU_CYBERCON 2026"],
                     ["tagline", "LEARN · SECURE · DEFEND"],
                     ["organizer", ORGANIZER.shortName + " — Department of CSE, DIU"],
                     ["format", "Online prelims + 2 on-site days"],
-                    ["dates", "24 Oct · 14–15 Nov 2026"],
+                    ["dates", "24 Oct prelim · 12 Dec 2026 onsite"],
                     ["venue", VENUE.shortAddress],
                     ["modules", "6 national events"],
                   ].map(([key, value]) => (

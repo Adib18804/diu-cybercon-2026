@@ -9,16 +9,19 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 
 import { auditLog, extractIpAddress, extractUserAgent } from "@/lib/audit"
-import { sendRegistrationConfirmationEmail } from "@/lib/email/resend"
+import { prisma } from "@/lib/db"
 import { requireAuth } from "@/lib/rbac"
 import {
   RegistrationError,
   registerForEvent,
 } from "@/lib/registrations/service"
-import { generateQrDataUrl, signQrToken } from "@/lib/security/qr"
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/security/rate-limit"
 import { errorResponse, successResponse } from "@/lib/utils"
-import { submitRegistrationSchema } from "@/lib/validations/registration"
+import {
+  ctfRegistrationSchema,
+  innovationSymposiumRegistrationSchema,
+  submitRegistrationSchema,
+} from "@/lib/validations/registration"
 
 export const runtime = "nodejs"
 
@@ -57,29 +60,45 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
+    const selectedEvent = await prisma.event.findUnique({
+      where: { id: parsed.data.eventId },
+      select: { type: true },
+    })
+    if (!selectedEvent) {
+      return NextResponse.json(errorResponse("Event not found.", "EVENT_NOT_FOUND"), { status: 404 })
+    }
+
+    const eventSchema = selectedEvent.type === "INNOVATION_SYMPOSIUM"
+      ? innovationSymposiumRegistrationSchema
+      : selectedEvent.type === "CTF"
+        ? ctfRegistrationSchema
+      : submitRegistrationSchema
+    const eventParsed = eventSchema.safeParse(body)
+    if (!eventParsed.success) {
+      return NextResponse.json(
+        errorResponse(
+          "Please fix the highlighted fields and try again.",
+          "VALIDATION_ERROR",
+          eventParsed.error.flatten().fieldErrors as Record<string, string[]>,
+        ),
+        { status: 422 },
+      )
+    }
+
     // ── Business rules + transaction ──────────────────────────────────────────
     const result = await registerForEvent({
       userId: session.user.id,
-      input: parsed.data,
+      input: eventParsed.data,
     })
 
-    // ── Post-transaction: QR codes, audit, emails ─────────────────────────────
+    // ── Post-transaction: audit ────────────────────────────────────────────────
     const ipAddress = extractIpAddress(request)
     const userAgent = extractUserAgent(request)
 
-    // QR codes — the token contains ONLY the signed registration ID (no PII).
-    const registrations = await Promise.all(
-      result.registrations.map(async (reg) => {
-        let qrDataUrl: string | null = null
-        try {
-          const token = await signQrToken(reg.registrationId)
-          qrDataUrl = await generateQrDataUrl(token)
-        } catch (err) {
-          console.error("[POST /api/registrations] QR generation failed:", err)
-        }
-        return { ...reg, qrDataUrl }
-      }),
-    )
+    const registrations = result.registrations.map((reg) => ({
+      ...reg,
+      qrDataUrl: null,
+    }))
 
     // Audit trail
     for (const reg of registrations) {
@@ -91,6 +110,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         after: {
           eventId: result.eventId,
           eventType: result.eventType,
+          registrationPhase: "PRELIMINARY",
+          status: "PENDING",
           registrationId: reg.registrationId,
           participant: reg.participantName,
           isLeader: reg.isLeader,
@@ -127,20 +148,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // Confirmation emails — one per participant, never blocking the response.
-    const emailResults = await Promise.all(
-      registrations.map((reg) =>
-        sendRegistrationConfirmationEmail({
-          to: reg.email,
-          name: reg.participantName,
-          registrationId: reg.registrationId,
-          eventName: result.eventName,
-          teamName: result.teamName ?? undefined,
-        }),
-      ),
-    )
-    const emailSent = emailResults[0]?.success ?? false
-
     // ── Response ──────────────────────────────────────────────────────────────
     return NextResponse.json(
       successResponse(
@@ -148,8 +155,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           eventId: result.eventId,
           eventName: result.eventName,
           eventType: result.eventType,
+          registrationPhase: "PRELIMINARY",
+          status: "PENDING",
           teamName: result.teamName,
-          emailSent,
+          emailSent: false,
           registrations: registrations.map((reg) => ({
             registrationId: reg.registrationId,
             participantName: reg.participantName,
@@ -157,7 +166,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             qrDataUrl: reg.qrDataUrl,
           })),
         },
-        "Registration confirmed.",
+        "Registration submitted for review.",
       ),
       { status: 201 },
     )

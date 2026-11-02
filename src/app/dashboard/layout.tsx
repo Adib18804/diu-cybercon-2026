@@ -14,7 +14,7 @@ import { getSessionUser } from "@/lib/rbac"
 export const metadata: Metadata = {
   title: {
     default: "Dashboard",
-    template: "%s | Dashboard | DIU CyberCon 2026",
+    template: "%s | Dashboard | DIU_CYBERCON 2026",
   },
   robots: { index: false, follow: false },
 }

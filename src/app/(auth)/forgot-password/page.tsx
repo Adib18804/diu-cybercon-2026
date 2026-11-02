@@ -8,7 +8,7 @@ import { ForgotPasswordForm } from "./ForgotPasswordForm"
 
 export const metadata: Metadata = {
   title: "Forgot Password",
-  description: "Request a password reset link for your DIU CyberCon 2026 account.",
+  description: "Request a password reset link for your DIU_CYBERCON 2026 account.",
   robots: { index: false, follow: false },
 }
 

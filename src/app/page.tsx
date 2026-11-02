@@ -5,10 +5,7 @@ import {
   FinalCta,
   GalleryPreview,
   Hero,
-  LegacySection,
-  ModuleFeatures,
   ModuleGrid,
-  ModulePreviews,
   PartnersSection,
   SchedulePreview,
   SponsorsSection,
@@ -26,7 +23,7 @@ import type {
   HomeSponsor,
   HomeStats,
 } from "@/components/home"
-import { APP_TAGLINE, EVENT_DATES, LEGACY_2025, ORGANIZER, VENUE } from "@/lib/constants"
+import { APP_TAGLINE, EVENT_DATES, ORGANIZER, VENUE } from "@/lib/constants"
 import { prisma } from "@/lib/db"
 
 // =============================================================================
@@ -47,7 +44,10 @@ function settledValue<T>(result: PromiseSettledResult<T>, fallback: T): T {
 async function getHomepageData() {
   const [eventsR, faqsR, speakersR, scheduleR, sponsorsR, partnersR, galleryR, settingsR] =
     await Promise.allSettled([
-      prisma.event.findMany({ orderBy: { displayOrder: "asc" } }),
+      prisma.event.findMany({
+        where: { type: { in: ["CTF", "INNOVATION_SYMPOSIUM", "PANEL_DISCUSSION", "HANDS_ON"] }, status: { not: "DRAFT" } },
+        orderBy: { displayOrder: "asc" },
+      }),
       prisma.fAQ.findMany({
         where: { isPublished: true },
         orderBy: { displayOrder: "asc" },
@@ -57,6 +57,12 @@ async function getHomepageData() {
         orderBy: { displayOrder: "asc" },
       }),
       prisma.scheduleItem.findMany({
+        where: {
+          OR: [
+            { eventId: null },
+            { event: { type: { in: ["CTF", "INNOVATION_SYMPOSIUM", "PANEL_DISCUSSION", "HANDS_ON"] }, status: { not: "DRAFT" } } },
+          ],
+        },
         orderBy: [{ day: "asc" }, { displayOrder: "asc" }],
       }),
       prisma.sponsor.findMany({
@@ -82,12 +88,6 @@ async function getHomepageData() {
   const str = (key: string, fallback: string): string => {
     const value = settingsMap.get(key)
     return value !== undefined && value.length > 0 ? value : fallback
-  }
-  const num = (key: string, fallback: number): number => {
-    const value = settingsMap.get(key)
-    if (value === undefined || value.length === 0) {return fallback}
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : fallback
   }
   const bool = (key: string, fallback: boolean): boolean => {
     const value = settingsMap.get(key)
@@ -188,22 +188,17 @@ async function getHomepageData() {
       : null
 
   const stats: HomeStats = {
-    moduleCount: events.length > 0 ? events.length : 6,
+    moduleCount: events.length,
     dayCount: 3,
-    teams2025: num("stats.2025.teams", LEGACY_2025.teams),
-    universities2025: num("stats.2025.universities", LEGACY_2025.universities),
-    colleges2025: num("stats.2025.colleges", LEGACY_2025.colleges),
-    schools2025: num("stats.2025.schools", LEGACY_2025.schools),
-    professionals2025: num("stats.2025.professionals", LEGACY_2025.professionals),
   }
 
   return {
     hero: {
-      title: str("hero.title", "DIU CyberCon 2026"),
+      title: str("hero.title", "DIU_CYBERCON 2026"),
       tagline: str("hero.tagline", APP_TAGLINE),
       description: str(
         "hero.description",
-        "Bangladesh's flagship national cybersecurity conference, competition, and talent platform. Hosted by the Cyber Security Club, Department of CSE, Daffodil International University.",
+        "Join the CTF, present at the Innovation Symposium, or take part in a hands-on workshop on 12 December 2026 at Daffodil International University.",
       ),
       countdownTarget: str("event.countdown.target", EVENT_DATES.countdownTarget),
       registrationOpen: bool("registration.open", true),
@@ -211,11 +206,6 @@ async function getHomepageData() {
       firstDeadlineLabel,
     },
     events,
-    featuredCtf: events.find((event) => event.slug === "ctf") ?? null,
-    featuredTraceRoute: events.find((event) => event.slug === "trace-route") ?? null,
-    remainingModules: events.filter(
-      (event) => event.slug !== "ctf" && event.slug !== "trace-route",
-    ),
     faqs,
     speakers,
     schedule,
@@ -255,17 +245,11 @@ export default async function HomePage() {
         organizerName={data.hero.organizerName}
       />
 
-      {/* 05 · Numbers — current edition + labelled 2025 legacy */}
+      {/* 05 · 2026 event facts */}
       <EventStats stats={data.stats} />
 
-      {/* 06 · All six modules at a glance */}
+      {/* 06 · CTF and Innovation Symposium */}
       <ModuleGrid events={data.events} />
-
-      {/* 07–08 · Featured modules — CTF + Trace & Route */}
-      <ModuleFeatures ctf={data.featuredCtf} traceRoute={data.featuredTraceRoute} />
-
-      {/* 09–12 · Remaining module previews */}
-      <ModulePreviews events={data.remainingModules} />
 
       {/* 13 · Speakers — honest placeholder until confirmed */}
       <SpeakersPreview speakers={data.speakers} />
@@ -279,10 +263,7 @@ export default async function HomePage() {
       {/* 16 · Partner organisations */}
       <PartnersSection partners={data.partners} />
 
-      {/* 17 · CyberCon 2025 legacy */}
-      <LegacySection stats={data.stats} />
-
-      {/* 18 · Gallery preview */}
+      {/* 17 · Gallery preview */}
       <GalleryPreview images={data.gallery} />
 
       {/* 19 · Venue + map */}

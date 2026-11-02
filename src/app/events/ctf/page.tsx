@@ -11,7 +11,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "Capture The Flag (CTF)",
   description:
-    "Team-based Capture The Flag competition at DIU CyberCon 2026 — online prelims on 24 October, on-site finals on 14–15 November at Daffodil Smart City. Teams of 2–5.",
+    "Team-based Capture The Flag competition at DIU_CYBERCON 2026 — free online preliminaries and finals on 12 December at the Library Zone. Teams of up to 4.",
 }
 
 export default function CtfEventPage() {

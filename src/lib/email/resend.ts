@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Email Service (Resend)
+// DIU_CYBERCON 2026 — Email Service (Resend)
 // All outbound transactional email goes through this module.
 // =============================================================================
 
@@ -40,6 +40,7 @@ export interface SendEmailOptions {
   category?: string
   /** Recipient user id, stored on the EmailLog row when known */
   userId?: string
+  attachments?: Array<{ filename: string; content: Buffer }>
 }
 
 export interface EmailResult {
@@ -156,6 +157,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<EmailResult> {
         replyTo,
         tags: opts.tags,
         ...(opts.headers ? { headers: opts.headers } : {}),
+        ...(opts.attachments ? { attachments: opts.attachments } : {}),
       })
 
       if (!error) {
@@ -268,6 +270,7 @@ export async function sendRegistrationConfirmationEmail({
   registrationId,
   eventName,
   teamName,
+  invoicePdf,
   userId,
 }: {
   to: string
@@ -275,6 +278,7 @@ export async function sendRegistrationConfirmationEmail({
   registrationId: string
   eventName: string
   teamName?: string
+  invoicePdf?: Uint8Array
   userId?: string
 }): Promise<EmailResult> {
   const dashboardUrl = `${APP_URL}/dashboard`
@@ -294,6 +298,138 @@ export async function sendRegistrationConfirmationEmail({
     html,
     text,
     tags: [{ name: "category", value: "registration" }],
+    ...(invoicePdf
+      ? {
+          attachments: [{
+            filename: `DIU-CyberCon-Invoice-${registrationId}.pdf`,
+            content: Buffer.from(invoicePdf),
+          }],
+        }
+      : {}),
+    userId,
+  })
+}
+
+export async function sendFinalRegistrationInvitationEmail({
+  to,
+  name,
+  registrationId,
+  eventName,
+  registrationFee,
+  bkashNumber,
+  finalRegistrationUrl,
+  userId,
+}: {
+  to: string
+  name: string
+  registrationId: string
+  eventName: string
+  registrationFee: string
+  bkashNumber: string
+  finalRegistrationUrl: string
+  userId?: string
+}): Promise<EmailResult> {
+  const safeName = escapeHtml(name)
+  const safeRegistrationId = escapeHtml(registrationId)
+  const safeEventName = escapeHtml(eventName)
+  const safePaymentNumber = escapeHtml(bkashNumber || "Contact the organizers for payment instructions")
+  const safeUrl = escapeHtml(finalRegistrationUrl)
+  const fee = Number(registrationFee)
+  const paymentInstruction = fee > 0
+    ? `Pay BDT ${fee.toFixed(2)} to bKash ${bkashNumber || "the official organizer number"}, then submit the transaction ID using your secure final-registration link.`
+    : "No payment is due for this final registration. Use your secure link to complete the final-stage details."
+  const html = emailShell(`
+    <h1 style="${EMAIL_STYLES.h1}">Complete your final registration</h1>
+    <p style="${EMAIL_STYLES.p}">Hi ${safeName},</p>
+    <p style="${EMAIL_STYLES.p}">Your preliminary registration for <strong style="color:#FFFFFF;">${safeEventName}</strong> has been approved.</p>
+    <p style="${EMAIL_STYLES.small}">Registration ID: <strong style="color:#FFFFFF;">${safeRegistrationId}</strong></p>
+    <p style="${EMAIL_STYLES.p}">${escapeHtml(paymentInstruction)}</p>
+    ${fee > 0 ? `<p style="${EMAIL_STYLES.p}">bKash number: <strong style="color:#FFFFFF;">${safePaymentNumber}</strong><br />Amount: <strong style="color:#FFFFFF;">BDT ${fee.toFixed(2)}</strong></p>` : ""}
+    <div style="${EMAIL_STYLES.btnWrap}"><a href="${safeUrl}" style="${EMAIL_STYLES.btn}">Complete Final Registration &amp; Payment</a></div>
+    <p style="${EMAIL_STYLES.small}">This secure link expires in 14 days and is tied to your account.</p>
+  `)
+  const text = `Hi ${name},\n\nYour preliminary registration for ${eventName} has been approved.\nRegistration ID: ${registrationId}\n\n${paymentInstruction}${fee > 0 ? `\nbKash number: ${bkashNumber || "Contact the organizers"}\nAmount: BDT ${fee.toFixed(2)}` : ""}\n\nComplete Final Registration & Payment: ${finalRegistrationUrl}\nThis secure link expires in 14 days and is tied to your account.\n\n— ${APP_NAME} Team`
+
+  return sendEmail({
+    to,
+    subject: `Preliminary registration approved — ${eventName} | ${APP_NAME}`,
+    html,
+    text,
+    tags: [{ name: "category", value: "registration" }],
+    userId,
+  })
+}
+
+export async function sendRegistrationRejectedEmail({
+  to,
+  name,
+  registrationId,
+  eventName,
+  reason,
+  userId,
+}: {
+  to: string
+  name: string
+  registrationId: string
+  eventName: string
+  reason: string
+  userId?: string
+}): Promise<EmailResult> {
+  const safeName = escapeHtml(name)
+  const safeEventName = escapeHtml(eventName)
+  const safeRegistrationId = escapeHtml(registrationId)
+  const safeReason = escapeHtml(reason)
+  const dashboardUrl = `${APP_URL}/dashboard`
+  const html = emailShell(`
+    <h1 style="${EMAIL_STYLES.h1}">Registration update</h1>
+    <p style="${EMAIL_STYLES.p}">Hi ${safeName},</p>
+    <p style="${EMAIL_STYLES.p}">Your registration for <strong style="color:#FFFFFF;">${safeEventName}</strong> could not be approved.</p>
+    <p style="${EMAIL_STYLES.p}"><strong>Reason:</strong> ${safeReason}</p>
+    <p style="${EMAIL_STYLES.small}">Registration ID: ${safeRegistrationId}</p>
+    <div style="${EMAIL_STYLES.btnWrap}"><a href="${dashboardUrl}" style="${EMAIL_STYLES.btn}">View Dashboard</a></div>
+  `)
+  const text = `Hi ${name},\n\nYour registration for ${eventName} could not be approved.\nReason: ${reason}\nRegistration ID: ${registrationId}\n\nVisit your dashboard: ${dashboardUrl}\n\n— ${APP_NAME} Team`
+
+  return sendEmail({
+    to,
+    subject: `Registration update — ${eventName} | ${APP_NAME}`,
+    html,
+    text,
+    tags: [{ name: "category", value: "registration" }],
+    userId,
+  })
+}
+
+export async function sendPaymentRejectedEmail({
+  to,
+  name,
+  eventName,
+  reason,
+  userId,
+}: {
+  to: string
+  name: string
+  eventName: string
+  reason: string
+  userId?: string
+}): Promise<EmailResult> {
+  const dashboardUrl = `${APP_URL}/dashboard/events`
+  const html = emailShell(`
+    <h1 style="${EMAIL_STYLES.h1}">Payment needs attention</h1>
+    <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
+    <p style="${EMAIL_STYLES.p}">Your bKash payment for <strong style="color:#FFFFFF;">${escapeHtml(eventName)}</strong> could not be verified.</p>
+    <p style="${EMAIL_STYLES.p}"><strong>Reason:</strong> ${escapeHtml(reason)}</p>
+    <p style="${EMAIL_STYLES.p}">You can submit a new transaction ID from your dashboard.</p>
+    <div style="${EMAIL_STYLES.btnWrap}"><a href="${dashboardUrl}" style="${EMAIL_STYLES.btn}">Review Payment</a></div>
+  `)
+  const text = `Hi ${name},\n\nYour bKash payment for ${eventName} could not be verified.\nReason: ${reason}\n\nSubmit a new transaction ID from your dashboard: ${dashboardUrl}\n\n— ${APP_NAME} Team`
+
+  return sendEmail({
+    to,
+    subject: `Payment needs attention — ${eventName} | ${APP_NAME}`,
+    html,
+    text,
+    tags: [{ name: "category", value: "payment" }],
     userId,
   })
 }
@@ -502,7 +638,7 @@ export async function sendSponsorApplicationEmail({
   const sponsorsUrl = `${APP_URL}/sponsors`
 
   const html = buildSponsorApplicationHtml({ name, orgName, tierLabel, sponsorsUrl })
-  const text = `Hi ${name},\n\nThank you for your interest in sponsoring DIU CyberCon 2026.\n\nWe received the application from ${orgName} for the ${tierLabel} tier. Our sponsorship team will review it and contact you shortly.\n\nSponsorship details: ${sponsorsUrl}\n\n— ${APP_NAME} Team`
+  const text = `Hi ${name},\n\nThank you for your interest in sponsoring DIU_CYBERCON 2026.\n\nWe received the application from ${orgName} for the ${tierLabel} tier. Our sponsorship team will review it and contact you shortly.\n\nSponsorship details: ${sponsorsUrl}\n\n— ${APP_NAME} Team`
 
   return sendEmail({
     to,
@@ -538,7 +674,7 @@ export async function sendSponsorStatusEmail({
   const sponsorsUrl = `${APP_URL}/sponsors`
 
   const html = buildSponsorStatusHtml({ name, orgName, status, sponsorsUrl })
-  const text = `Hi ${name},\n\nUpdate on the sponsorship application from ${orgName}: ${status}.\n\nVisit ${sponsorsUrl} to learn more about DIU CyberCon 2026.\n\n— ${APP_NAME} Team`
+  const text = `Hi ${name},\n\nUpdate on the sponsorship application from ${orgName}: ${status}.\n\nVisit ${sponsorsUrl} to learn more about DIU_CYBERCON 2026.\n\n— ${APP_NAME} Team`
 
   return sendEmail({
     to,
@@ -577,7 +713,7 @@ export async function sendBroadcastEmail({
   userId?: string
 }): Promise<EmailResult> {
   const html = buildBroadcastHtml({ name, title, content, unsubscribeUrl })
-  const text = `Hi ${name},\n\n${title}\n\n${content}\n\nView all announcements: ${APP_URL}/announcements\n\n— ${APP_NAME} Team\n\nYou are receiving this email because you registered for DIU CyberCon 2026.\nUnsubscribe from announcement emails: ${unsubscribeUrl}`
+  const text = `Hi ${name},\n\n${title}\n\n${content}\n\nView all announcements: ${APP_URL}/announcements\n\n— ${APP_NAME} Team\n\nYou are receiving this email because you registered for DIU_CYBERCON 2026.\nUnsubscribe from announcement emails: ${unsubscribeUrl}`
 
   return sendEmail({
     to,
@@ -598,19 +734,19 @@ export async function sendBroadcastEmail({
 // =============================================================================
 
 const EMAIL_STYLES = {
-  body:    "margin:0;padding:0;background-color:#05070d;font-family:'Inter',Arial,sans-serif;",
+  body:    "margin:0;padding:0;background-color:#0A0A0A;font-family:'Inter',Arial,sans-serif;",
   wrapper: "max-width:600px;margin:0 auto;padding:40px 20px;",
-  header:  "text-align:center;padding-bottom:32px;border-bottom:1px solid #1f2937;margin-bottom:32px;",
-  logo:    "font-family:'Courier New',monospace;font-size:20px;font-weight:700;color:#00e5ff;letter-spacing:0.1em;",
-  tagline: "font-size:11px;color:#8b949e;letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;",
-  h1:      "font-size:24px;font-weight:700;color:#e6edf3;margin:0 0 12px;line-height:1.2;",
-  p:       "font-size:15px;color:#8b949e;line-height:1.6;margin:0 0 16px;",
+  header:  "text-align:center;padding-bottom:32px;border-bottom:1px solid #262626;margin-bottom:32px;",
+  logo:    "font-family:'Courier New',monospace;font-size:20px;font-weight:700;color:#E11D48;letter-spacing:0.1em;",
+  tagline: "font-size:11px;color:#A3A3A3;letter-spacing:0.15em;text-transform:uppercase;margin-top:4px;",
+  h1:      "font-size:24px;font-weight:700;color:#FFFFFF;margin:0 0 12px;line-height:1.2;",
+  p:       "font-size:15px;color:#A3A3A3;line-height:1.6;margin:0 0 16px;",
   btnWrap: "text-align:center;margin:32px 0;",
-  btn:     "display:inline-block;padding:14px 32px;background-color:#00e5ff;color:#05070d;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Courier New',monospace;",
-  divider: "border:none;border-top:1px solid #1f2937;margin:32px 0;",
-  small:   "font-size:12px;color:#4d5966;line-height:1.5;",
-  code:    "display:inline-block;padding:12px 20px;background:#0f1622;border:1px solid #1f2937;border-radius:8px;font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#00e5ff;letter-spacing:0.15em;margin:8px 0;",
-  footer:  "text-align:center;padding-top:32px;border-top:1px solid #1f2937;margin-top:32px;",
+  btn:     "display:inline-block;padding:14px 32px;background-color:#E11D48;color:#0A0A0A;font-size:13px;font-weight:700;text-decoration:none;border-radius:8px;letter-spacing:0.08em;text-transform:uppercase;font-family:'Courier New',monospace;",
+  divider: "border:none;border-top:1px solid #262626;margin:32px 0;",
+  small:   "font-size:12px;color:#737373;line-height:1.5;",
+  code:    "display:inline-block;padding:12px 20px;background:#121212;border:1px solid #262626;border-radius:8px;font-family:'Courier New',monospace;font-size:18px;font-weight:700;color:#E11D48;letter-spacing:0.15em;margin:8px 0;",
+  footer:  "text-align:center;padding-top:32px;border-top:1px solid #262626;margin-top:32px;",
 }
 
 function emailShell(content: string, footerExtraHtml = ""): string {
@@ -624,7 +760,7 @@ function emailShell(content: string, footerExtraHtml = ""): string {
 <body style="${EMAIL_STYLES.body}">
 <div style="${EMAIL_STYLES.wrapper}">
   <div style="${EMAIL_STYLES.header}">
-    <div style="${EMAIL_STYLES.logo}">DIU CYBERCON 2026</div>
+    <div style="${EMAIL_STYLES.logo}">DIU_CYBERCON 2026</div>
     <div style="${EMAIL_STYLES.tagline}">LEARN · SECURE · DEFEND</div>
   </div>
   ${content}
@@ -632,7 +768,7 @@ function emailShell(content: string, footerExtraHtml = ""): string {
     <p style="${EMAIL_STYLES.small}">
       Cyber Security Club, Department of CSE<br>
       Daffodil International University, Bangladesh<br>
-      <a href="${APP_URL}" style="color:#00e5ff;text-decoration:none;">${APP_URL}</a>
+      <a href="${APP_URL}" style="color:#E11D48;text-decoration:none;">${APP_URL}</a>
     </p>
     ${footerExtraHtml}
     <p style="${EMAIL_STYLES.small}">
@@ -649,7 +785,7 @@ function buildVerificationHtml({ name, verifyUrl }: { name: string; verifyUrl: s
     <h1 style="${EMAIL_STYLES.h1}">Verify your email address</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
-      Welcome to DIU CyberCon 2026! Click the button below to verify your email address
+      Welcome to DIU_CYBERCON 2026! Click the button below to verify your email address
       and activate your account.
     </p>
     <div style="${EMAIL_STYLES.btnWrap}">
@@ -657,7 +793,7 @@ function buildVerificationHtml({ name, verifyUrl }: { name: string; verifyUrl: s
     </div>
     <p style="${EMAIL_STYLES.small}">
       Or copy this link into your browser:<br>
-      <a href="${verifyUrl}" style="color:#00e5ff;word-break:break-all;">${verifyUrl}</a>
+      <a href="${verifyUrl}" style="color:#E11D48;word-break:break-all;">${verifyUrl}</a>
     </p>
     <hr style="${EMAIL_STYLES.divider}">
     <p style="${EMAIL_STYLES.small}">
@@ -667,7 +803,7 @@ function buildVerificationHtml({ name, verifyUrl }: { name: string; verifyUrl: s
 }
 
 function buildVerificationText({ name, verifyUrl }: { name: string; verifyUrl: string }): string {
-  return `Hi ${name},\n\nWelcome to DIU CyberCon 2026!\n\nVerify your email address by visiting:\n${verifyUrl}\n\nThis link expires in 24 hours.\n\nIf you did not create an account, you can ignore this email.\n\n— ${APP_NAME} Team`
+  return `Hi ${name},\n\nWelcome to DIU_CYBERCON 2026!\n\nVerify your email address by visiting:\n${verifyUrl}\n\nThis link expires in 24 hours.\n\nIf you did not create an account, you can ignore this email.\n\n— ${APP_NAME} Team`
 }
 
 function buildPasswordResetHtml({ name, resetUrl }: { name: string; resetUrl: string }): string {
@@ -675,7 +811,7 @@ function buildPasswordResetHtml({ name, resetUrl }: { name: string; resetUrl: st
     <h1 style="${EMAIL_STYLES.h1}">Reset your password</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
-      We received a request to reset the password for your DIU CyberCon 2026 account.
+      We received a request to reset the password for your DIU_CYBERCON 2026 account.
       Click the button below to set a new password.
     </p>
     <div style="${EMAIL_STYLES.btnWrap}">
@@ -683,7 +819,7 @@ function buildPasswordResetHtml({ name, resetUrl }: { name: string; resetUrl: st
     </div>
     <p style="${EMAIL_STYLES.small}">
       Or copy this link:<br>
-      <a href="${resetUrl}" style="color:#00e5ff;word-break:break-all;">${resetUrl}</a>
+      <a href="${resetUrl}" style="color:#E11D48;word-break:break-all;">${resetUrl}</a>
     </p>
     <hr style="${EMAIL_STYLES.divider}">
     <p style="${EMAIL_STYLES.small}">
@@ -694,7 +830,7 @@ function buildPasswordResetHtml({ name, resetUrl }: { name: string; resetUrl: st
 }
 
 function buildPasswordResetText({ name, resetUrl }: { name: string; resetUrl: string }): string {
-  return `Hi ${name},\n\nReset your DIU CyberCon 2026 password:\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you did not request this, ignore this email.\n\n— ${APP_NAME} Team`
+  return `Hi ${name},\n\nReset your DIU_CYBERCON 2026 password:\n${resetUrl}\n\nThis link expires in 1 hour.\n\nIf you did not request this, ignore this email.\n\n— ${APP_NAME} Team`
 }
 
 function buildRegistrationConfirmationHtml({
@@ -710,11 +846,11 @@ function buildRegistrationConfirmationHtml({
     <h1 style="${EMAIL_STYLES.h1}">Registration Confirmed!</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
-      Your registration for <strong style="color:#e6edf3;">${escapeHtml(eventName)}</strong> is confirmed.
-      ${teamName ? `You are part of team <strong style="color:#e6edf3;">${escapeHtml(teamName)}</strong>.` : ""}
+      Your registration for <strong style="color:#FFFFFF;">${escapeHtml(eventName)}</strong> is confirmed.
+      ${teamName ? `You are part of team <strong style="color:#FFFFFF;">${escapeHtml(teamName)}</strong>.` : ""}
     </p>
     <div style="text-align:center;margin:24px 0;">
-      <p style="font-size:12px;color:#8b949e;margin:0 0 8px;font-family:'Courier New',monospace;letter-spacing:0.1em;text-transform:uppercase;">Your Registration ID</p>
+      <p style="font-size:12px;color:#A3A3A3;margin:0 0 8px;font-family:'Courier New',monospace;letter-spacing:0.1em;text-transform:uppercase;">Your Registration ID</p>
       <div style="${EMAIL_STYLES.code}">${escapeHtml(registrationId)}</div>
     </div>
     <p style="${EMAIL_STYLES.p}">
@@ -746,13 +882,13 @@ function buildWorkshopConfirmationHtml({
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
       Your seat for the hands-on workshop
-      <strong style="color:#e6edf3;">${escapeHtml(workshopTitle)}</strong>
+      <strong style="color:#FFFFFF;">${escapeHtml(workshopTitle)}</strong>
       is confirmed.
     </p>
-    <div style="padding:16px 20px;background:#0f1622;border:1px solid #1f2937;border-radius:8px;margin:20px 0;">
-      <p style="margin:0 0 8px;font-size:13px;color:#8b949e;"><strong style="color:#e6edf3;">Date:</strong> ${escapeHtml(dateLabel)}</p>
-      <p style="margin:0 0 8px;font-size:13px;color:#8b949e;"><strong style="color:#e6edf3;">Time:</strong> ${escapeHtml(startTime)} – ${escapeHtml(endTime)}</p>
-      <p style="margin:0;font-size:13px;color:#8b949e;"><strong style="color:#e6edf3;">Venue:</strong> ${escapeHtml(venue)}</p>
+    <div style="padding:16px 20px;background:#121212;border:1px solid #262626;border-radius:8px;margin:20px 0;">
+      <p style="margin:0 0 8px;font-size:13px;color:#A3A3A3;"><strong style="color:#FFFFFF;">Date:</strong> ${escapeHtml(dateLabel)}</p>
+      <p style="margin:0 0 8px;font-size:13px;color:#A3A3A3;"><strong style="color:#FFFFFF;">Time:</strong> ${escapeHtml(startTime)} – ${escapeHtml(endTime)}</p>
+      <p style="margin:0;font-size:13px;color:#A3A3A3;"><strong style="color:#FFFFFF;">Venue:</strong> ${escapeHtml(venue)}</p>
     </div>
     <p style="${EMAIL_STYLES.p}">
       Please bring your student ID for on-site verification. Seats are limited —
@@ -774,19 +910,19 @@ function buildVerificationStatusHtml({
 }): string {
   const configs = {
     VERIFIED: {
-      color: "#39ff14",
+      color: "#FB7185",
       icon: "✓",
       title: "Identity Verified",
-      message: "Your student ID has been verified. You are all set for DIU CyberCon 2026!",
+      message: "Your student ID has been verified. You are all set for DIU_CYBERCON 2026!",
     },
     REJECTED: {
-      color: "#ff2e88",
+      color: "#E11D48",
       icon: "✗",
       title: "Verification Unsuccessful",
       message: "Unfortunately we could not verify your student ID. Please contact support if you believe this is an error.",
     },
     REVISION_REQUIRED: {
-      color: "#7c3aed",
+      color: "#BE123C",
       icon: "!",
       title: "Action Required",
       message: "Your student ID upload requires revision. Please re-upload a clear, valid student ID from your dashboard.",
@@ -802,7 +938,7 @@ function buildVerificationStatusHtml({
     <h1 style="${EMAIL_STYLES.h1}">${cfg.title}</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">${cfg.message}</p>
-    ${note ? `<div style="padding:12px 16px;background:#0f1622;border-left:3px solid ${cfg.color};border-radius:4px;margin:16px 0;"><p style="margin:0;font-size:13px;color:#8b949e;">${escapeHtml(note)}</p></div>` : ""}
+    ${note ? `<div style="padding:12px 16px;background:#121212;border-left:3px solid ${cfg.color};border-radius:4px;margin:16px 0;"><p style="margin:0;font-size:13px;color:#A3A3A3;">${escapeHtml(note)}</p></div>` : ""}
     <div style="${EMAIL_STYLES.btnWrap}">
       <a href="${dashboardUrl}" style="${EMAIL_STYLES.btn}">Go to Dashboard</a>
     </div>
@@ -822,7 +958,7 @@ function buildSubmissionReceivedHtml({
     <h1 style="${EMAIL_STYLES.h1}">Submission Received</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
-      We received your <strong style="color:#e6edf3;">${escapeHtml(moduleTitle)}</strong>
+      We received your <strong style="color:#FFFFFF;">${escapeHtml(moduleTitle)}</strong>
       ${escapeHtml(noun)} submission:
     </p>
     <div style="text-align:center;margin:24px 0;">
@@ -850,28 +986,28 @@ function buildSubmissionStatusHtml({
 }): string {
   const configs = {
     APPROVED: {
-      color: "#39ff14",
+      color: "#FB7185",
       icon: "✓",
       title: "Submission Approved",
       message: `Great news — your ${noun} submission "${escapeHtml(submissionName)}" has been approved. We will reach out with next steps as the event approaches.`,
     },
     REJECTED: {
-      color: "#ff2e88",
+      color: "#E11D48",
       icon: "✗",
       title: "Submission Decision",
       message: `After reviewing your ${noun} submission "${escapeHtml(submissionName)}", the team is unable to accept it this time. Thank you for taking part — you are welcome to join our other modules.`,
     },
     REVISION_REQUIRED: {
-      color: "#7c3aed",
+      color: "#BE123C",
       icon: "!",
       title: "Revision Required",
       message: `Your ${noun} submission "${escapeHtml(submissionName)}" needs a few changes before it can be approved. Please review the note below, update your submission and resubmit it from your dashboard.`,
     },
     PUBLISHED: {
-      color: "#00e5ff",
+      color: "#E11D48",
       icon: "★",
       title: "Submission Published",
-      message: `Your ${noun} submission "${escapeHtml(submissionName)}" is now published on the DIU CyberCon 2026 website. Congratulations!`,
+      message: `Your ${noun} submission "${escapeHtml(submissionName)}" is now published on the DIU_CYBERCON 2026 website. Congratulations!`,
     },
   }
 
@@ -884,7 +1020,7 @@ function buildSubmissionStatusHtml({
     <h1 style="${EMAIL_STYLES.h1}">${cfg.title}</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">${cfg.message}</p>
-    ${reviewNote ? `<div style="padding:12px 16px;background:#0f1622;border-left:3px solid ${cfg.color};border-radius:4px;margin:16px 0;"><p style="margin:0;font-size:13px;color:#8b949e;">${escapeHtml(reviewNote)}</p></div>` : ""}
+    ${reviewNote ? `<div style="padding:12px 16px;background:#121212;border-left:3px solid ${cfg.color};border-radius:4px;margin:16px 0;"><p style="margin:0;font-size:13px;color:#A3A3A3;">${escapeHtml(reviewNote)}</p></div>` : ""}
     <div style="${EMAIL_STYLES.btnWrap}">
       <a href="${dashboardUrl}" style="${EMAIL_STYLES.btn}">View My Submissions</a>
     </div>
@@ -903,9 +1039,9 @@ function buildSponsorApplicationHtml({
     <h1 style="${EMAIL_STYLES.h1}">Application Received</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
     <p style="${EMAIL_STYLES.p}">
-      Thank you for your interest in sponsoring DIU CyberCon 2026.
-      We received the application from <strong style="color:#e6edf3;">${escapeHtml(orgName)}</strong>
-      for the <strong style="color:#e6edf3;">${escapeHtml(tierLabel)}</strong> tier.
+      Thank you for your interest in sponsoring DIU_CYBERCON 2026.
+      We received the application from <strong style="color:#FFFFFF;">${escapeHtml(orgName)}</strong>
+      for the <strong style="color:#FFFFFF;">${escapeHtml(tierLabel)}</strong> tier.
     </p>
     <p style="${EMAIL_STYLES.p}">
       Our sponsorship team will review it and contact you shortly to discuss the next steps.
@@ -926,40 +1062,40 @@ function buildSponsorStatusHtml({
 }): string {
   const configs = {
     SUBMITTED: {
-      color: "#8b949e",
+      color: "#A3A3A3",
       icon: "•",
       title: "Application Received",
       message: `The sponsorship application from ${escapeHtml(orgName)} has been received and is queued for review.`,
     },
     CONTACTED: {
-      color: "#00e5ff",
+      color: "#E11D48",
       icon: "→",
       title: "We Will Be In Touch",
       message: `Our sponsorship team has started working on the application from ${escapeHtml(orgName)} and will reach out to you to discuss next steps.`,
     },
     NEGOTIATION: {
-      color: "#f59e0b",
+      color: "#F43F5E",
       icon: "↔",
       title: "Finalising the Details",
       message: `We are currently finalising the partnership details for ${escapeHtml(orgName)}. Our team will follow up with the agreed package and next steps.`,
     },
     APPROVED: {
-      color: "#39ff14",
+      color: "#FB7185",
       icon: "✓",
       title: "Sponsorship Approved",
-      message: `Great news — the sponsorship application from ${escapeHtml(orgName)} has been approved. Thank you for supporting DIU CyberCon 2026! Our team will contact you to complete the formalities.`,
+      message: `Great news — the sponsorship application from ${escapeHtml(orgName)} has been approved. Thank you for supporting DIU_CYBERCON 2026! Our team will contact you to complete the formalities.`,
     },
     REJECTED: {
-      color: "#ff2e88",
+      color: "#E11D48",
       icon: "✗",
       title: "Application Update",
       message: `After careful review, we are unable to proceed with the sponsorship application from ${escapeHtml(orgName)} at this time. We appreciate your interest and hope to work together in future editions.`,
     },
     COMPLETED: {
-      color: "#7c3aed",
+      color: "#BE123C",
       icon: "★",
       title: "Sponsorship Confirmed",
-      message: `The sponsorship package for ${escapeHtml(orgName)} is confirmed and complete. Thank you for powering DIU CyberCon 2026!`,
+      message: `The sponsorship package for ${escapeHtml(orgName)} is confirmed and complete. Thank you for powering DIU_CYBERCON 2026!`,
     },
   }
 
@@ -992,15 +1128,15 @@ function buildBroadcastHtml({
     `
     <h1 style="${EMAIL_STYLES.h1}">${escapeHtml(title)}</h1>
     <p style="${EMAIL_STYLES.p}">Hi ${escapeHtml(name)},</p>
-    <div style="font-size:15px;color:#c9d1d9;line-height:1.7;margin:0 0 16px;">${bodyHtml}</div>
+    <div style="font-size:15px;color:#D4D4D4;line-height:1.7;margin:0 0 16px;">${bodyHtml}</div>
     <div style="${EMAIL_STYLES.btnWrap}">
       <a href="${APP_URL}/announcements" style="${EMAIL_STYLES.btn}">View Announcements</a>
     </div>
   `,
     `
     <p style="${EMAIL_STYLES.small}">
-      You are receiving this email because you registered for DIU CyberCon 2026.<br>
-      <a href="${unsubscribeUrl}" style="color:#8b949e;text-decoration:underline;">Unsubscribe from announcement emails</a>
+      You are receiving this email because you registered for DIU_CYBERCON 2026.<br>
+      <a href="${unsubscribeUrl}" style="color:#A3A3A3;text-decoration:underline;">Unsubscribe from announcement emails</a>
     </p>
   `,
   )

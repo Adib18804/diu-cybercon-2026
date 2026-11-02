@@ -13,6 +13,7 @@ import {
   BarChart3,
   CalendarDays,
   ClipboardList,
+  CreditCard,
   FileImage,
   FolderKanban,
   Handshake,
@@ -76,6 +77,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/verifications", label: "Verifications", icon: ShieldCheck, permission: "verification:view" },
       { href: "/admin/teams", label: "Teams", icon: UsersRound, permission: "teams:view" },
       { href: "/admin/registrations", label: "Registrations", icon: ClipboardList, permission: "registrations:view" },
+      { href: "/admin/payments", label: "Payments", icon: CreditCard, permission: "payments:view" },
       { href: "/admin/check-in", label: "Check-in", icon: ScanLine, permission: "registrations:checkin" },
     ],
   },
@@ -89,6 +91,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Program",
     items: [
+      { href: "/admin/events", label: "Events", icon: CalendarDays, permission: "events:view" },
       { href: "/admin/workshops", label: "Workshops", icon: Wrench, permission: "workshops:view" },
       { href: "/admin/speakers", label: "Speakers", icon: Mic, permission: "speakers:view" },
       { href: "/admin/panels", label: "Panels", icon: MessagesSquare, permission: "panels:view" },
@@ -98,7 +101,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Sponsorship",
     items: [
-      { href: "/admin/sponsors", label: "Sponsors", icon: Handshake, permission: "sponsors:view" },
+      { href: "/admin/sponsors" as Route, label: "Sponsors", icon: Handshake, permission: "sponsors:view" },
       { href: "/admin/sponsor-apps", label: "Applications", icon: Inbox, permission: "sponsor_apps:view" },
       { href: "/admin/partners", label: "Partners", icon: HeartHandshake, permission: "partners:view" },
     ],
@@ -182,7 +185,7 @@ export function AdminShell({
           <div className="flex items-center gap-2">
             <span className="live-dot" aria-hidden="true" />
             <span className="font-mono text-xs uppercase tracking-widest text-text-muted">
-              DIU CyberCon 2026
+              DIU_CYBERCON 2026
             </span>
           </div>
         </div>

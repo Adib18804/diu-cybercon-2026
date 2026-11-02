@@ -11,7 +11,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading"
 
 // =============================================================================
 // ModuleGrid — Section 06
-// Six event modules as a bento grid, driven by the database.
+// Current flagship events as a bento grid, driven by the database.
 // =============================================================================
 
 export interface ModuleGridProps {
@@ -25,8 +25,8 @@ function ModuleGrid({ events }: ModuleGridProps) {
         <Reveal>
           <SectionHeading
             label="// Event Modules"
-            title="Six ways to compete and learn"
-            description="Every module is registered separately — pick one or stack several across the three days."
+            title="Compete or innovate"
+            description="Join the CTF, Innovation Symposium, Panel Discussion, or a hands-on workshop."
             action={
               <Link href="/events" className="btn-secondary">
                 All Events

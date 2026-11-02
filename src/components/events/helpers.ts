@@ -20,23 +20,11 @@ const ACCENT_BY_SLUG: Record<string, EventAccentClasses> = {
     border: "border-cyan/30",
     iconBg: "bg-cyan/5",
   },
-  "trace-route": {
-    badge: "badge-neon",
-    text: "text-neon",
-    border: "border-neon/30",
-    iconBg: "bg-neon/5",
-  },
-  "project-showcase": {
+  "innovation-symposium": {
     badge: "badge-violet",
     text: "text-violet",
     border: "border-violet/30",
     iconBg: "bg-violet/5",
-  },
-  poster: {
-    badge: "badge-pink",
-    text: "text-pink",
-    border: "border-pink/30",
-    iconBg: "bg-pink/5",
   },
   panel: {
     badge: "badge-amber",

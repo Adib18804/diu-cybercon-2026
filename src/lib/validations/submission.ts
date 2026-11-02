@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Submission Validation Schemas (Zod)
+// DIU_CYBERCON 2026 — Submission Validation Schemas (Zod)
 // Project Showcasing + Poster Presentation submissions.
 // Shared shape between client forms and the API — the server ALWAYS validates
 // independently (never trust the client), and upload tokens are only verified

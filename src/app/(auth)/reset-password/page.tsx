@@ -8,7 +8,7 @@ import { ResetPasswordForm } from "./ResetPasswordForm"
 
 export const metadata: Metadata = {
   title: "Reset Password",
-  description: "Set a new password for your DIU CyberCon 2026 account.",
+  description: "Set a new password for your DIU_CYBERCON 2026 account.",
   robots: { index: false, follow: false },
 }
 

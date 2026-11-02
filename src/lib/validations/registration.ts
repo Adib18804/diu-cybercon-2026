@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Registration Validation Schemas (Zod)
+// DIU_CYBERCON 2026 — Registration Validation Schemas (Zod)
 // Shared between client (wizard form validation) and server (API validation).
 // Server ALWAYS validates independently of the client.
 // =============================================================================
@@ -119,23 +119,69 @@ export type TeamMemberInput = z.infer<typeof teamMemberSchema>
 
 // ─── Submit registration ─────────────────────────────────────────────────────
 
+export const registrationPhaseSchema = z.enum(["PRELIMINARY", "FINAL"])
+
+export const INNOVATION_SYMPOSIUM_DOMAINS = [
+  "Application Security",
+  "Artificial Intelligence & Machine Learning Security",
+  "Cloud & Infrastructure Security",
+  "Cryptography & Privacy",
+  "Digital Forensics & Incident Response",
+  "IoT & Embedded Systems Security",
+  "Network Security",
+  "Security Awareness & Human Factors",
+  "Other Cybersecurity Innovation",
+] as const
+
+export const symposiumDomainSchema = z.enum(INNOVATION_SYMPOSIUM_DOMAINS, {
+  errorMap: () => ({ message: "Select a valid Innovation Symposium domain" }),
+})
+
+export const symposiumIdeaSummarySchema = z
+  .string()
+  .trim()
+  .min(20, "Idea summary must be at least 20 characters")
+  .max(3000, "Idea summary cannot exceed 3000 characters")
+
+const registrationTeamSchema = z.object({
+  name: teamNameSchema,
+  members: z.array(teamMemberSchema).max(10, "Too many team members").default([]),
+})
+
 export const submitRegistrationSchema = z.object({
   eventId: z.string().min(1, "Event is required").max(40),
+  registrationPhase: z.literal("PRELIMINARY").default("PRELIMINARY"),
   participant: participantProfileSchema.and(
     z.object({ verification: verificationUploadSchema }),
   ),
-  team: z
-    .object({
-      name:    teamNameSchema,
-      members: z.array(teamMemberSchema).max(10, "Too many team members").default([]),
-    })
-    .optional(),
+  team: registrationTeamSchema.optional(),
   acceptTerms: z.literal(true, {
     errorMap: () => ({ message: "You must accept the terms to register" }),
   }),
 })
 
 export type SubmitRegistrationInput = z.infer<typeof submitRegistrationSchema>
+
+/** Schema for the event-specific payload. The leader plus at most two members
+ * enforces the Innovation Symposium's maximum team size of three. */
+export const innovationSymposiumRegistrationSchema = submitRegistrationSchema.extend({
+  domain: symposiumDomainSchema,
+  ideaSummary: symposiumIdeaSummarySchema,
+  team: registrationTeamSchema.extend({
+    members: z.array(teamMemberSchema).max(2, "Innovation Symposium teams may have at most 3 members including the leader").default([]),
+  }).optional(),
+})
+
+/** CTF maximum is four participants including the team leader. */
+export const ctfRegistrationSchema = submitRegistrationSchema.extend({
+  team: registrationTeamSchema.extend({
+    members: z.array(teamMemberSchema).max(3, "CTF teams may have at most 4 members including the leader").default([]),
+  }).optional(),
+})
+
+export type InnovationSymposiumRegistrationInput = z.infer<
+  typeof innovationSymposiumRegistrationSchema
+>
 
 // ─── Workshop registration ───────────────────────────────────────────────────
 

@@ -36,124 +36,124 @@ const config: Config = {
       // ─── COLOR PALETTE ─────────────────────────────────────────────
       colors: {
         // ── Canvas & surfaces ──────────────────────────────────────
-        "bg-deep": "#05070d",
-        "bg-surface": "#0a0f18",
-        "bg-panel": "#0f1622",
-        "bg-elevated": "#141d2e",
+        "bg-deep": "#0A0A0A",
+        "bg-surface": "#0D0D0D",
+        "bg-panel": "#121212",
+        "bg-elevated": "#1A1A1A",
 
         // ── Borders & dividers ─────────────────────────────────────
-        border: "#1f2937",
-        "border-subtle": "#131b27",
-        "border-bright": "#2d3f55",
+        border: "#262626",
+        "border-subtle": "#1A1A1A",
+        "border-bright": "#404040",
 
-        // ── Accent — Cyan (primary) ────────────────────────────────
+        // ── Accent — Crimson (primary) ─────────────────────────────
         cyan: {
-          DEFAULT: "#00e5ff",
-          50: "#e0fffe",
-          100: "#b3faff",
-          200: "#80f5ff",
-          300: "#4defff",
-          400: "#26e8ff",
-          500: "#00e5ff",
-          600: "#00b8cc",
-          700: "#008a99",
-          800: "#005c66",
-          900: "#002e33",
-          950: "#001719",
+          DEFAULT: "#E11D48",
+          50: "#fff1f2",
+          100: "#ffe4e6",
+          200: "#fecdd3",
+          300: "#fda4af",
+          400: "#fb7185",
+          500: "#f43f5e",
+          600: "#e11d48",
+          700: "#be123c",
+          800: "#9f1239",
+          900: "#881337",
+          950: "#4c0519",
         },
 
-        // ── Accent — Neon green (secondary) ───────────────────────
+        // ── Accent — Light crimson ─────────────────────────────────
         neon: {
-          DEFAULT: "#39ff14",
-          50: "#f0fff0",
-          100: "#ccffc7",
-          200: "#99ff8f",
-          300: "#66ff57",
-          400: "#39ff14",
-          500: "#2ecc10",
-          600: "#23990c",
-          700: "#186608",
-          800: "#0d3304",
-          900: "#061a02",
+          DEFAULT: "#BE123C",
+          50: "#fff1f2",
+          100: "#ffe4e6",
+          200: "#fecdd3",
+          300: "#fda4af",
+          400: "#fb7185",
+          500: "#f43f5e",
+          600: "#e11d48",
+          700: "#be123c",
+          800: "#9f1239",
+          900: "#881337",
         },
 
-        // ── Accent — Violet (tertiary) ─────────────────────────────
+        // ── Accent — Deep crimson ──────────────────────────────────
         violet: {
-          DEFAULT: "#7c3aed",
-          50: "#f5f3ff",
-          100: "#ede9fe",
-          200: "#ddd6fe",
-          300: "#c4b5fd",
-          400: "#a78bfa",
-          500: "#8b5cf6",
-          600: "#7c3aed",
-          700: "#6d28d9",
-          800: "#5b21b6",
-          900: "#4c1d95",
-          950: "#2e1065",
+          DEFAULT: "#BE123C",
+          50: "#fff1f2",
+          100: "#ffe4e6",
+          200: "#fecdd3",
+          300: "#fda4af",
+          400: "#fb7185",
+          500: "#f43f5e",
+          600: "#e11d48",
+          700: "#be123c",
+          800: "#9f1239",
+          900: "#881337",
+          950: "#4c0519",
         },
 
         // ── Accent — Pink (alert / NEW) ────────────────────────────
         pink: {
-          DEFAULT: "#ff2e88",
-          400: "#ff6baa",
-          500: "#ff2e88",
-          600: "#cc2570",
+          DEFAULT: "#E11D48",
+          400: "#FB7185",
+          500: "#E11D48",
+          600: "#BE123C",
         },
 
         // ── Amber (warning) ────────────────────────────────────────
         amber: {
-          DEFAULT: "#ffb020",
-          400: "#ffc84d",
-          500: "#ffb020",
-          600: "#cc8d1a",
+          DEFAULT: "#F43F5E",
+          400: "#FB7185",
+          500: "#F43F5E",
+          600: "#BE123C",
         },
 
         // ── Text ──────────────────────────────────────────────────
-        "text-primary": "#e6edf3",
-        "text-muted": "#8b949e",
-        "text-faint": "#4d5966",
-        "text-inverse": "#05070d",
+        "text-primary": "#FFFFFF",
+        "text-muted": "#D1D5DB",
+        "text-faint": "#A1A1AA",
+        "text-inverse": "#0A0A0A",
 
         // ── Semantic aliases ──────────────────────────────────────
-        success: "#39ff14",
-        warning: "#ffb020",
-        error: "#ff2e88",
-        info: "#00e5ff",
+        success: "#FB7185",
+        warning: "#F43F5E",
+        error: "#E11D48",
+        info: "#E11D48",
 
         // ─── Radix/shadcn compat aliases ──────────────────────────
-        background: "#05070d",
-        foreground: "#e6edf3",
+        background: "#0A0A0A",
+        foreground: "#FFFFFF",
         card: {
-          DEFAULT: "#0f1622",
-          foreground: "#e6edf3",
+          DEFAULT: "#121212",
+          foreground: "#FFFFFF",
         },
         popover: {
-          DEFAULT: "#0f1622",
-          foreground: "#e6edf3",
+          DEFAULT: "#121212",
+          foreground: "#FFFFFF",
         },
         primary: {
-          DEFAULT: "#00e5ff",
-          foreground: "#05070d",
+          DEFAULT: "#E11D48",
+          foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#1f2937",
-          foreground: "#e6edf3",
+          DEFAULT: "#262626",
+          foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#131b27",
-          foreground: "#8b949e",
+          DEFAULT: "#1A1A1A",
+          foreground: "#D1D5DB",
         },
         accent: {
-          DEFAULT: "#141d2e",
-          foreground: "#00e5ff",
+          DEFAULT: "#1A1A1A",
+          foreground: "#E11D48",
         },
         destructive: {
-          DEFAULT: "#ff2e88",
+          DEFAULT: "#E11D48",
           foreground: "#ffffff",
         },
-        input: "#1f2937",
-        ring: "#00e5ff",
+        input: "#262626",
+        ring: "#E11D48",
       },
 
       // ─── TYPOGRAPHY ────────────────────────────────────────────────
@@ -218,25 +218,25 @@ const config: Config = {
         xl: "0 24px 64px 0 rgba(0,0,0,0.8)",
 
         // ── Cyan glow ────────────────────────────────────────────
-        "glow-cyan-sm": "0 0 8px rgba(0,229,255,0.3), 0 0 16px rgba(0,229,255,0.15)",
-        "glow-cyan": "0 0 16px rgba(0,229,255,0.4), 0 0 32px rgba(0,229,255,0.2), 0 0 64px rgba(0,229,255,0.1)",
-        "glow-cyan-lg": "0 0 24px rgba(0,229,255,0.5), 0 0 48px rgba(0,229,255,0.3), 0 0 96px rgba(0,229,255,0.15)",
+        "glow-cyan-sm": "0 0 8px rgba(225, 29, 72,0.3), 0 0 16px rgba(225, 29, 72,0.15)",
+        "glow-cyan": "0 0 16px rgba(225, 29, 72,0.4), 0 0 32px rgba(225, 29, 72,0.2), 0 0 64px rgba(225, 29, 72,0.1)",
+        "glow-cyan-lg": "0 0 24px rgba(225, 29, 72,0.5), 0 0 48px rgba(225, 29, 72,0.3), 0 0 96px rgba(225, 29, 72,0.15)",
 
         // ── Neon glow ─────────────────────────────────────────────
-        "glow-neon-sm": "0 0 8px rgba(57,255,20,0.3), 0 0 16px rgba(57,255,20,0.15)",
-        "glow-neon": "0 0 16px rgba(57,255,20,0.4), 0 0 32px rgba(57,255,20,0.2)",
-        "glow-neon-lg": "0 0 24px rgba(57,255,20,0.5), 0 0 48px rgba(57,255,20,0.3)",
+        "glow-neon-sm": "0 0 8px rgba(251, 113, 133,0.3), 0 0 16px rgba(251, 113, 133,0.15)",
+        "glow-neon": "0 0 16px rgba(251, 113, 133,0.4), 0 0 32px rgba(251, 113, 133,0.2)",
+        "glow-neon-lg": "0 0 24px rgba(251, 113, 133,0.5), 0 0 48px rgba(251, 113, 133,0.3)",
 
         // ── Violet glow ───────────────────────────────────────────
-        "glow-violet-sm": "0 0 8px rgba(124,58,237,0.3), 0 0 16px rgba(124,58,237,0.15)",
-        "glow-violet": "0 0 16px rgba(124,58,237,0.4), 0 0 32px rgba(124,58,237,0.2)",
-        "glow-violet-lg": "0 0 24px rgba(124,58,237,0.5), 0 0 48px rgba(124,58,237,0.3)",
+        "glow-violet-sm": "0 0 8px rgba(190, 18, 60,0.3), 0 0 16px rgba(190, 18, 60,0.15)",
+        "glow-violet": "0 0 16px rgba(190, 18, 60,0.4), 0 0 32px rgba(190, 18, 60,0.2)",
+        "glow-violet-lg": "0 0 24px rgba(190, 18, 60,0.5), 0 0 48px rgba(190, 18, 60,0.3)",
 
         // ── Pink glow ─────────────────────────────────────────────
-        "glow-pink": "0 0 16px rgba(255,46,136,0.4), 0 0 32px rgba(255,46,136,0.2)",
+        "glow-pink": "0 0 16px rgba(225, 29, 72,0.4), 0 0 32px rgba(225, 29, 72,0.2)",
 
         // ── Card glow (hover) ──────────────────────────────────────
-        "card-hover": "0 8px 32px rgba(0,229,255,0.1), 0 0 1px rgba(0,229,255,0.3)",
+        "card-hover": "0 8px 32px rgba(225, 29, 72,0.1), 0 0 1px rgba(225, 29, 72,0.3)",
 
         // ── Glass ─────────────────────────────────────────────────
         glass: "inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.4)",
@@ -305,8 +305,8 @@ const config: Config = {
 
         // Live dot pulse
         "live-pulse": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(57, 255, 20, 0.7)" },
-          "70%": { boxShadow: "0 0 0 10px rgba(57, 255, 20, 0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(251, 113, 133, 0.7)" },
+          "70%": { boxShadow: "0 0 0 10px rgba(251, 113, 133, 0)" },
         },
 
         // Pulse ring expand
@@ -339,8 +339,8 @@ const config: Config = {
 
         // Glow pulse (continuous)
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 8px rgba(0,229,255,0.3)" },
-          "50%": { boxShadow: "0 0 24px rgba(0,229,255,0.6), 0 0 48px rgba(0,229,255,0.3)" },
+          "0%, 100%": { boxShadow: "0 0 8px rgba(225, 29, 72,0.3)" },
+          "50%": { boxShadow: "0 0 24px rgba(225, 29, 72,0.6), 0 0 48px rgba(225, 29, 72,0.3)" },
         },
 
         // Radar sweep
@@ -400,19 +400,19 @@ const config: Config = {
       backgroundImage: {
         // Grid overlay — 60px squares at 4.5% opacity cyan
         "grid-overlay":
-          "linear-gradient(rgba(0,229,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.045) 1px, transparent 1px)",
+          "linear-gradient(rgba(225, 29, 72,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(225, 29, 72,0.045) 1px, transparent 1px)",
 
         // Gradient meshes
         "gradient-radial-cyan":
-          "radial-gradient(ellipse at center, rgba(0,229,255,0.15) 0%, transparent 70%)",
+          "radial-gradient(ellipse at center, rgba(225, 29, 72,0.15) 0%, transparent 70%)",
         "gradient-radial-violet":
-          "radial-gradient(ellipse at center, rgba(124,58,237,0.15) 0%, transparent 70%)",
+          "radial-gradient(ellipse at center, rgba(190, 18, 60,0.15) 0%, transparent 70%)",
         "gradient-radial-neon":
-          "radial-gradient(ellipse at center, rgba(57,255,20,0.1) 0%, transparent 70%)",
+          "radial-gradient(ellipse at center, rgba(251, 113, 133,0.1) 0%, transparent 70%)",
 
         // Hero gradient
         "hero-gradient":
-          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,229,255,0.12) 0%, transparent 60%)",
+          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(225, 29, 72,0.12) 0%, transparent 60%)",
 
         // Glass panel
         "glass-gradient":
@@ -420,11 +420,11 @@ const config: Config = {
 
         // Shimmer
         "shimmer-gradient":
-          "linear-gradient(90deg, transparent 0%, rgba(0,229,255,0.15) 50%, transparent 100%)",
+          "linear-gradient(90deg, transparent 0%, rgba(225, 29, 72,0.15) 50%, transparent 100%)",
 
         // Card border gradient
         "border-gradient-cyan":
-          "linear-gradient(135deg, rgba(0,229,255,0.3), rgba(0,229,255,0.05), rgba(124,58,237,0.2))",
+          "linear-gradient(135deg, rgba(225, 29, 72,0.3), rgba(225, 29, 72,0.05), rgba(190, 18, 60,0.2))",
       },
 
       backgroundSize: {
@@ -495,37 +495,37 @@ const config: Config = {
       // Glass morphism
       addComponents({
         ".glass": {
-          background: "rgba(15, 22, 34, 0.6)",
+          background: "rgba(18, 18, 18, 0.6)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          border: "1px solid rgba(31, 41, 55, 0.8)",
+          border: "1px solid rgba(38, 38, 38, 0.8)",
           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
         },
         ".glass-strong": {
-          background: "rgba(10, 15, 24, 0.8)",
+          background: "rgba(10, 10, 10, 0.8)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
-          border: "1px solid rgba(0, 229, 255, 0.1)",
+          border: "1px solid rgba(225, 29, 72, 0.1)",
           boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 24px rgba(0,0,0,0.4)",
         },
         ".glass-panel": {
-          background: "rgba(15, 22, 34, 0.7)",
+          background: "rgba(18, 18, 18, 0.7)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(31, 41, 55, 0.6)",
+          border: "1px solid rgba(38, 38, 38, 0.6)",
         },
 
         // Gradient border via pseudo-element
         ".gradient-border": {
           position: "relative",
-          background: "#0f1622",
+          background: "#121212",
           "&::before": {
             content: '""',
             position: "absolute",
             inset: "0",
             borderRadius: "inherit",
             padding: "1px",
-            background: "linear-gradient(135deg, rgba(0,229,255,0.3), rgba(0,229,255,0.05), rgba(124,58,237,0.2))",
+            background: "linear-gradient(135deg, rgba(225, 29, 72,0.3), rgba(225, 29, 72,0.05), rgba(190, 18, 60,0.2))",
             WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
             WebkitMaskComposite: "xor",
             maskComposite: "exclude",
@@ -536,19 +536,19 @@ const config: Config = {
         // Terminal text style
         ".text-terminal": {
           fontFamily: "'JetBrains Mono', monospace",
-          color: "#00e5ff",
+          color: "#E11D48",
           letterSpacing: "0.05em",
         },
 
         // Neon text glow
         ".text-glow-cyan": {
-          textShadow: "0 0 10px rgba(0,229,255,0.5), 0 0 20px rgba(0,229,255,0.3), 0 0 40px rgba(0,229,255,0.15)",
+          textShadow: "0 0 10px rgba(225, 29, 72,0.5), 0 0 20px rgba(225, 29, 72,0.3), 0 0 40px rgba(225, 29, 72,0.15)",
         },
         ".text-glow-neon": {
-          textShadow: "0 0 10px rgba(57,255,20,0.5), 0 0 20px rgba(57,255,20,0.3)",
+          textShadow: "0 0 10px rgba(251, 113, 133,0.5), 0 0 20px rgba(251, 113, 133,0.3)",
         },
         ".text-glow-violet": {
-          textShadow: "0 0 10px rgba(124,58,237,0.5), 0 0 20px rgba(124,58,237,0.3)",
+          textShadow: "0 0 10px rgba(190, 18, 60,0.5), 0 0 20px rgba(190, 18, 60,0.3)",
         },
       })
 

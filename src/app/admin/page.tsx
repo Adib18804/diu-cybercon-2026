@@ -10,10 +10,12 @@
 
 import {
   Activity,
+  CreditCard,
   FileImage,
   Flag,
   FolderKanban,
   Inbox,
+  ClipboardList,
   RefreshCw,
   Route as RouteIcon,
   ShieldAlert,
@@ -68,6 +70,14 @@ const CARD_DEFS: CardDef[] = [
 function humanizeAction(action: string): string {
   const lower = action.replace(/_/g, " ").toLowerCase()
   return lower.charAt(0).toUpperCase() + lower.slice(1)
+}
+
+function formatBDT(amount: string): string {
+  return new Intl.NumberFormat("en-BD", {
+    style: "currency",
+    currency: "BDT",
+    maximumFractionDigits: 2,
+  }).format(Number(amount))
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -188,6 +198,60 @@ export default function AdminDashboardPage() {
             className="xl:col-span-3"
           />
         </div>
+      )}
+
+      {/* ── Super Admin overview ──────────────────────────────────────────── */}
+      {!loading && stats?.superAdminAnalytics && (
+        <section className="space-y-4" aria-labelledby="authority-overview-title">
+          <div>
+            <h3 id="authority-overview-title" className="font-display text-lg font-bold text-text-primary">Authority overview</h3>
+            <p className="mt-1 text-xs text-text-muted">Conference-wide registrations, bKash revenue, team sizes, and pending review counts.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            <AdminStatCard label="Verified bKash" value={formatBDT(stats.superAdminAnalytics.verifiedRevenue)} accent="neon" />
+            <AdminStatCard label="Pending bKash" value={formatBDT(stats.superAdminAnalytics.pendingRevenue)} accent="amber" />
+            <AdminStatCard label="Active teams" value={stats.superAdminAnalytics.totalTeams} icon={UsersRound} accent="violet" />
+            <AdminStatCard label="Team members" value={stats.superAdminAnalytics.totalMembers} icon={Users} accent="cyan" />
+            <AdminStatCard label="Pending registrations" value={stats.superAdminAnalytics.pendingRegistrationCount} icon={ClipboardList} accent="amber" href="/admin/registrations" />
+            <AdminStatCard label="Pending payments" value={stats.superAdminAnalytics.pendingPaymentCount} icon={CreditCard} accent="pink" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+            <AdminBarChart
+              title="Registrations per event"
+              description="Non-cancelled registrations across every event."
+              data={stats.superAdminAnalytics.registrationsByEvent}
+              valueName="Registrations"
+            />
+            <AdminBarChart
+              title="Team size breakdown"
+              description="Active teams grouped by their current member count."
+              data={stats.superAdminAnalytics.teamSizeBreakdown}
+              valueName="Teams"
+            />
+          </div>
+          <div className="rounded-lg border border-border bg-bg-panel p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-micro uppercase tracking-wider text-text-muted">Pending approvals queue</p>
+                <p className="mt-1 text-xs text-text-faint">{stats.superAdminAnalytics.pendingRegistrationCount} registrations · {stats.superAdminAnalytics.pendingPaymentCount} payments</p>
+              </div>
+              <a href="/admin/registrations" className="text-xs font-medium text-cyan hover:text-cyan/80">Review registrations</a>
+            </div>
+            {stats.superAdminAnalytics.pendingRegistrations.length > 0 ? (
+              <ul className="mt-3 divide-y divide-border-subtle">
+                {stats.superAdminAnalytics.pendingRegistrations.map((registration) => (
+                  <li key={registration.registrationId} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-xs">
+                    <span className="font-mono text-text-primary">{registration.registrationId}</span>
+                    <span className="text-text-muted">{registration.eventName}</span>
+                    <span className="text-text-faint">{new Date(registration.createdAt).toLocaleString()}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-3 rounded-md border border-dashed border-border px-4 py-5 text-center text-xs text-text-faint">No pending registrations.</p>
+            )}
+          </div>
+        </section>
       )}
 
       {/* ── Recent activity ───────────────────────────────────────────────── */}

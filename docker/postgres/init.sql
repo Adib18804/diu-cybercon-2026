@@ -1,5 +1,5 @@
 -- =============================================================================
--- DIU CyberCon 2026 — PostgreSQL Initialization
+-- DIU_CYBERCON 2026 — PostgreSQL Initialization
 -- Runs once when the container is first created.
 -- =============================================================================
 
@@ -24,6 +24,6 @@ $$;
 -- Log the initialization
 DO $$
 BEGIN
-  RAISE NOTICE 'DIU CyberCon 2026 database initialized successfully.';
+  RAISE NOTICE 'DIU_CYBERCON 2026 database initialized successfully.';
 END
 $$;

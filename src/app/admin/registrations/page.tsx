@@ -4,12 +4,13 @@
 // Admin — Registrations list (/admin/registrations)
 // Registration desk: every event registration with participant context and
 // check-in state. Clicking a row opens the manage panel where the status can
-// be changed (PENDING / CONFIRMED / WAITLISTED / CANCELLED). Every change is
+// be changed (PENDING / CONFIRMED / REJECTED / WAITLISTED / CANCELLED). Every change is
 // written to the audit log.
 // =============================================================================
 
 import { ClipboardList, RefreshCw, Users } from "lucide-react"
 import * as React from "react"
+import toast from "react-hot-toast"
 
 import {
   adminMutate,
@@ -21,13 +22,14 @@ import {
   useAdminList,
   type Column,
 } from "@/components/admin"
-import { ConfirmModal, Modal } from "@/components/ui"
+import { Button, Modal, Textarea } from "@/components/ui"
 import { cn, relativeTime } from "@/lib/utils"
 
 type RegistrationRow = {
   id: string
   registrationId: string
   status: string
+  registrationPhase: string
   checkInStatus: string
   checkInTime: string | null
   checkOutTime: string | null
@@ -50,20 +52,26 @@ type RegistrationRow = {
 
 const EVENT_TYPE_OPTIONS = [
   { value: "CTF", label: "CTF" },
-  { value: "TRACE_ROUTE", label: "Trace & Route" },
-  { value: "PROJECT_SHOWCASE", label: "Project Showcase" },
-  { value: "POSTER_PRESENTATION", label: "Poster Presentation" },
+  { value: "INNOVATION_SYMPOSIUM", label: "Innovation Symposium" },
   { value: "PANEL_DISCUSSION", label: "Panel Discussion" },
   { value: "HANDS_ON", label: "Hands-on Activities" },
 ]
 
-type RegistrationStatusValue = "PENDING" | "CONFIRMED" | "WAITLISTED" | "CANCELLED"
+type RegistrationStatusValue = "PENDING" | "PRELIM_APPROVED" | "CONFIRMED" | "REJECTED" | "WAITLISTED" | "CANCELLED"
 
 const STATUS_OPTIONS: { value: RegistrationStatusValue; label: string }[] = [
   { value: "PENDING", label: "Pending" },
+  { value: "PRELIM_APPROVED", label: "Preliminary approved" },
   { value: "CONFIRMED", label: "Confirmed" },
+  { value: "REJECTED", label: "Rejected" },
   { value: "WAITLISTED", label: "Waitlisted" },
   { value: "CANCELLED", label: "Cancelled" },
+]
+
+const STATUS_FILTER_OPTIONS = [
+  ...STATUS_OPTIONS,
+  { value: "PAYMENT_PENDING", label: "Payment pending" },
+  { value: "PENDING_PAYMENT", label: "Pending payment" },
 ]
 
 const EVENT_TYPE_LABELS: Record<string, string> = Object.fromEntries(
@@ -81,12 +89,26 @@ const STATUS_META: Record<
     confirmDescription: (name, eventName) =>
       `${name}'s ${eventName} registration will be marked as pending review again.`,
   },
-  CONFIRMED: {
-    label: "Confirm registration",
+  PRELIM_APPROVED: {
+    label: "Approve preliminary & invite final registration",
     buttonClass: "border-neon/40 bg-neon/5 text-neon hover:bg-neon/10",
-    confirmTitle: "Confirm this registration?",
+    confirmTitle: "Approve the preliminary registration?",
     confirmDescription: (name, eventName) =>
-      `${name}'s ${eventName} registration will be confirmed.`,
+      `${name}'s ${eventName} preliminary registration will be approved. A secure final-registration and payment link will be emailed to them.`,
+  },
+  CONFIRMED: {
+    label: "Approve registration",
+    buttonClass: "border-neon/40 bg-neon/5 text-neon hover:bg-neon/10",
+    confirmTitle: "Approve this registration?",
+    confirmDescription: (name, eventName) =>
+      `${name}'s ${eventName} registration will be approved, they will receive a confirmation email and an invoice PDF.`,
+  },
+  REJECTED: {
+    label: "Reject registration",
+    buttonClass: "border-pink/40 bg-pink/5 text-pink hover:bg-pink/10",
+    confirmTitle: "Reject this registration?",
+    confirmDescription: (name, eventName) =>
+      `${name}'s ${eventName} registration will be rejected and emailed the reason below.`,
   },
   WAITLISTED: {
     label: "Move to waitlist",
@@ -113,15 +135,21 @@ export default function AdminRegistrationsPage() {
   const list = useAdminList<RegistrationRow>("/api/admin/registrations", {
     initialFilters: { eventType: "", status: "" },
   })
+  const refreshRegistrations = list.refresh
 
   // ── Manage panel state ─────────────────────────────────────────────────────
   const [selected, setSelected] = React.useState<RegistrationRow | null>(null)
   const [pendingStatus, setPendingStatus] =
     React.useState<RegistrationStatusValue | null>(null)
   const [updating, setUpdating] = React.useState(false)
+  const [rejectionReason, setRejectionReason] = React.useState("")
 
   const confirmStatusChange = React.useCallback(async () => {
     if (!selected || !pendingStatus) {return}
+    if (pendingStatus === "REJECTED" && rejectionReason.trim().length < 5) {
+      toast.error("Enter a rejection reason of at least 5 characters.")
+      return
+    }
     setUpdating(true)
     try {
       const updated = await adminMutate<{
@@ -132,19 +160,23 @@ export default function AdminRegistrationsPage() {
       }>(
         `/api/admin/registrations/${selected.id}`,
         "PATCH",
-        { status: pendingStatus },
+        {
+          status: pendingStatus,
+          ...(pendingStatus === "REJECTED" ? { reason: rejectionReason.trim() } : {}),
+        },
       )
       setSelected((prev) =>
         prev ? { ...prev, status: updated.status } : prev,
       )
       setPendingStatus(null)
-      list.refresh()
+      setRejectionReason("")
+      refreshRegistrations()
     } catch (err) {
       toastApiError(err, "Could not update the registration.")
     } finally {
       setUpdating(false)
     }
-  }, [selected, pendingStatus, list.refresh])
+  }, [selected, pendingStatus, rejectionReason, refreshRegistrations])
 
   const columns: Column<RegistrationRow>[] = [
     {
@@ -246,9 +278,9 @@ export default function AdminRegistrationsPage() {
             </h1>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
-            Every event registration with check-in state. Open a row to confirm,
-            waitlist, or cancel a registration — all changes are written to the
-            audit log.
+            Every event registration with check-in state. Open a row to approve,
+            reject, waitlist, or cancel a registration — all changes are written
+            to the audit log.
           </p>
         </div>
 
@@ -296,7 +328,7 @@ export default function AdminRegistrationsPage() {
             <AdminFilterSelect
               value={list.filters.status ?? ""}
               onChange={(value) => list.setFilter("status", value)}
-              options={STATUS_OPTIONS}
+              options={STATUS_FILTER_OPTIONS}
               allLabel="All statuses"
               ariaLabel="Filter by registration status"
             />
@@ -407,7 +439,10 @@ export default function AdminRegistrationsPage() {
                       key={option.value}
                       type="button"
                       disabled={isCurrent || updating}
-                      onClick={() => setPendingStatus(option.value)}
+                      onClick={() => {
+                        setRejectionReason("")
+                        setPendingStatus(option.value)
+                      }}
                       className={cn(
                         "flex h-10 items-center justify-center gap-2 rounded-md border text-sm font-semibold transition-colors",
                         isCurrent
@@ -432,12 +467,9 @@ export default function AdminRegistrationsPage() {
       </Modal>
 
       {/* ── Status change confirmation ─────────────────────────────────────── */}
-      <ConfirmModal
+      <Modal
         open={pendingStatus !== null}
-        onClose={() => {
-          if (!updating) {setPendingStatus(null)}
-        }}
-        onConfirm={() => void confirmStatusChange()}
+        onClose={() => {if (!updating) {setPendingStatus(null)}}}
         title={
           pendingStatus ? STATUS_META[pendingStatus].confirmTitle : "Confirm change"
         }
@@ -449,13 +481,33 @@ export default function AdminRegistrationsPage() {
               )
             : undefined
         }
-        confirmLabel={
-          pendingStatus ? STATUS_META[pendingStatus].label : "Confirm"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" disabled={updating} onClick={() => setPendingStatus(null)}>Go back</Button>
+            <Button
+              variant={pendingStatus === "CANCELLED" || pendingStatus === "REJECTED" ? "danger" : "primary"}
+              loading={updating}
+              onClick={() => void confirmStatusChange()}
+            >
+              {pendingStatus ? STATUS_META[pendingStatus].label : "Confirm"}
+            </Button>
+          </>
         }
-        cancelLabel="Go back"
-        variant={pendingStatus === "CANCELLED" ? "danger" : "primary"}
-        loading={updating}
-      />
+      >
+        {pendingStatus === "REJECTED" && (
+          <Textarea
+            label="Reason for rejection"
+            required
+            minLength={5}
+            maxLength={500}
+            value={rejectionReason}
+            onChange={(event) => setRejectionReason(event.target.value)}
+            placeholder="Explain why this registration could not be approved."
+            showCount
+          />
+        )}
+      </Modal>
     </div>
   )
 }

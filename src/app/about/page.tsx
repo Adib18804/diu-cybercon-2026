@@ -1,6 +1,6 @@
 // =============================================================================
 // About — /about
-// The story, mission and organisers behind DIU CyberCon 2026.
+// The story, mission and organisers behind DIU_CYBERCON 2026.
 // All facts come from constants + site settings — nothing invented (Part 22).
 // =============================================================================
 
@@ -35,7 +35,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "About",
   description:
-    "About DIU CyberCon 2026 and the Cyber Security Club, Department of CSE, Daffodil International University.",
+    "About DIU_CYBERCON 2026 and the Cyber Security Club, Department of CSE, Daffodil International University.",
 }
 
 const VALUES = [
@@ -89,7 +89,7 @@ export default async function AboutPage() {
         actions={
           <>
             <Link href="/events" className="btn-primary">
-              Explore the 6 modules
+              Explore the event program
             </Link>
             <Link href="/contact" className="btn-secondary">
               Contact the team
@@ -203,7 +203,7 @@ export default async function AboutPage() {
                   ))}
                 </div>
                 <p className="mt-4 text-xs leading-relaxed text-text-muted">
-                  Participation formats vary per module — solo, teams of 2–5,
+                  Participation formats vary per event — solo, teams of up to 4,
                   open attendance or limited-seat hands-on sessions.
                 </p>
               </div>
@@ -263,7 +263,7 @@ export default async function AboutPage() {
                     {data.organizerName}
                   </h2>
                   <p className="mt-4 max-w-xl text-sm leading-relaxed text-text-muted">
-                    DIU CyberCon is organised by the {data.organizerShort} —
+                    DIU_CYBERCON is organised by the {data.organizerShort} —
                     a student-led community at Daffodil International University
                     dedicated to cybersecurity education, competitions and
                     industry connection. The club has run national-scale cyber

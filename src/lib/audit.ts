@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Audit Log Helper
+// DIU_CYBERCON 2026 — Audit Log Helper
 // Every sensitive action writes an immutable audit record.
 // Never update or delete audit logs — append only.
 // =============================================================================
@@ -28,6 +28,9 @@ export type AuditAction =
   | "REGISTRATION_CREATED"
   | "REGISTRATION_CANCELLED"
   | "REGISTRATION_STATUS_CHANGED"
+  | "PAYMENT_SUBMITTED"
+  | "PAYMENT_VERIFIED"
+  | "PAYMENT_REJECTED"
   // Team
   | "TEAM_CREATED"
   | "TEAM_RENAMED"
@@ -69,6 +72,7 @@ export type AuditAction =
   | "ADMIN_ROLE_ASSIGNED"
   | "ADMIN_ROLE_REMOVED"
   | "SETTINGS_UPDATED"
+  | "EVENT_UPDATED"
   | "ADMIN_FILE_UPLOADED"
   // Content
   | "ANNOUNCEMENT_CREATED"

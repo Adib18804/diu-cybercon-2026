@@ -11,7 +11,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "Panel Discussion",
   description:
-    "An expert panel discussion on cutting-edge cybersecurity topics at DIU CyberCon 2026 — open for attendance registration. Topic and panelists announced as confirmed.",
+    "An expert panel discussion on cutting-edge cybersecurity topics at DIU_CYBERCON 2026 — open for attendance registration. Topic and panelists announced as confirmed.",
 }
 
 export default function PanelEventPage() {

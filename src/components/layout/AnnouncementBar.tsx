@@ -12,9 +12,9 @@ import * as React from "react"
 import { Marquee } from "@/components/ui"
 
 const FALLBACK_ITEMS = [
-  "DIU CyberCon 2026 — LEARN · SECURE · DEFEND",
+  "DIU_CYBERCON 2026 — LEARN · SECURE · DEFEND",
   "CTF Preliminary Round — 24 October 2026 · Online",
-  "On-site Finals — 14–15 November 2026 · Daffodil Smart City, Savar",
+  "On-site event — 12 December 2026 · Daffodil Smart City, Savar",
   "Hosted by the Cyber Security Club, Department of CSE, Daffodil International University",
 ] as const
 

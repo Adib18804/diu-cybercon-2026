@@ -25,6 +25,25 @@ type RouteContext = { params: Promise<{ id: string }> }
 
 type AuditValue = string | number | boolean | null
 
+export async function GET(
+  _request: NextRequest,
+  { params }: RouteContext,
+): Promise<NextResponse> {
+  try {
+    const { error } = await requirePermission("sponsors:view")
+    if (error) {return error}
+
+    const { id } = await params
+    const sponsor = await prisma.sponsor.findUnique({ where: { id } })
+    if (!sponsor) {
+      throw new AdminError("Sponsor not found.", "NOT_FOUND", 404)
+    }
+    return NextResponse.json(successResponse(sponsor))
+  } catch (err) {
+    return adminErrorResponse(err, "GET /api/admin/sponsors/[id]")
+  }
+}
+
 // ─── PATCH — edit a sponsor ───────────────────────────────────────────────────
 
 export async function PATCH(

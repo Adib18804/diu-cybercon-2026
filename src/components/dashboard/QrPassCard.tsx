@@ -36,7 +36,7 @@ export function QrPassCard({
       {/* Header */}
       <div className="border-b border-border bg-bg-elevated/60 px-5 py-3">
         <p className="font-mono text-[0.6rem] uppercase tracking-widest text-text-faint">
-          Entry Pass · DIU CyberCon 2026
+          Entry Pass · DIU_CYBERCON 2026
         </p>
         <h3 className="mt-0.5 truncate font-display text-sm font-semibold text-text-primary">
           {eventName}

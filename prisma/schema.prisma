@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Prisma Schema
+// DIU_CYBERCON 2026 — Prisma Schema
 // PostgreSQL + Prisma ORM
 // =============================================================================
 
@@ -41,6 +41,8 @@ enum VerificationStatus {
 
 enum EventType {
   CTF
+  INNOVATION_SYMPOSIUM
+  // Kept for compatibility with existing rows until legacy registrations are migrated.
   TRACE_ROUTE
   PROJECT_SHOWCASE
   POSTER_PRESENTATION
@@ -57,9 +59,29 @@ enum EventStatus {
 
 enum RegistrationStatus {
   PENDING
+  PRELIM_APPROVED
+  PAYMENT_PENDING
+  // Legacy status retained while existing payment flow references are migrated.
+  PENDING_PAYMENT
   CONFIRMED
+  REJECTED
   CANCELLED
   WAITLISTED
+}
+
+enum RegistrationPhase {
+  PRELIMINARY
+  FINAL
+}
+
+enum PaymentMethod {
+  BKASH
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  REJECTED
 }
 
 enum SubmissionStatus {
@@ -284,6 +306,7 @@ model Event {
   status               EventStatus @default(DRAFT)
   registrationOpen     Boolean     @default(false)
   registrationDeadline DateTime?
+  registrationFee     Decimal     @default(0) @db.Decimal(10, 2)
   participantLimit     Int?
   isTeamEvent          Boolean
   minTeamSize          Int?
@@ -304,11 +327,20 @@ model Event {
   registrations EventRegistration[]
   teams         Team[]
   scheduleItems ScheduleItem[]
+  registrationCounter EventRegistrationCounter?
 
   @@index([type])
   @@index([status])
   @@index([slug])
   @@index([registrationOpen])
+}
+
+model EventRegistrationCounter {
+  eventId   String   @id
+  lastValue Int
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 // =============================================================================
@@ -322,6 +354,9 @@ model EventRegistration {
   eventId        String
   teamId         String?
   status         RegistrationStatus @default(PENDING)
+  registrationPhase RegistrationPhase @default(PRELIMINARY)
+  domain         String?
+  ideaSummary    String?              @db.Text
   checkInStatus  CheckInStatus      @default(NOT_ARRIVED)
   checkInTime    DateTime?
   checkOutTime   DateTime?
@@ -333,6 +368,7 @@ model EventRegistration {
   user  User   @relation(fields: [userId], references: [id])
   event Event  @relation(fields: [eventId], references: [id])
   team  Team?  @relation(fields: [teamId], references: [id])
+  payments Payment[]
 
   @@unique([eventId, userId])
   @@index([userId])
@@ -340,6 +376,23 @@ model EventRegistration {
   @@index([registrationId])
   @@index([status])
   @@index([checkInStatus])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  registrationId String
+  amount         Decimal       @db.Decimal(10, 2)
+  method         PaymentMethod @default(BKASH)
+  transactionId  String?       @unique
+  status         PaymentStatus @default(PENDING)
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  createdAt      DateTime      @default(now())
+
+  registration EventRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  @@index([registrationId])
+  @@index([status, createdAt])
 }
 
 // =============================================================================

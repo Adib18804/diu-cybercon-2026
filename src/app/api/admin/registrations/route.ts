@@ -26,6 +26,7 @@ export const dynamic = "force-dynamic"
 
 const EVENT_TYPE_FILTERS = [
   "CTF",
+  "INNOVATION_SYMPOSIUM",
   "TRACE_ROUTE",
   "PROJECT_SHOWCASE",
   "POSTER_PRESENTATION",
@@ -33,7 +34,7 @@ const EVENT_TYPE_FILTERS = [
   "HANDS_ON",
 ] as const
 
-const STATUS_FILTERS = ["PENDING", "CONFIRMED", "CANCELLED", "WAITLISTED"] as const
+const STATUS_FILTERS = ["PENDING", "PRELIM_APPROVED", "PAYMENT_PENDING", "PENDING_PAYMENT", "CONFIRMED", "REJECTED", "CANCELLED", "WAITLISTED"] as const
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -100,6 +101,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           id: true,
           registrationId: true,
           status: true,
+          registrationPhase: true,
           checkInStatus: true,
           checkInTime: true,
           checkOutTime: true,

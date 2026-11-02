@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — NextAuth v5 (Auth.js) Configuration
+// DIU_CYBERCON 2026 — NextAuth v5 (Auth.js) Configuration
 // =============================================================================
 
 import { PrismaAdapter } from "@auth/prisma-adapter"

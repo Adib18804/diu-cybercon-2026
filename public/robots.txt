@@ -1,4 +1,4 @@
-# DIU CyberCon 2026 — robots.txt
+# DIU_CYBERCON 2026 — robots.txt
 # https://www.diucybercon.com/robots.txt
 
 User-agent: *

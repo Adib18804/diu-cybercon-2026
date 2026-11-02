@@ -28,7 +28,7 @@ export const revalidate = 120
 export const metadata: Metadata = {
   title: "Speakers & Panelists",
   description:
-    "Meet the speakers, panelists and moderators of DIU CyberCon 2026 — profiles are published here as official confirmations are received.",
+    "Meet the speakers, panelists and moderators of DIU_CYBERCON 2026 — profiles are published here as official confirmations are received.",
 }
 
 // =============================================================================
@@ -140,7 +140,7 @@ export default async function SpeakersPage() {
         title={hasConfirmed ? "Voices of CyberCon 2026" : "The lineup is being assembled"}
         description={
           hasConfirmed
-            ? "Industry leaders, researchers and practitioners sharing the stage at DIU CyberCon 2026."
+            ? "Industry leaders, researchers and practitioners sharing the stage at DIU_CYBERCON 2026."
             : "Speaker and panelist announcements are published here as official confirmations are received — never before."
         }
         crumbs={[{ label: "Home", href: "/" }, { label: "Speakers" }]}

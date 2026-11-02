@@ -45,9 +45,9 @@ const jetbrainsMono = JetBrains_Mono({
 // =============================================================================
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://diucybercon.com"
-const APP_NAME = "DIU CyberCon 2026"
+const APP_NAME = "DIU_CYBERCON 2026"
 const APP_DESCRIPTION =
-  "Bangladesh's flagship national cybersecurity conference, competition, and talent platform. CTF, Trace & Route, Project Showcase, Poster Presentation, Hands-on Activities, and Panel Discussion. Hosted by the Cyber Security Club, DIU."
+  "Bangladesh's flagship national cybersecurity conference, competition, and talent platform. CTF, Innovation Symposium, workshops, and Panel Discussion on 12 December 2026. Hosted by the Cyber Security Club, DIU."
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
   keywords: [
-    "DIU CyberCon 2026",
+    "DIU_CYBERCON 2026",
     "Cybersecurity Event Bangladesh",
     "National CTF Bangladesh",
     "Cybersecurity Conference Bangladesh",
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "DIU CyberCon 2026 — LEARN · SECURE · DEFEND",
+        alt: "DIU_CYBERCON 2026 — LEARN · SECURE · DEFEND",
       },
     ],
   },
@@ -119,7 +119,7 @@ export const metadata: Metadata = {
       { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
-    other: [{ rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#00e5ff" }],
+    other: [{ rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#E11D48" }],
   },
   manifest: "/site.webmanifest",
   alternates: {
@@ -133,8 +133,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#05070d" },
-    { media: "(prefers-color-scheme: light)", color: "#05070d" },
+    { media: "(prefers-color-scheme: dark)", color: "#0A0A0A" },
+    { media: "(prefers-color-scheme: light)", color: "#0A0A0A" },
   ],
   colorScheme: "dark",
   width: "device-width",
@@ -165,7 +165,7 @@ const jsonLd = {
     {
       "@type": "Event",
       "@id": `${APP_URL}/#event`,
-      name: "DIU CyberCon 2026",
+      name: "DIU_CYBERCON 2026",
       description: APP_DESCRIPTION,
       startDate: "2026-10-24",
       endDate: "2026-11-15",
@@ -294,9 +294,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             toastOptions={{
               duration: 4000,
               style: {
-                background: "#0f1622",
-                color: "#e6edf3",
-                border: "1px solid #1f2937",
+                background: "#121212",
+                color: "#FFFFFF",
+                border: "1px solid #262626",
                 borderRadius: "8px",
                 fontFamily: "var(--font-inter)",
                 fontSize: "0.875rem",
@@ -304,23 +304,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 boxShadow: "0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05)",
               },
               success: {
-                iconTheme: { primary: "#39ff14", secondary: "#0f1622" },
+                iconTheme: { primary: "#FB7185", secondary: "#121212" },
                 style: {
-                  border: "1px solid rgba(57,255,20,0.3)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(57,255,20,0.1)",
+                  border: "1px solid rgba(251, 113, 133,0.3)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(251, 113, 133,0.1)",
                 },
               },
               error: {
-                iconTheme: { primary: "#ff2e88", secondary: "#0f1622" },
+                iconTheme: { primary: "#E11D48", secondary: "#121212" },
                 style: {
-                  border: "1px solid rgba(255,46,136,0.3)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(255,46,136,0.1)",
+                  border: "1px solid rgba(225, 29, 72,0.3)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6), 0 0 12px rgba(225, 29, 72,0.1)",
                 },
               },
               loading: {
-                iconTheme: { primary: "#00e5ff", secondary: "#0f1622" },
+                iconTheme: { primary: "#E11D48", secondary: "#121212" },
                 style: {
-                  border: "1px solid rgba(0,229,255,0.3)",
+                  border: "1px solid rgba(225, 29, 72,0.3)",
                 },
               },
             }}

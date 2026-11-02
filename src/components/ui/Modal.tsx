@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { X } from "lucide-react"
 import * as React from "react"
+import { createPortal } from "react-dom"
 
 import { cn } from "@/lib/utils"
 
@@ -31,7 +32,7 @@ const sizeClasses: Record<ModalSize, string> = {
   md:   "max-w-lg",
   lg:   "max-w-2xl",
   xl:   "max-w-4xl",
-  full: "max-w-[95vw] max-h-[95dvh]",
+  full: "max-w-[95vw]",
 }
 
 function Modal({
@@ -47,8 +48,13 @@ function Modal({
   footer,
 }: ModalProps) {
   const dialogRef = React.useRef<HTMLDivElement>(null)
+  const [portalTarget, setPortalTarget] = React.useState<HTMLElement | null>(null)
   const titleId = React.useId()
   const descId = React.useId()
+
+  React.useEffect(() => {
+    setPortalTarget(document.body)
+  }, [])
 
   // ── Escape key ──────────────────────────────────────────────────────────────
   React.useEffect(() => {
@@ -114,30 +120,27 @@ function Modal({
     return () => document.removeEventListener("keydown", trapFocus)
   }, [open])
 
-  return (
+  return portalTarget ? createPortal(
     <AnimatePresence>
       {open && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            key="modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-modal bg-bg-deep/80 backdrop-blur-sm"
-            aria-hidden="true"
-            onClick={closeOnBackdrop ? onClose : undefined}
-          />
-
-          {/* Dialog */}
           <div
-            className="fixed inset-0 z-modal flex items-center justify-center p-4"
+            className="fixed inset-0 z-[99999] isolate flex items-start justify-center overflow-y-auto px-4 pb-8 pt-28 pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? titleId : undefined}
             aria-describedby={description ? descId : undefined}
           >
+            <motion.div
+              key="modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="absolute inset-0 z-0 bg-bg-deep/80 backdrop-blur-sm pointer-events-auto"
+              aria-hidden="true"
+              onClick={closeOnBackdrop ? onClose : undefined}
+            />
+
             <motion.div
               key="modal-panel"
               ref={dialogRef}
@@ -146,18 +149,18 @@ function Modal({
               exit={{ opacity: 0, scale: 0.95, y: 16 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
-                "relative w-full flex flex-col",
+                "relative z-[100000] flex w-full min-h-0 flex-col pointer-events-auto",
                 "bg-bg-panel border border-border rounded-xl",
-                "shadow-xl max-h-[90dvh]",
+                "shadow-xl max-h-[min(85vh,calc(100dvh-9rem))] overflow-hidden",
                 sizeClasses[size],
                 className,
               )}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              {(title ?? showCloseButton) && (
-                <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-border shrink-0">
-                  <div className="space-y-1 min-w-0">
+              {(title || description || showCloseButton) && (
+                <div className="sticky top-0 z-50 flex shrink-0 items-start justify-between gap-4 border-b border-white/10 bg-bg-panel px-6 pb-4 pt-6">
+                  <div className="min-w-0 space-y-1">
                     {title && (
                       <h2
                         id={titleId}
@@ -172,42 +175,36 @@ function Modal({
                       </p>
                     )}
                   </div>
-
                   {showCloseButton && (
                     <button
                       type="button"
                       onClick={onClose}
-                      className={cn(
-                        "shrink-0 p-2 rounded-md text-text-faint",
-                        "hover:text-text-primary hover:bg-bg-elevated",
-                        "transition-colors duration-150",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan",
-                      )}
+                      className="relative z-[100001] inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border-bright bg-bg-elevated text-text-primary shadow-md transition-colors hover:border-cyan hover:bg-cyan hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan"
                       aria-label="Close dialog"
                     >
-                      <X size={18} />
+                      <X size={18} aria-hidden="true" />
                     </button>
                   )}
                 </div>
               )}
 
               {/* Body — scrollable */}
-              <div className="flex-1 overflow-y-auto px-6 py-4 min-h-0">
+              <div className="min-h-0 flex-1 overflow-y-auto p-6">
                 {children}
               </div>
 
               {/* Footer */}
               {footer && (
-                <div className="shrink-0 px-6 py-4 border-t border-border flex items-center justify-end gap-3">
+                <div className="sticky bottom-0 z-40 flex shrink-0 items-center justify-end gap-3 border-t border-white/10 bg-bg-panel px-6 py-4">
                   {footer}
                 </div>
               )}
             </motion.div>
           </div>
-        </>
       )}
-    </AnimatePresence>
-  )
+    </AnimatePresence>,
+    portalTarget,
+  ) : null
 }
 
 // =============================================================================

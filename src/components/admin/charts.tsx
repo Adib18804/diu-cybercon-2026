@@ -26,31 +26,31 @@ import { cn } from "@/lib/utils"
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
 export const CHART_PALETTE = [
-  "#00e5ff", // cyan
-  "#39ff14", // neon
-  "#7c3aed", // violet
-  "#ff2e88", // pink
-  "#ffb020", // amber
-  "#38bdf8", // sky
-  "#a78bfa", // lavender
-  "#34d399", // emerald
-  "#f472b6", // rose
-  "#facc15", // yellow
+  "#E11D48", // cyan
+  "#FB7185", // neon
+  "#BE123C", // violet
+  "#E11D48", // pink
+  "#F43F5E", // amber
+  "#9F1239",
+  "#FDA4AF", // lavender
+  "#BE123C",
+  "#F43F5E",
+  "#881337",
 ] as const
 
 const AXIS_STYLE = {
-  fill: "#8b949e",
+  fill: "#A3A3A3",
   fontSize: 11,
   fontFamily: "'JetBrains Mono', monospace",
 } as const
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  backgroundColor: "#0f1622",
-  border: "1px solid #1f2937",
+  backgroundColor: "#121212",
+  border: "1px solid #262626",
   borderRadius: "8px",
   fontSize: "12px",
   fontFamily: "'Inter', sans-serif",
-  color: "#e6edf3",
+  color: "#FFFFFF",
 }
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
@@ -123,7 +123,7 @@ export function AdminLineChart({
   title,
   description,
   data,
-  color = "#00e5ff",
+  color = "#E11D48",
   height,
   className,
 }: AdminLineChartProps) {
@@ -136,12 +136,12 @@ export function AdminLineChart({
       empty={data.length === 0}
     >
       <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -18 }}>
-        <CartesianGrid stroke="#1f2937" strokeDasharray="3 3" vertical={false} />
+        <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
           tick={AXIS_STYLE}
           tickLine={false}
-          axisLine={{ stroke: "#1f2937" }}
+          axisLine={{ stroke: "#262626" }}
           interval="preserveStartEnd"
           minTickGap={24}
         />
@@ -154,8 +154,8 @@ export function AdminLineChart({
         />
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
-          cursor={{ stroke: "#1f2937" }}
-          labelStyle={{ color: "#8b949e" }}
+          cursor={{ stroke: "#262626" }}
+          labelStyle={{ color: "#A3A3A3" }}
         />
         <Line
           type="monotone"
@@ -189,7 +189,7 @@ export function AdminBarChart({
   title,
   description,
   data,
-  color = "#00e5ff",
+  color = "#E11D48",
   orientation = "vertical",
   height,
   className,
@@ -213,14 +213,14 @@ export function AdminBarChart({
             : { top: 4, right: 8, bottom: 0, left: -18 }
         }
       >
-        <CartesianGrid stroke="#1f2937" strokeDasharray="3 3" vertical={isHorizontal} horizontal={!isHorizontal} />
+        <CartesianGrid stroke="#262626" strokeDasharray="3 3" vertical={isHorizontal} horizontal={!isHorizontal} />
         {isHorizontal ? (
           <>
             <XAxis
               type="number"
               tick={AXIS_STYLE}
               tickLine={false}
-              axisLine={{ stroke: "#1f2937" }}
+              axisLine={{ stroke: "#262626" }}
               allowDecimals={false}
             />
             <YAxis
@@ -238,7 +238,7 @@ export function AdminBarChart({
               dataKey="label"
               tick={AXIS_STYLE}
               tickLine={false}
-              axisLine={{ stroke: "#1f2937" }}
+              axisLine={{ stroke: "#262626" }}
               interval={0}
               angle={data.length > 6 ? -30 : 0}
               textAnchor={data.length > 6 ? "end" : "middle"}
@@ -255,8 +255,8 @@ export function AdminBarChart({
         )}
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
-          cursor={{ fill: "rgba(0, 229, 255, 0.06)" }}
-          labelStyle={{ color: "#8b949e" }}
+          cursor={{ fill: "rgba(225, 29, 72, 0.06)" }}
+          labelStyle={{ color: "#A3A3A3" }}
         />
         <Bar
           dataKey="value"
@@ -301,7 +301,7 @@ export function AdminPieChart({
       <PieChart>
         <Tooltip
           contentStyle={TOOLTIP_STYLE}
-          labelStyle={{ color: "#8b949e" }}
+          labelStyle={{ color: "#A3A3A3" }}
         />
         <Pie
           data={data}
@@ -312,7 +312,7 @@ export function AdminPieChart({
           innerRadius="55%"
           outerRadius="82%"
           paddingAngle={2}
-          stroke="#0f1622"
+          stroke="#121212"
           strokeWidth={2}
         >
           {data.map((point, index) => (

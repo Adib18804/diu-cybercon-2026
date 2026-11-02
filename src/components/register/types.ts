@@ -17,11 +17,14 @@ export interface WizardEvent {
   name: string
   slug: string
   shortDescription: string
+  venue: string | null
+  prizes: string | null
   isTeamEvent: boolean
   /** Resolved team limits (leader included) — same rules the API enforces. */
   minTeamSize: number
   maxTeamSize: number
   participantLimit: number | null
+  registrationFee: string
   registeredCount: number
   registrationDeadline: string | null
   deadlineLabel: string | null
@@ -40,6 +43,7 @@ export interface WizardWorkshop {
   startTime: string
   endTime: string
   venue: string
+  registrationFee: string
   seatsLeft: number
   alreadyRegistered: boolean
 }
@@ -116,11 +120,14 @@ export interface RegisteredEntry {
 
 export interface RegistrationOutcome {
   mode: "event" | "workshop"
+  eventType?: string
   /** Event name or workshop title. */
   title: string
   teamName: string | null
   emailSent: boolean
   registrations: RegisteredEntry[]
+  registrationFee?: string
+  bkashNumber?: string
   /** Workshops only — remaining seats after this registration. */
   seatsRemaining: number | null
 }

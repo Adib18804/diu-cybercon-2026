@@ -1,5 +1,5 @@
 // =============================================================================
-// DIU CyberCon 2026 — Brand asset generator
+// DIU_CYBERCON 2026 — Brand asset generator
 //
 // Renders the full favicon / PWA icon / social-card set from one vector
 // definition, matching the Navbar brand mark (cyan `>_` terminal prompt on
@@ -29,12 +29,12 @@ import sharp from "sharp"
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const iconsDir = path.join(root, "public", "icons")
 
-const BG = "#05070d" // --bg-deep
-const CYAN = "#00e5ff" // --cyan
-const GREEN = "#39ff14" // --green
-const TEXT = "#e6edf3" // --text-primary
-const MUTED = "#9fb0c5" // --text-muted
-const FAINT = "#8b9bb0"
+const BG = "#0A0A0A" // --bg-deep
+const CYAN = "#E11D48" // --primary accent
+const GREEN = "#FB7185" // --secondary accent
+const TEXT = "#FFFFFF" // --text-primary
+const MUTED = "#A3A3A3" // --text-muted
+const FAINT = "#737373"
 
 const SANS = "'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
 const MONO = "Consolas, 'Courier New', monospace"
@@ -147,7 +147,7 @@ function ogImageSvg() {
 
   <!-- Title -->
   <text x="78" y="240" font-family="${SANS}" font-size="94" font-weight="800"
-        fill="${TEXT}">DIU CYBERCON 2026</text>
+        fill="${TEXT}">DIU_CYBERCON 2026</text>
 
   <!-- Tagline -->
   <text x="80" y="304" font-family="${MONO}" font-size="30" font-weight="700"

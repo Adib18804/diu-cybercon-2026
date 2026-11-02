@@ -17,7 +17,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "Gallery",
   description:
-    "Photos and highlights from DIU CyberCon — competition days, showcases, and moments from Daffodil Smart City.",
+    "Photos and highlights from DIU_CYBERCON — competition days, showcases, and moments from Daffodil Smart City.",
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ export default async function GalleryPage() {
       <PageHeader
         label="Media"
         title="Gallery"
-        description="Snapshots from DIU CyberCon — competition days, showcases, and the moments in between. Photos are published here as the event unfolds."
+        description="Snapshots from DIU_CYBERCON — competition days, showcases, and the moments in between. Photos are published here as the event unfolds."
         crumbs={[{ label: "Home", href: "/" }, { label: "Gallery" }]}
         actions={
           <>

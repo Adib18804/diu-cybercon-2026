@@ -42,7 +42,7 @@ export default async function DashboardTeamPage() {
         <EmptyState
           icon={<Users className="h-6 w-6" />}
           title="No teams yet"
-          description="Register for a team event (CTF, Project Showcase, or Poster Presentation) and a team will be created for you automatically."
+          description="Register for a team event such as CTF or Innovation Symposium and a team will be created for you automatically."
           action={
             <Link href="/register" className="btn-primary">
               Register for an Event
