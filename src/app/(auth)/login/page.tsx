@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 }
 
 interface LoginPageProps {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   // ── Sanitize callbackUrl — internal paths only (no open redirects) ────────
-  const raw = searchParams?.callbackUrl
+  const resolvedParams = await searchParams
+  const raw = resolvedParams?.callbackUrl
   const callbackUrl =
     typeof raw === "string" &&
     raw.startsWith("/") &&

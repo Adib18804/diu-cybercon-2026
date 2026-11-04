@@ -11,10 +11,13 @@ const withBundleAnalyzer =
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ─── Experimental features ──────────────────────────────────────
-  experimental: {
-    typedRoutes: true,
-    serverComponentsExternalPackages: ["argon2", "sharp"],
-  },
+  experimental: {},
+
+  // ─── Typed Routes (promoted from experimental in Next.js 15) ─────
+  typedRoutes: true,
+
+  // ─── Server-side external packages (moved out of experimental in Next.js 15) ─
+  serverExternalPackages: ["argon2", "sharp"],
 
   // ─── Images ─────────────────────────────────────────────────────
   images: {

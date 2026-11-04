@@ -438,9 +438,9 @@ function WorkshopFormFields({
 export default function AdminWorkshopDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const { id } = params
+  const { id } = React.use(params)
   const router = useRouter()
 
   const [data, setData] = React.useState<DetailPayload | null>(null)

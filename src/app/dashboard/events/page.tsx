@@ -25,7 +25,7 @@ export const dynamic = "force-dynamic"
 export default async function DashboardEventsPage({
   searchParams,
 }: {
-  searchParams?: { registration?: string; finalToken?: string }
+  searchParams?: Promise<{ registration?: string; finalToken?: string }>
 }) {
   const user = await getSessionUser()
   if (!user) {return null}
@@ -37,10 +37,11 @@ export default async function DashboardEventsPage({
   const bkashNumber = bkashSetting?.value.trim() ?? ""
   const active = registrations.filter((r) => r.status !== "CANCELLED")
   const cancelled = registrations.filter((r) => r.status === "CANCELLED")
-  const finalClaims = verifyFinalRegistrationToken(searchParams?.finalToken)
+  const resolvedParams = await searchParams
+  const finalClaims = verifyFinalRegistrationToken(resolvedParams?.finalToken)
   const linkedRegistrationId =
     finalClaims?.userId === user.id &&
-    finalClaims.registrationId === searchParams?.registration &&
+    finalClaims.registrationId === resolvedParams?.registration &&
     registrations.some((registration) => registration.registrationId === finalClaims.registrationId)
       ? finalClaims.registrationId
       : null
@@ -127,7 +128,7 @@ export default async function DashboardEventsPage({
                           amount={reg.registrationFee}
                           bkashNumber={bkashNumber}
                           initialStatus={reg.latestPaymentStatus}
-                          finalizationToken={linkedRegistrationId === reg.registrationId ? searchParams?.finalToken : undefined}
+                          finalizationToken={linkedRegistrationId === reg.registrationId ? resolvedParams?.finalToken : undefined}
                         />
                       )}
                       {reg.eventType === "CTF" && reg.status === "PRELIM_APPROVED" && !reg.isLeader ? (

@@ -119,8 +119,8 @@ function EventIntro({ description, organizerName }: EventIntroProps) {
                 </p>
                 <div className="flex flex-col gap-1.5 pl-4">
                   {[EVENT_DATES.day1, EVENT_DATES.day2, EVENT_DATES.day3].map(
-                    (day) => (
-                      <p key={day.date} className="text-text-muted">
+                    (day, index) => (
+                      <p key={index} className="text-text-muted">
                         <span className="text-cyan">{day.label}</span>{" "}
                         — {day.description}
                       </p>

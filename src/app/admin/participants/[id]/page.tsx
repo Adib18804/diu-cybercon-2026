@@ -204,9 +204,9 @@ function inputClass(hasError: boolean): string {
 export default function AdminParticipantDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const { id } = params
+  const { id } = React.use(params)
 
   const [data, setData] = React.useState<DetailPayload | null>(null)
   const [loading, setLoading] = React.useState(true)

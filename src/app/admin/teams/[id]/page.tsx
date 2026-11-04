@@ -130,9 +130,9 @@ function InfoRow({
 export default function AdminTeamDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const { id } = params
+  const { id } = React.use(params)
   const router = useRouter()
 
   const [data, setData] = React.useState<TeamDetail | null>(null)

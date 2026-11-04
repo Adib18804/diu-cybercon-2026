@@ -15,7 +15,6 @@ import {
   RefreshCw,
   Trash2,
 } from "lucide-react"
-import type { Route } from "next"
 import { usePathname, useRouter } from "next/navigation"
 import * as React from "react"
 import toast from "react-hot-toast"
@@ -210,7 +209,7 @@ export default function AdminSponsorsPage() {
     setEditing(null)
     setForm(EMPTY_FORM)
     setFieldErrors({})
-    if (pathname !== "/admin/sponsors") {router.replace("/admin/sponsors" as Route)}
+    if (pathname !== "/admin/sponsors") {router.replace("/admin/sponsors")}
   }, [pathname, router])
 
   React.useEffect(() => {
@@ -240,7 +239,7 @@ export default function AdminSponsorsPage() {
       .catch((err: unknown) => {
         if (cancelled) {return}
         toastApiError(err, "Could not load sponsor.")
-        router.replace("/admin/sponsors" as Route)
+        router.replace("/admin/sponsors")
       })
     return () => {cancelled = true}
   }, [pathname, formOpen, editing, openEdit, router])

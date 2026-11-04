@@ -1,23 +1,14 @@
 import type { Metadata, Viewport } from "next"
 import localFont from "next/font/local"
-import nextDynamic from "next/dynamic"
 import { headers } from "next/headers"
 import { Toaster } from "react-hot-toast"
 
 import { BackgroundEffects, Cursor, MatrixBg, ScanLine, ScrollProgress } from "@/components/effects"
+import { PreloaderClient } from "@/components/effects/PreloaderClient"
 import { AnnouncementBar, Footer, Navbar } from "@/components/layout"
 import { AppProviders } from "@/components/providers"
 
 import "@/app/globals.css"
-
-// Preloader is a purely client-side visual effect (reads sessionStorage,
-// runs animations). Skipping SSR means React never tries to reconcile a
-// server-rendered overlay against the client's initial state, permanently
-// eliminating the AnimatePresence / motion hydration mismatch.
-const Preloader = nextDynamic(
-  () => import("@/components/effects/Preloader").then((mod) => ({ default: mod.Preloader })),
-  { ssr: false },
-)
 
 // The middleware issues a fresh CSP nonce for every request and Next.js can
 // only stamp it onto dynamically rendered HTML — static/ISR output would
@@ -227,11 +218,11 @@ const jsonLd = {
 // Root Layout
 // =============================================================================
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Per-request CSP nonce, generated in src/middleware.ts and forwarded via
   // the request headers. Next.js itself stamps the nonce onto framework and
   // page scripts; hand-written inline scripts below must opt in explicitly.
-  const nonce = headers().get("x-nonce") ?? undefined
+  const nonce = (await headers()).get("x-nonce") ?? undefined
 
   return (
     <html
@@ -276,7 +267,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col bg-bg-deep text-text-primary font-body antialiased selection:bg-cyan/20 selection:text-cyan">
         <AppProviders>
           {/* Boot sequence — once per session, skipped under reduced motion */}
-          <Preloader />
+          <PreloaderClient />
 
           {/* Ambient background effects — fixed, non-interactive */}
           <BackgroundEffects />

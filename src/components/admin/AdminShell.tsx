@@ -101,7 +101,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Sponsorship",
     items: [
-      { href: "/admin/sponsors" as Route, label: "Sponsors", icon: Handshake, permission: "sponsors:view" },
+      { href: "/admin/sponsors", label: "Sponsors", icon: Handshake, permission: "sponsors:view" },
       { href: "/admin/sponsor-apps", label: "Applications", icon: Inbox, permission: "sponsor_apps:view" },
       { href: "/admin/partners", label: "Partners", icon: HeartHandshake, permission: "partners:view" },
     ],

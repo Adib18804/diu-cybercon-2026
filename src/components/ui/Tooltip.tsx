@@ -60,25 +60,29 @@ function Tooltip({
     if (timeoutRef.current) {clearTimeout(timeoutRef.current)}
   }, [])
 
-  const child = React.cloneElement(children, {
-    onMouseEnter: (e: React.MouseEvent) => {
+  const childProps: React.HTMLAttributes<HTMLElement> & { "aria-describedby"?: string } = {
+    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
       show()
       ;(children.props as { onMouseEnter?: (e: React.MouseEvent) => void }).onMouseEnter?.(e)
     },
-    onMouseLeave: (e: React.MouseEvent) => {
+    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
       hide()
       ;(children.props as { onMouseLeave?: (e: React.MouseEvent) => void }).onMouseLeave?.(e)
     },
-    onFocus: (e: React.FocusEvent) => {
-      if (!disabled) {setVisible(true)
-      ;}(children.props as { onFocus?: (e: React.FocusEvent) => void }).onFocus?.(e)
+    onFocus: (e: React.FocusEvent<HTMLElement>) => {
+      if (!disabled) { setVisible(true) }
+      ;(children.props as { onFocus?: (e: React.FocusEvent) => void }).onFocus?.(e)
     },
-    onBlur: (e: React.FocusEvent) => {
+    onBlur: (e: React.FocusEvent<HTMLElement>) => {
       setVisible(false)
       ;(children.props as { onBlur?: (e: React.FocusEvent) => void }).onBlur?.(e)
     },
     "aria-describedby": visible ? tooltipId : undefined,
-  })
+  }
+  // React 19 tightened cloneElement generics; casting via unknown avoids the
+  // "no overload matches" error while keeping the runtime behaviour identical.
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  const child = React.cloneElement(children as React.ReactElement<any>, childProps)
 
   return (
     <span className="relative inline-flex">

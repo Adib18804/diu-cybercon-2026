@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 }
 
 interface VerifyEmailPageProps {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 /** Accept only plausibly-shaped tokens (min 32 / max 512 chars, hex/base64url-safe) */
@@ -29,7 +29,8 @@ function sanitizeToken(raw: string | string[] | undefined): string | null {
   return raw
 }
 
-export default function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
-  const token = sanitizeToken(searchParams?.token)
+export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+  const resolvedParams = await searchParams
+  const token = sanitizeToken(resolvedParams?.token)
   return <VerifyEmailClient token={token} />
 }

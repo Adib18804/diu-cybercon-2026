@@ -62,7 +62,7 @@ function useScrolled(threshold = 8): boolean {
 }
 
 function useClickOutside<T extends HTMLElement>(
-  ref: React.RefObject<T>,
+  ref: React.RefObject<T | null>,
   handler: () => void,
 ): void {
   const handlerRef = React.useRef(handler)

@@ -658,6 +658,9 @@ export function RegistrationWizard({
         const parsed = teamMemberSchema.safeParse({
           ...profileCandidate(member.values),
           email: member.values.email,
+          ...(member.upload
+            ? { verification: { token: member.upload.token, fileName: member.upload.fileName } }
+            : {}),
         })
         if (!parsed.success) {
           for (const issue of parsed.error.issues) {

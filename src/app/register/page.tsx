@@ -7,7 +7,6 @@
 // =============================================================================
 
 import type { Metadata } from "next"
-import nextDynamic from "next/dynamic"
 
 import { PageHeader } from "@/components/layout"
 import {
@@ -17,22 +16,11 @@ import {
   type WizardEvent,
   type WizardWorkshop,
 } from "@/components/register"
+import { RegistrationWizardClient } from "@/components/register/RegistrationWizardClient"
 import { prisma } from "@/lib/db"
 import { getSessionUser } from "@/lib/rbac"
 import { resolveTeamLimits } from "@/lib/registrations/service"
 import { formatDate, isDeadlinePassed } from "@/lib/utils"
-
-// Disable SSR for the wizard — it is fully dynamic (selected event, form
-// state, uploaded files) and has no meaningful server-rendered content.
-// Skipping SSR eliminates the hydration mismatch between the server snapshot
-// and the first client render.
-const RegistrationWizard = nextDynamic(
-  () =>
-    import("@/components/register/RegistrationWizard").then(
-      (mod) => ({ default: mod.RegistrationWizard }),
-    ),
-  { ssr: false },
-)
 
 export const dynamic = "force-dynamic"
 
@@ -305,7 +293,7 @@ export default async function RegisterPage() {
         <div className="section-inner">
           <div className="mx-auto max-w-4xl">
             {user && data.viewer ? (
-              <RegistrationWizard
+              <RegistrationWizardClient
                 events={data.events}
                 workshops={data.workshops}
                 universities={data.universities}

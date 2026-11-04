@@ -148,8 +148,8 @@ export default async function AboutPage() {
                   <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-cyan" aria-hidden="true" />
                   <div className="flex flex-col gap-3">
                     {[EVENT_DATES.day1, EVENT_DATES.day2, EVENT_DATES.day3].map(
-                      (day) => (
-                        <div key={day.date}>
+                      (day, index) => (
+                        <div key={index}>
                           <p className="font-mono text-xs uppercase tracking-widest text-cyan">
                             {day.label} · {formatISODateShort(day.date)}
                           </p>
