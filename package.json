@@ -23,7 +23,16 @@
     "prisma:reset": "prisma migrate reset --force",
     "db:push": "prisma db push",
     "analyze": "ANALYZE=true next build",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "build:frontend": "npm run build",
+    "build:functions": "npm --prefix functions run build",
+    "build:all": "npm run build:frontend && npm run build:functions",
+    "emulators": "firebase emulators:start",
+    "emulators:functions": "firebase emulators:start --only functions",
+    "emulators:hosting": "firebase emulators:start --only hosting",
+    "deploy": "npm run build:all && firebase deploy",
+    "deploy:hosting": "npm run build:frontend && firebase deploy --only hosting",
+    "deploy:functions": "npm run build:functions && firebase deploy --only functions"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

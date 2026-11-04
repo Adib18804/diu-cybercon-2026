@@ -67,3 +67,10 @@ next-env.d.ts
 .DS_Store
 ehthumbs.db
 Desktop.ini
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
