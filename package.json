@@ -7,9 +7,9 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next dev",
-    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build",
-    "start": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next start -H 0.0.0.0",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
